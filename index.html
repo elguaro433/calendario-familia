@@ -199,6 +199,7 @@ button { font-family: inherit; }
 .btn.small { flex: 0 0 auto; padding: 8px 14px; font-size: 13px; }
 .day-ev { display: flex; gap: 10px; align-items: center; padding: 10px 12px; border-radius: 12px; background: var(--card2); margin-bottom: 8px; cursor: pointer; border-left: 4px solid var(--c); }
 .day-ev .e { font-size: 22px; }
+.gsteps { font-size: 13.5px; display: flex; flex-direction: column; gap: 6px; background: var(--card2); border-radius: 12px; padding: 12px 14px; }
 .hint { font-size: 12px; color: var(--hint); margin-top: -6px; margin-bottom: 12px; }
 
 .toast { position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%) translateY(20px); background: #1e293b; color: #fff; padding: 10px 18px; border-radius: 12px; font-size: 13.5px; font-weight: 600; opacity: 0; pointer-events: none; transition: all .2s; z-index: 400; box-shadow: 0 10px 30px rgba(0,0,0,.3); }
@@ -259,7 +260,7 @@ button { font-family: inherit; }
     <div class="hdr-logo">📅 Calendario <em>Díaz González</em></div>
     <div class="hdr-actions">
       <span class="sync-status" id="sync-status">🔄 Conectando…</span>
-      <button class="hdr-btn" onclick="exportICS()" title="Descargar para el calendario del móvil">📲 Exportar al móvil</button>
+      <button class="hdr-btn" onclick="openGoogle()">📅 Google Calendar</button>
       <button class="hdr-btn" onclick="openAjustes()">⚙️ Ajustes</button>
       <button class="hdr-btn" onclick="toggleTheme()" id="theme-btn">🌙</button>
       <button class="hdr-btn hdr-more" onclick="openAjustes()">⋯</button>
@@ -376,6 +377,7 @@ button { font-family: inherit; }
       <div class="fld"><label>Notas (opcional)</label><textarea id="f-notas" placeholder="Ideas de regalo, lugar, qué llevar…"></textarea></div>
       <div class="btns">
         <button class="btn danger" id="f-del" onclick="delEvent()">🗑️</button>
+        <button class="btn small" id="f-google" onclick="window.open(CalComun.googleLink(EVENTS.find(e => e.id === editId)), '_blank')" title="Añadir este evento a Google Calendar ahora">📅 Añadir a Google</button>
         <button class="btn" onclick="closeOv('ov-form')">Cancelar</button>
         <button class="btn primary" onclick="saveEvent()">Guardar</button>
       </div>
@@ -407,31 +409,45 @@ button { font-family: inherit; }
       </div>
       <label class="chk"><input type="checkbox" id="aj-popular" onchange="setCfg('populares', this.checked)"> Mostrar días especiales (Día de la Madre, del Padre, Sant Jordi…)</label>
       <div class="btns" style="flex-direction:column">
-        <button class="btn" onclick="exportICS()">📲 Exportar al calendario del móvil (.ics)</button>
+        <button class="btn" onclick="closeOv('ov-aj');openGoogle()">📅 Ver en Google Calendar</button>
+        <button class="btn" onclick="exportICS()">📲 Descargar todos los eventos (.ics)</button>
         <button class="btn" onclick="toggleTheme()">🌙 Cambiar modo claro / oscuro</button>
         <button class="btn" onclick="exportJSON()">💾 Descargar copia de seguridad</button>
         <button class="btn" onclick="document.getElementById('imp-file').click()">📂 Restaurar copia de seguridad</button>
         <input type="file" id="imp-file" accept=".json" hidden onchange="importJSON(this)">
       </div>
-      <p class="hint" style="margin-top:14px">“Exportar al móvil” descarga un archivo que puedes abrir en el iPhone o Android para añadir todos los eventos a tu calendario, con sus avisos.</p>
+      <p class="hint" style="margin-top:14px">“Descargar todos los eventos” crea un archivo que puedes abrir en el iPhone o Android para copiar los eventos a su calendario, con sus avisos. Es una copia: para que se actualice solo, usa “Ver en Google Calendar”.</p>
+    </div>
+  </div>
+</div>
+
+<!-- GOOGLE CALENDAR -->
+<div class="ov" id="ov-google" onclick="if(event.target===this)closeOv('ov-google')">
+  <div class="sheet">
+    <div class="sheet-h"><h3>📅 Google Calendar</h3><button class="x" onclick="closeOv('ov-google')">✕</button></div>
+    <div class="sheet-b">
+      <p style="font-size:14px;margin-bottom:12px">Suscríbete <b>una sola vez</b> y tendrás en tu Google Calendar un calendario <b>«Familia Díaz González»</b> que se actualiza solo con todo lo que se añada aquí.</p>
+      <div class="gsteps">
+        <div><b>1.</b> Hazlo desde el <b>ordenador</b> (la app de Google Calendar del móvil no deja suscribirse). Pulsa:</div>
+        <button class="btn primary" style="width:100%;margin:8px 0 12px" onclick="window.open(GOOGLE_SUB, '_blank')">➕ Añadir a mi Google Calendar</button>
+        <div><b>2.</b> Google preguntará si quieres añadir el calendario: pulsa <b>Añadir</b>.</div>
+        <div><b>3.</b> Listo. En unos minutos aparecerá también en tu móvil. Si no lo ves, en la app de Google Calendar → Ajustes → «Familia Díaz González» → activa <b>Sincronizar</b>.</div>
+        <div><b>4.</b> Cada miembro de la familia lo hace con su propia cuenta de Google.</div>
+      </div>
+      <div class="fld" style="margin-top:14px"><label>¿No funciona el botón? Copia esta dirección</label>
+        <div style="display:flex;gap:6px"><input id="g-url" readonly onclick="this.select()"><button class="btn small" onclick="copyFeed()">Copiar</button></div>
+      </div>
+      <p class="hint">…y pégala en Google Calendar → «Otros calendarios» → <b>＋</b> → <b>Desde URL</b>. <a href="https://calendar.google.com/calendar/u/0/r/settings/addbyurl" target="_blank" style="color:var(--pink)">Abrir esa pantalla</a></p>
+      <p class="hint" style="margin-top:8px">⏱️ La app actualiza el calendario cada hora, pero Google lo refresca a su ritmo (unas horas). Si necesitas algo al momento, abre el evento y pulsa <b>«Añadir a Google»</b>.<br>🔔 Para recibir avisos: en Google Calendar abre la configuración de «Familia Díaz González» y pon las <b>notificaciones de eventos de todo el día</b> que prefieras.</p>
     </div>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
+<script src="compartido.js"></script>
 <script>
-// ══ TIPOS DE EVENTO ══
-const TIPOS = {
-  cumple:       { label: 'Cumpleaños',   icon: '🎂', color: '#f72585', anual: true,  aviso: 7 },
-  aniversario:  { label: 'Aniversario',  icon: '💍', color: '#7b61ff', anual: true,  aviso: 7 },
-  celebracion:  { label: 'Celebración',  icon: '🎉', color: '#fb8500', anual: false, aviso: 7 },
-  familiar:     { label: 'Familiar',     icon: '👨‍👩‍👦', color: '#00b87a', anual: false, aviso: 1 },
-  recordatorio: { label: 'Recordatorio', icon: '🔔', color: '#e0a100', anual: false, aviso: 1 },
-  salud:        { label: 'Médico',       icon: '🩺', color: '#ff3d71', anual: false, aviso: 1 },
-  escuela:      { label: 'Colegio',      icon: '🎒', color: '#00a3c4', anual: false, aviso: 1 },
-  otro:         { label: 'Otro',         icon: '📌', color: '#64748b', anual: false, aviso: 0 },
-};
+const TIPOS = CalComun.TIPOS; // en compartido.js
 const FEST_COLOR = '#94a3b8';
 const MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
 const MES_C = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
@@ -757,6 +773,7 @@ function openForm(id, fecha, tipo) {
   document.getElementById('f-persona').value = ev?.persona || '';
   document.getElementById('f-notas').value = ev?.notas || '';
   document.getElementById('f-del').style.display = ev ? '' : 'none';
+  document.getElementById('f-google').style.display = ev ? '' : 'none';
   renderTipos();
   document.getElementById('ov-form').classList.add('open');
   if (!ev && window.innerWidth > 768) setTimeout(() => document.getElementById('f-titulo').focus(), 50);
@@ -820,34 +837,20 @@ function download(name, text, type) {
 // ══ EXPORTAR / IMPORTAR ══
 function exportICS() {
   if (!EVENTS.length) { toast('Aún no hay eventos que exportar'); return; }
-  const icsEsc = s => String(s).replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\n/g, '\\n');
-  const stamp = new Date().toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
-  const L = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Familia Diaz Gonzalez//Calendario//ES', 'CALSCALE:GREGORIAN', 'X-WR-CALNAME:Familia Díaz González'];
-  for (const ev of EVENTS) {
-    const t = TIPOS[ev.tipo] || TIPOS.otro, f = ev.fecha.replace(/-/g, '');
-    L.push('BEGIN:VEVENT', 'UID:' + ev.id + '@calendario-diaz-gonzalez', 'DTSTAMP:' + stamp);
-    if (ev.hora) {
-      const h = ev.hora.replace(':', '') + '00';
-      const [hh, mm] = ev.hora.split(':').map(Number), endH = new Date(2000, 0, 1, hh + 1, mm);
-      L.push('DTSTART:' + f + 'T' + h, 'DTEND:' + f + 'T' + pad(endH.getHours()) + pad(endH.getMinutes()) + '00');
-    } else {
-      L.push('DTSTART;VALUE=DATE:' + f, 'DTEND;VALUE=DATE:' + iso(addD(parse(ev.fecha), 1)).replace(/-/g, ''));
-    }
-    const rr = { anual: 'YEARLY', mensual: 'MONTHLY', semanal: 'WEEKLY' }[ev.repite];
-    if (rr) L.push('RRULE:FREQ=' + rr);
-    L.push('SUMMARY:' + icsEsc(t.icon + ' ' + (ev.tipo === 'cumple' ? 'Cumpleaños de ' + ev.titulo : ev.titulo)));
-    const desc = [ev.persona, ev.notas, ev.anioConocido ? (ev.tipo === 'cumple' ? 'Nació en ' : 'Desde ') + ev.fecha.slice(0, 4) : ''].filter(Boolean).join('\n');
-    if (desc) L.push('DESCRIPTION:' + icsEsc(desc));
-    L.push('CATEGORIES:' + icsEsc(t.label));
-    const av = ev.aviso ?? 0;
-    // Con hora: X días antes (o 1 h antes). Día completo: a las 9:00, X días antes.
-    const trig = ev.hora ? (av ? '-P' + av + 'D' : '-PT1H') : (av ? '-PT' + (av * 24 - 9) + 'H' : 'PT9H');
-    L.push('BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:' + icsEsc(ev.titulo), 'TRIGGER:' + trig, 'END:VALARM');
-    L.push('END:VEVENT');
-  }
-  L.push('END:VCALENDAR');
-  download('calendario-familia-diaz-gonzalez.ics', L.join('\r\n'), 'text/calendar');
+  download('calendario-familia-diaz-gonzalez.ics', CalComun.buildICS(EVENTS), 'text/calendar');
   toast('Archivo descargado — ábrelo en tu móvil 📲');
+}
+// Suscripción de Google Calendar: el robot de GitHub publica familia.ics cada hora
+const FEED_URL = 'https://elguaro433.github.io/calendario-familia/familia.ics';
+const GOOGLE_SUB = 'https://calendar.google.com/calendar/render?cid=' + encodeURIComponent(FEED_URL.replace('https://', 'webcal://'));
+function openGoogle() {
+  document.getElementById('g-url').value = FEED_URL;
+  document.getElementById('ov-google').classList.add('open');
+}
+function copyFeed() {
+  const i = document.getElementById('g-url'); i.select();
+  (navigator.clipboard ? navigator.clipboard.writeText(FEED_URL) : Promise.reject()).catch(() => document.execCommand('copy'));
+  toast('Dirección copiada ✓');
 }
 function exportJSON() {
   download('calendario-backup-' + iso(new Date()) + '.json', JSON.stringify({ events: EVENTS, cfg: CFG }, null, 2), 'application/json');
