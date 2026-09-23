@@ -156,6 +156,8 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
 .ev-s { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .wa { flex-shrink: 0; width: 34px; height: 34px; border-radius: 50%; border: none; background: #25d366; color: #fff; font-size: 16px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 3px 8px rgba(37,211,102,.35); }
 .wa:active { transform: scale(.92); }
+.wa-ico { width: 60%; height: 60%; display: block; }
+.wa-btn .wa-ico { width: 20px; height: 20px; display: inline-block; vertical-align: -4px; margin-right: 6px; }
 .aviso .wa { width: 28px; height: 28px; font-size: 13px; margin-left: 6px; vertical-align: middle; }
 .btn.wa-btn { background: #25d366; color: #fff; border: none; }
 .when { font-size: 11.5px; font-weight: 700; padding: 3px 10px; border-radius: 20px; background: var(--card2); color: var(--muted); white-space: nowrap; }
@@ -391,7 +393,7 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
       <div class="fld"><label>¿De quién? / Familia (opcional)</label><input id="f-persona" type="text" list="personas" placeholder="Ej: Emiliano, Familia Díaz, Abuelos…" autocomplete="off"><datalist id="personas"></datalist></div>
       <div class="fld"><label>Notas (opcional)</label><textarea id="f-notas" placeholder="Ideas de regalo, lugar, qué llevar…"></textarea></div>
       <div class="btns">
-        <button class="btn wa-btn" id="f-wa" onclick="felicitar(editId)" style="flex-basis:100%">💬 Felicitar por WhatsApp</button>
+        <button class="btn wa-btn" id="f-wa" onclick="felicitar(editId)" style="flex-basis:100%"><svg class="wa-ico" viewBox="0 0 32 32" aria-hidden="true"><path fill="currentColor" d="M16 3C8.8 3 3 8.7 3 15.8c0 2.5.7 4.9 2 6.9L3.2 29l6.5-1.7c1.9 1 4.1 1.6 6.3 1.6 7.2 0 13-5.7 13-12.8S23.2 3 16 3zm0 23.5c-2 0-3.9-.5-5.6-1.5l-.4-.2-3.9 1 1-3.7-.3-.4c-1.1-1.7-1.7-3.8-1.7-5.9C5.1 9.9 10 5.2 16 5.2s10.9 4.7 10.9 10.6S22 26.5 16 26.5z"/><path fill="currentColor" d="M22 19.1c-.3-.2-1.9-.9-2.2-1-.3-.1-.5-.2-.7.2-.2.3-.8 1-1 1.2-.2.2-.4.2-.7.1-.3-.2-1.4-.5-2.6-1.6-1-.9-1.6-1.9-1.8-2.2-.2-.3 0-.5.1-.7l.5-.6c.2-.2.2-.4.3-.6.1-.2 0-.4 0-.6l-1-2.4c-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4-.3.3-1.2 1.1-1.2 2.7s1.2 3.2 1.4 3.4c.2.2 2.4 3.6 5.8 5 .8.3 1.4.5 1.9.7.8.3 1.5.2 2.1.1.6-.1 1.9-.8 2.2-1.5.3-.7.3-1.4.2-1.5-.1-.2-.3-.3-.6-.4z"/></svg>Felicitar por WhatsApp</button>
         <button class="btn danger" id="f-del" onclick="delEvent()">🗑️</button>
         <button class="btn" onclick="closeOv('ov-form')">Cancelar</button>
         <button class="btn primary" onclick="saveEvent()">Guardar</button>
@@ -439,7 +441,7 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
 
 <div class="toast" id="toast"></div>
 
-<script src="compartido.js?v=1.17"></script>
+<script src="compartido.js?v=1.18"></script>
 <script>
 const TIPOS = CalComun.TIPOS; // en compartido.js
 const FEST_COLOR = '#d64545';   // días festivos (no se trabaja)
@@ -576,17 +578,33 @@ function edadProxima(ev) {
   return o ? o.edad : null;
 }
 function mensajeWA(ev, edad) {
+  const n = ev.titulo, p = (ev.persona || '').toLowerCase(), firma = 'Con mucho cariño, la familia Díaz González 💕';
   if (ev.tipo === 'aniversario')
-    return `¡Feliz aniversario, mi amor! 💍❤️${edad ? ' ¡' + edad + ' años juntos!' : ''} Gracias por cada día a tu lado. Te amo.`;
-  const extra = edad != null ? (edad < 18 ? ` ¡${edad} añitos ya!` : '') : '';
-  return `¡Feliz cumpleaños, ${ev.titulo}! 🎂🎉${extra} Que pases un día precioso, lleno de alegría y rodeado de los que más quieres. Un abrazo muy fuerte de la familia Díaz González ❤️`;
+    return `¡Feliz aniversario, mi amor! 💍❤️${edad ? ' ¡Ya son ' + edad + ' años juntos!' : ''} Gracias por cada día a mi lado, por tu paciencia y por la familia tan bonita que hemos formado. Te amo con todo mi corazón 😘`;
+  if (/^hijo( menor| mayor)?$/.test(p))   // solo mis hijos (no «Hijo de Xavier»)
+    return `¡Feliz cumpleaños, mi campeón ${n}! 🎂🎈${edad ? ' ¡' + edad + ' añitos ya!' : ''} Papá y mamá te amamos con todo el corazón. Que hoy tengas un día lleno de juegos, risas y sorpresas. ¡Eres nuestro orgullo y nuestra alegría! 💙🎉`;
+  if (/^esposa/.test(p))
+    return `¡Feliz cumpleaños, mi amor! 🎂❤️ Gracias por llenar nuestra casa de amor y alegría. Que hoy sea un día tan bonito como tú. Los niños y yo te amamos muchísimo 😘💐`;
+  if (/padre de emmanuel/.test(p))
+    return `¡Feliz cumpleaños, papá! 🎂❤️ Gracias por todo tu amor y tus enseñanzas. Te queremos muchísimo y te llevamos siempre en el corazón. Tus nietos te mandan besitos y abrazos gigantes 🤗 ${firma}`;
+  if (/suegra/.test(p))
+    return `¡Feliz cumpleaños, querida suegra ${n}! 🎂🌸 Que Dios te bendiga con mucha salud, amor y alegría. Gracias por tanto cariño; te queremos mucho. Muchos besitos de tus nietos 🤗 ${firma}`;
+  if (/^herman[ao]/.test(p)) {
+    const h = /^hermana/.test(p) ? 'hermanita' : 'hermano';
+    return `¡Feliz cumpleaños, ${h} ${n}! 🎂🥳 Te llevo siempre en el corazón. Que la vida te regale mucha salud, amor y felicidad. ¡Te quiero mucho! Un abrazo enorme de tus sobrinos y de toda la familia 🤗💕`;
+  }
+  if (/sobrin|hij[ao] de mi prim/.test(p) || (edad != null && edad < 18))
+    return `¡Feliz cumpleaños, ${n}! 🎂🎈${edad != null && edad < 18 ? ' ¡' + edad + ' añitos!' : ''} Que tengas un día precioso lleno de alegría, sorpresas y mucho amor. Tus tíos y primos te queremos muchísimo 🤗 ${firma}`;
+  if (/prim[ao]|t[ií]a|cuñad/.test(p))
+    return `¡Feliz cumpleaños, querid${/prima|tía|tia|cuñada/.test(p) ? 'a' : 'o'} ${n}! 🎂🥳 Que la vida te regale mucha salud, amor y alegría, junto a los que más te quieren. ¡Te queremos mucho! Un abrazo enorme 🤗 ${firma}`;
+  return `¡Feliz cumpleaños, ${n}! 🎂🥳 Hoy es tu día y te mereces lo mejor del mundo. Que Dios te bendiga con mucha salud, amor y alegría. ¡Un abrazo muy fuerte! 🤗 ${firma}`;
 }
 function felicitar(id) {
   const ev = EVENTS.find(e => e.id === id);
   if (!puedeFelicitar(ev)) return;
   window.open('https://wa.me/?text=' + encodeURIComponent(mensajeWA(ev, edadProxima(ev))), '_blank');
 }
-const botonWA = ev => puedeFelicitar(ev) ? `<button class="wa" title="Felicitar por WhatsApp" onclick="event.stopPropagation();felicitar('${ev.id}')">💬</button>` : '';
+const botonWA = ev => puedeFelicitar(ev) ? `<button class="wa" title="Felicitar por WhatsApp" onclick="event.stopPropagation();felicitar('${ev.id}')"><svg class="wa-ico" viewBox="0 0 32 32" aria-hidden="true"><path fill="currentColor" d="M16 3C8.8 3 3 8.7 3 15.8c0 2.5.7 4.9 2 6.9L3.2 29l6.5-1.7c1.9 1 4.1 1.6 6.3 1.6 7.2 0 13-5.7 13-12.8S23.2 3 16 3zm0 23.5c-2 0-3.9-.5-5.6-1.5l-.4-.2-3.9 1 1-3.7-.3-.4c-1.1-1.7-1.7-3.8-1.7-5.9C5.1 9.9 10 5.2 16 5.2s10.9 4.7 10.9 10.6S22 26.5 16 26.5z"/><path fill="currentColor" d="M22 19.1c-.3-.2-1.9-.9-2.2-1-.3-.1-.5-.2-.7.2-.2.3-.8 1-1 1.2-.2.2-.4.2-.7.1-.3-.2-1.4-.5-2.6-1.6-1-.9-1.6-1.9-1.8-2.2-.2-.3 0-.5.1-.7l.5-.6c.2-.2.2-.4.3-.6.1-.2 0-.4 0-.6l-1-2.4c-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4-.3.3-1.2 1.1-1.2 2.7s1.2 3.2 1.4 3.4c.2.2 2.4 3.6 5.8 5 .8.3 1.4.5 1.9.7.8.3 1.5.2 2.1.1.6-.1 1.9-.8 2.2-1.5.3-.7.3-1.4.2-1.5-.1-.2-.3-.3-.6-.4z"/></svg></button>` : '';
 
 function evRow(o, showCuando = true) {
   const t = TIPOS[o.ev.tipo] || TIPOS.otro, [txt, cls] = cuando(o.fecha);
@@ -886,7 +904,7 @@ function importJSON(input) {
 // "eventos" (un mapa id → evento). Cada cambio solo toca SU evento (eventos.<id>), así que si
 // dos personas guardan a la vez se conservan los dos cambios. Sin inicio de sesión: igual que
 // la app de finanzas, la colección appdata es de acceso libre.
-const APP_VERSION = '1.17';
+const APP_VERSION = '1.18';
 const DOC_EVENTOS = 'appdata/calendario-eventos';
 let db = null;
 try {
