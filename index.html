@@ -111,6 +111,8 @@ button { font-family: inherit; }
 .metric-val { font-size: 17px; font-weight: 800; margin-top: 4px; line-height: 1.3; }
 .metric-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
 
+.importar { background: linear-gradient(135deg, rgba(14,165,233,.12), rgba(0,214,143,.12)); border: 1px solid rgba(14,165,233,.35); border-radius: var(--r); padding: 12px 16px; margin-bottom: 14px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.importar .t { flex: 1; min-width: 200px; font-size: 14px; }
 .avisos { background: linear-gradient(135deg, rgba(247,37,133,.1), rgba(123,97,255,.1)); border: 1px solid rgba(247,37,133,.25); border-radius: var(--r); padding: 12px 16px; margin-bottom: 18px; }
 .avisos-t { font-size: 12px; font-weight: 800; color: var(--pink); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; }
 .aviso { font-size: 13.5px; padding: 3px 0; cursor: pointer; }
@@ -291,6 +293,7 @@ button { font-family: inherit; }
   <main class="content">
     <!-- MES -->
     <section class="page active" id="page-mes">
+      <div id="importar"></div>
       <div id="avisos"></div>
       <div class="hero" id="hero"></div>
       <div class="cal-nav">
@@ -760,7 +763,8 @@ function openDay(k) {
     ...occ.map(o => { const t = TIPOS[o.ev.tipo] || TIPOS.otro;
       return `<div class="day-ev" style="--c:${t.color}" onclick="closeOv('ov-day');openForm('${o.ev.id}')"><span class="e">${t.icon}</span><div style="min-width:0"><div class="ev-t">${esc(o.ev.titulo)}</div><div class="ev-s" style="white-space:normal">${esc(subtitulo(o)) || t.label}</div></div></div>`; })
   ].join('') || '<div class="empty" style="padding:14px">Nada apuntado este día.</div>';
-  document.getElementById('day-add').onclick = () => { closeOv('ov-day'); openForm(null, k); };
+  const add = document.getElementById('day-add');
+  add.textContent = '＋ Añadir en este día'; add.onclick = () => { closeOv('ov-day'); openForm(null, k); };
   document.getElementById('ov-day').classList.add('open');
 }
 
@@ -901,7 +905,7 @@ function importJSON(input) {
 // guardan a la vez, cada cambio se conserva. Cualquiera puede ver el calendario
 // (igual que la suscripción de Google), pero solo la familia con sesión de Google
 // puede añadir, cambiar o borrar — lo imponen las reglas de seguridad de Firestore.
-const APP_VERSION = '1.4';
+const APP_VERSION = '1.5';
 const COL_EVENTOS = 'calendario_eventos';
 const DOC_FAMILIA = 'calendario_familia/miembros';   // { emails: [...] } — lo gestiona el dueño
 const DUENO = 'emmanuel050216@gmail.com';
@@ -962,7 +966,7 @@ function initCloud() {
   if (!db) { updateSyncStatus('error'); return; }
   db.collection(COL_EVENTOS).onSnapshot({ includeMetadataChanges: true }, snap => {
     EVENTS = snap.docs.map(d => { const { updatedAt, updatedBy, ...ev } = d.data(); return ev; });
-    persist(); render();
+    persist(); render(); checkImportar();
     updateSyncStatus(snap.metadata.hasPendingWrites ? 'syncing' : snap.metadata.fromCache ? 'offline' : 'synced');
   }, err => { console.warn('Lectura:', err); updateSyncStatus('error'); });
 
@@ -974,7 +978,7 @@ function initCloud() {
         FAMILIA = ((d.exists && d.data().emails) || []).map(x => x.toLowerCase());
       } catch (e) { console.warn('Miembros:', e); }
     }
-    renderSesion();
+    renderSesion(); checkImportar();
   });
   auth.getRedirectResult().catch(e => e.code && toast('No se pudo iniciar sesión: ' + e.message));
 }
@@ -1030,6 +1034,47 @@ function updateSyncStatus(s) {
   const st = { synced: ['☁️ Sincronizado', 'var(--emerald)'], offline: ['📴 Sin conexión (se guarda al volver)', 'var(--amber)'],
                error: ['⚠️ Error de conexión', 'var(--coral)'], syncing: ['🔄 Sincronizando…', 'var(--sky)'] }[s];
   el.textContent = st[0]; el.style.color = st[1];
+}
+
+// ══ EVENTOS PREPARADOS (importar.json) ══
+// Listas que Claude prepara en el repositorio (p. ej. cumpleaños dictados). Cuando entra alguien
+// de la familia, la app ofrece añadir los que aún no están. Los ids son fijos: nunca se duplican.
+let PENDIENTES = [], IMP_DESC = '', impCargado = null;
+const impHechos = () => { try { return JSON.parse(store.get('calendario_dg_importados')) || []; } catch (e) { return []; } };
+async function checkImportar() {
+  const box = document.getElementById('importar');
+  if (!esFamilia() || location.protocol === 'file:') { box.innerHTML = ''; return; }
+  try {
+    impCargado ||= fetch('importar.json?v=' + Date.now(), { cache: 'no-store' }).then(r => r.ok ? r.json() : { events: [] });
+    const d = await impCargado, ya = new Set([...EVENTS.map(e => e.id), ...impHechos()]);
+    IMP_DESC = d.descripcion || 'Eventos preparados';
+    PENDIENTES = (d.events || []).filter(e => !ya.has(e.id));
+  } catch (e) { PENDIENTES = []; }
+  box.innerHTML = PENDIENTES.length ? `<div class="importar"><div class="t">📥 <b>${PENDIENTES.length} eventos listos para añadir</b><br><span class="ev-s">${esc(IMP_DESC)}</span></div>
+    <button class="btn small" onclick="verImportar()">Ver</button><button class="btn small primary" onclick="hacerImportar()">Añadir todos</button></div>` : '';
+}
+function verImportar() {
+  document.getElementById('day-title').textContent = '📥 ' + IMP_DESC;
+  document.getElementById('day-list').innerHTML = PENDIENTES.map(e => { const t = TIPOS[e.tipo] || TIPOS.otro, d = parse(e.fecha);
+    return `<div class="day-ev" style="--c:${t.color};cursor:default"><span class="e">${t.icon}</span><div><div class="ev-t">${esc(e.titulo)}</div><div class="ev-s">${d.getDate()} de ${MESES[d.getMonth()]}${e.anioConocido ? ' de ' + d.getFullYear() : ''}${e.persona ? ' · ' + esc(e.persona) : ''}</div></div></div>`; }).join('');
+  const b = document.getElementById('day-add');
+  b.textContent = '＋ Añadir todos'; b.onclick = () => { closeOv('ov-day'); hacerImportar(); };
+  document.getElementById('ov-day').classList.add('open');
+}
+async function hacerImportar() {
+  if (!requireFamilia() || !PENDIENTES.length) return;
+  const evs = PENDIENTES.map(e => ({ hora: '', repite: 'anual', aviso: (TIPOS[e.tipo] || TIPOS.otro).aviso, notas: '', persona: '', anioConocido: false,
+    ...Object.fromEntries(Object.entries(e).filter(([k]) => ['id', 'tipo', 'titulo', 'fecha', 'hora', 'repite', 'aviso', 'anioConocido', 'persona', 'notas'].includes(k))) }));
+  try {
+    for (let i = 0; i < evs.length; i += 400) {
+      const b = db.batch();
+      evs.slice(i, i + 400).forEach(e => b.set(db.collection(COL_EVENTOS).doc(e.id), { ...e, updatedAt: firebase.firestore.FieldValue.serverTimestamp(), updatedBy: email() }));
+      await b.commit();
+    }
+    store.set('calendario_dg_importados', JSON.stringify([...impHechos(), ...evs.map(e => e.id)]));
+    PENDIENTES = []; document.getElementById('importar').innerHTML = '';
+    toast(evs.length + ' eventos añadidos ✓');
+  } catch (e) { cloudError(e); }
 }
 
 // ══ VERSIÓN NUEVA ══

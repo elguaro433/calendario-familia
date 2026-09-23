@@ -50,6 +50,8 @@ Calendario familiar de cumpleaños, aniversarios, celebraciones y recordatorios.
 
 **Festivos:** se calculan en `festivos()` de `compartido.js` (app y Google Calendar). Solo días no laborables: los nacionales de Andorra (con Carnaval) + los locales de Andorra la Vella (Sant Joan 24/6, Fiesta Mayor = lunes tras el primer sábado de agosto, Santo Tomás 21/12), según la lista de días inhábiles del Consell General. Google Calendar recibe los de este año y el siguiente.
 
+**Añadir muchos eventos de golpe:** ponerlos en `importar.json` (ids fijos, p. ej. `imp-cumple-nombre`). Al entrar alguien de la familia, la app muestra «N eventos listos para añadir» y con un toque se guardan. Solo ofrece los que aún no existen, así que nunca duplica.
+
 **Lanzar el robot a mano:** GitHub → pestaña «Actions» → «Actualizar calendario de Google y copia» → «Run workflow».
 
 ## Cómo publicar cambios

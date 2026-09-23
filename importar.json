@@ -1,0 +1,24 @@
+{
+  "descripcion": "Cumpleaños de la familia (dictados el 23/09/2026)",
+  "events": [
+    { "id": "imp-cumple-eileen",       "tipo": "cumple", "titulo": "Eileen",          "fecha": "2000-02-04", "anioConocido": false, "persona": "Esposa de Luis Escalante" },
+    { "id": "imp-cumple-emmanuel-hijo","tipo": "cumple", "titulo": "Emmanuel",        "fecha": "2016-02-05", "anioConocido": true,  "persona": "Hijo" },
+    { "id": "imp-cumple-iete",         "tipo": "cumple", "titulo": "Iete",            "fecha": "2000-02-17", "anioConocido": false, "persona": "Sobrina" },
+    { "id": "imp-cumple-nuria",        "tipo": "cumple", "titulo": "Nuria",           "fecha": "2000-03-28", "anioConocido": false, "persona": "Hija de Chávez" },
+    { "id": "imp-cumple-sofia",        "tipo": "cumple", "titulo": "Sofía",           "fecha": "2000-03-29", "anioConocido": false, "persona": "Sobrina" },
+    { "id": "imp-cumple-joan",         "tipo": "cumple", "titulo": "Joan",            "fecha": "2000-04-20", "anioConocido": false, "persona": "Hijo de Chávez" },
+    { "id": "imp-cumple-ana-salas",    "tipo": "cumple", "titulo": "Ana Salas",       "fecha": "2000-05-16", "anioConocido": false, "persona": "Cuñada" },
+    { "id": "imp-cumple-ecleidis",     "tipo": "cumple", "titulo": "Ecleidis",        "fecha": "2000-06-09", "anioConocido": false, "persona": "Cuñada" },
+    { "id": "imp-cumple-juan-carlos",  "tipo": "cumple", "titulo": "Juan Carlos",     "fecha": "2000-06-11", "anioConocido": false, "persona": "" },
+    { "id": "imp-cumple-matias",       "tipo": "cumple", "titulo": "Matías",          "fecha": "2000-07-07", "anioConocido": false, "persona": "Sobrino" },
+    { "id": "imp-cumple-samuel",       "tipo": "cumple", "titulo": "Samuel",          "fecha": "2000-08-05", "anioConocido": false, "persona": "Hermano" },
+    { "id": "imp-cumple-tiago",        "tipo": "cumple", "titulo": "Tiago",           "fecha": "2000-09-04", "anioConocido": false, "persona": "Sobrino" },
+    { "id": "imp-cumple-rosana",       "tipo": "cumple", "titulo": "Rosana",          "fecha": "2000-09-16", "anioConocido": false, "persona": "Prima" },
+    { "id": "imp-cumple-chiqui",       "tipo": "cumple", "titulo": "Chiqui",          "fecha": "2000-09-16", "anioConocido": false, "persona": "Primo" },
+    { "id": "imp-cumple-emiliano",     "tipo": "cumple", "titulo": "Emiliano",        "fecha": "2018-09-24", "anioConocido": true,  "persona": "Hijo menor" },
+    { "id": "imp-cumple-samir",        "tipo": "cumple", "titulo": "Samir",           "fecha": "2000-10-17", "anioConocido": false, "persona": "Hermano" },
+    { "id": "imp-cumple-papa",         "tipo": "cumple", "titulo": "Emmanuel (papá)", "fecha": "2000-11-15", "anioConocido": false, "persona": "Papá" },
+    { "id": "imp-cumple-chavez",       "tipo": "cumple", "titulo": "Chávez",          "fecha": "2000-11-19", "anioConocido": false, "persona": "" },
+    { "id": "imp-cumple-elibel",       "tipo": "cumple", "titulo": "Elibel",          "fecha": "2000-12-29", "anioConocido": false, "persona": "Esposa" }
+  ]
+}
