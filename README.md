@@ -57,7 +57,7 @@ Las capas de festivos, celebraciones y vacaciones se pueden ocultar en ⚙️ Aj
 
 ## Añadir o cambiar eventos sin la app (desde un script)
 
-El documento `appdata/calendario-eventos` se puede escribir por la API REST de Firestore. **Siempre** con `updateMask.fieldPaths=eventos.\`<id>\`` por cada evento que se toca: **un PATCH sin máscara reemplaza el documento entero y borra todo** (pasó una vez; se restauró desde la copia). Antes de enviar, comprobar que la lista de cambios no está vacía, y después volver a leer el total.
+El documento `appdata/calendario-eventos` se puede escribir por la API REST de Firestore. **Siempre** con `` updateMask.fieldPaths=eventos.`<id>` ``<id>\`` por cada evento que se toca: **un PATCH sin máscara reemplaza el documento entero y borra todo** (pasó una vez; se restauró desde la copia). Antes de enviar, comprobar que la lista de cambios no está vacía, y después volver a leer el total.
 
 ## Cómo publicar cambios
 
