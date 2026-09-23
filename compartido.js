@@ -62,6 +62,25 @@
     return out.sort((a, b) => a.fecha.localeCompare(b.fecha));
   }
 
+  // Celebraciones de la familia (no son festivos): se calculan solas para cualquier año
+  const CELEB_COLOR = '#fb8500';
+  function domingo(y, mes, n) {            // n-ésimo domingo del mes (mes 0-11)
+    const d = new Date(y, mes, 1);
+    return new Date(y, mes, 1 + (7 - d.getDay()) % 7 + 7 * (n - 1));
+  }
+  function celebraciones(y) {
+    const out = [];
+    const add = (d, titulo, icon) => out.push({ fecha: d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()), titulo, icon, celeb: true });
+    add(new Date(y, 1, 14), 'Día del Amor y la Amistad', '❤️');
+    add(new Date(y, 2, 19), 'Día del Padre (Andorra)', '👨');
+    add(new Date(y, 2, 21), 'Día de las Flores Amarillas', '🌼');
+    add(domingo(y, 4, 1), 'Día de la Madre (Andorra)', '👩');
+    add(domingo(y, 4, 2), 'Día de la Madre (Venezuela)', '👩');
+    add(domingo(y, 5, 3), 'Día del Padre (Venezuela)', '👨');
+    add(domingo(y, 6, 3), 'Día del Niño (Venezuela)', '🧒');
+    return out;
+  }
+
   const RRULE = { anual: 'YEARLY', mensual: 'MONTHLY', semanal: 'WEEKLY' };
 
   const pad = n => String(n).padStart(2, '0');
@@ -142,5 +161,5 @@
     return L.map(fold).join('\r\n') + '\r\n';
   }
 
-  return { TIPOS, ESCOLAR, ESCOLAR_COLOR, festivos, buildICS };
+  return { TIPOS, ESCOLAR, ESCOLAR_COLOR, CELEB_COLOR, festivos, celebraciones, buildICS };
 });

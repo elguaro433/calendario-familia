@@ -1,74 +1,69 @@
 # 📅 Calendario Familia Díaz González
 
-Calendario familiar de cumpleaños, aniversarios, celebraciones y recordatorios.
+Calendario familiar de cumpleaños, aniversarios, celebraciones, recordatorios, festivos y vacaciones escolares.
 
-- **App:** https://elguaro433.github.io/calendario-familia/
-- **Suscripción de Google Calendar:** https://elguaro433.github.io/calendario-familia/familia.ics
+- **App:** https://elguaro433.github.io/calendario-familia/ (sin clave: se abre y listo)
 - **Propietario:** Emmanuel Díaz (`emmanuel050216@gmail.com`)
 
 ## Cómo funciona
 
 ```
- Teléfonos (app)  ──escriben──▶  Firebase Firestore  ◀──lee cada hora──  Robot de GitHub
-   │  (solo la familia,           colección                                 │
-   │   con sesión de Google)      calendario_eventos                        ├─▶ familia.ics        → Google Calendar
-   └──────────── ven en tiempo real ◀──┘                                    └─▶ backup/eventos.json → copia de seguridad
+ Teléfono / ordenador (app)  ──leen y escriben──▶  Firebase Firestore           ◀──lee cada día──  Robot de GitHub
+                             ◀── tiempo real ────   appdata/calendario-eventos                       └─▶ backup/eventos.json
 ```
 
 | Pieza | Dónde | Para qué |
 |---|---|---|
 | `index.html` | GitHub Pages | La app completa (pantallas, formularios, sincronización) |
-| `compartido.js` | GitHub Pages | Tipos de evento y generador `.ics`; lo usan la app **y** el robot |
+| `compartido.js` | GitHub Pages | Tipos de evento, festivos, celebraciones, vacaciones escolares y el `.ics` descargable |
 | `sw.js` | GitHub Pages | Permite abrir la app sin internet; con internet siempre carga la versión nueva |
-| `firestore.rules` | Consola de Firebase | Copia de las reglas de seguridad publicadas (ver abajo) |
-| `scripts/generar-ics.js` + `.github/workflows/google-calendar.yml` | GitHub Actions | Robot: cada hora genera `familia.ics` y `backup/eventos.json` |
+| `scripts/copia-seguridad.js` + `.github/workflows/copia-seguridad.yml` | GitHub Actions | Robot: cada día guarda `backup/eventos.json` |
+| `firestore.rules` | Consola de Firebase | Copia de las reglas de seguridad publicadas |
+
+### Qué muestra el calendario
+
+- **Eventos de la familia** (se crean y editan en la app): cumpleaños, aniversarios, celebraciones, recordatorios… Los que «se repiten cada año» salen todos los años sin límite.
+- **Festivos y no laborables** (`festivos()` en `compartido.js`): nacionales de Andorra (con Carnaval) + locales de Andorra la Vella (Sant Joan 24/6, Fiesta Mayor = lunes tras el primer sábado de agosto, Santo Tomás 21/12), según la lista de días inhábiles del Consell General.
+- **Celebraciones** (`celebraciones()` en `compartido.js`): Día del Amor y la Amistad (14/2), Día del Padre Andorra (19/3), Flores Amarillas (21/3), Día de la Madre Andorra (1er domingo de mayo) y Venezuela (2º domingo de mayo), Día del Padre Venezuela (3er domingo de junio), Día del Niño Venezuela (3er domingo de julio).
+- **Vacaciones escolares** (`ESCOLAR` en `compartido.js`): curso 2026-2027 (PDF oficial del Govern d'Andorra).
+
+Cada capa se puede ocultar desde «Mostrar» (menú lateral).
 
 ### Datos en Firebase (proyecto `familia-diaz-gonzalez`)
 
-- `calendario_eventos/{id}` → un documento por evento. Campos: `id, tipo, titulo, fecha (AAAA-MM-DD), hora, repite (no|anual|mensual|semanal), aviso (días), anioConocido, persona, notas, updatedAt, updatedBy`.
-- `calendario_familia/miembros` → `{ emails: [...] }` familiares que pueden editar. Se gestiona desde la app: **Ajustes → Quién puede editar** (solo lo ve el propietario).
-- `appdata/...` → **app de finanzas**, no la toca el calendario.
-
-### Seguridad
-
-- **Ver** el calendario: cualquiera con el enlace (igual que la suscripción `.ics`, que es pública).
-- **Crear / cambiar / borrar**: solo el propietario y los correos de `calendario_familia/miembros`, con sesión de Google. Lo imponen las reglas de Firestore, no la app.
-- Las reglas también validan los datos (título obligatorio, fecha con formato correcto, tamaños máximos).
+- `appdata/calendario-eventos` → campo `eventos`: mapa `id → evento`. Campos del evento: `id, tipo, titulo, fecha (AAAA-MM-DD), hora, repite (no|anual|mensual|semanal), aviso (días), anioConocido, persona, notas`.
+- Cada cambio actualiza solo su evento (`eventos.<id>`), así que dos personas pueden guardar a la vez sin pisarse.
+- El resto de `appdata/...` es de la **app de finanzas**; el calendario no lo toca.
+- Sin inicio de sesión: la colección `appdata` es de acceso libre (igual que la app de finanzas). Quien tenga el enlace puede ver y cambiar el calendario.
+- Las colecciones `calendario_eventos` y `calendario_familia` de `firestore.rules` son de una versión anterior (con Google) y ya no se usan.
 
 ## Tareas habituales
-
-**Añadir a un familiar para que pueda editar:** el propietario entra en la app → ⚙️ Ajustes → «Quién puede editar» → escribe su Gmail → Añadir. Esa persona entra con esa cuenta de Google.
-
-**Suscribirse en Google Calendar:** desde el ordenador, en la app → «📅 Google Calendar» → «Añadir a mi Google Calendar». Google refresca los calendarios suscritos cada pocas horas.
 
 **Recuperar una copia de seguridad:**
 1. En GitHub abre `backup/eventos.json` → «History» y elige el día que quieras.
 2. Pulsa «Raw» y guarda el archivo (Ctrl+S).
 3. En la app → ⚙️ Ajustes → «Restaurar copia de seguridad» y elige ese archivo.
 
-**Calendario escolar de un curso nuevo:** añadir sus periodos a la lista `ESCOLAR` de `compartido.js` (id, desde, hasta, icono, título). Salen en la app (capa «Calendario escolar») y en Google Calendar. Curso actual: 2026-2027 (PDF oficial del Govern d'Andorra).
+**Curso escolar nuevo:** añadir sus periodos a la lista `ESCOLAR` de `compartido.js` (id, desde, hasta, icono, título).
 
-**Festivos:** se calculan en `festivos()` de `compartido.js` (app y Google Calendar). Solo días no laborables: los nacionales de Andorra (con Carnaval) + los locales de Andorra la Vella (Sant Joan 24/6, Fiesta Mayor = lunes tras el primer sábado de agosto, Santo Tomás 21/12), según la lista de días inhábiles del Consell General. Google Calendar recibe los de este año y el siguiente.
+**Nueva celebración fija:** añadirla en `celebraciones()` de `compartido.js`.
 
-**Añadir muchos eventos de golpe:** ponerlos en `importar.json` (ids fijos, p. ej. `imp-cumple-nombre`). Al entrar alguien de la familia, la app muestra «N eventos listos para añadir» y con un toque se guardan. Solo ofrece los que aún no existen, así que nunca duplica.
-
-**Lanzar el robot a mano:** GitHub → pestaña «Actions» → «Actualizar calendario de Google y copia» → «Run workflow».
+**Lanzar el robot a mano:** GitHub → pestaña «Actions» → «Copia de seguridad del calendario» → «Run workflow».
 
 ## Cómo publicar cambios
 
 1. Editar los archivos y **subir el número** en `const APP_VERSION = '…'` (`index.html`). Los teléfonos con la app abierta verán el aviso «Hay una versión nueva».
 2. `git pull --rebase` (el robot hace commits propios) y después `git commit` + `git push`.
 3. GitHub Pages publica en ~1 minuto.
-4. Si cambias las reglas de seguridad: pégalas en la consola de Firebase → Firestore → Reglas → Publicar, y actualiza `firestore.rules` aquí.
 
 ## Cosas que NO hacer
 
-- No cambiar el nombre del usuario de GitHub (`elguaro433`) ni del repositorio: dejarían de funcionar la dirección de la app y la suscripción de Google.
-- No borrar la regla `appdata` de `firestore.rules`: la usa la app de finanzas.
+- No cambiar el nombre del usuario de GitHub (`elguaro433`) ni del repositorio: dejaría de funcionar la dirección de la app.
+- No borrar la regla `appdata` de las reglas de Firestore: la usan esta app y la de finanzas.
 - No ignorar los correos de GitHub que digan que el robot ha fallado.
 
 ## Mantenimiento
 
-- El robot usa Node 24 y `actions/checkout@v5` / `actions/setup-node@v5`. Si GitHub avisa de que una versión queda obsoleta, subir esos números en `.github/workflows/google-calendar.yml`.
+- El robot usa Node 24 y `actions/checkout@v5` / `actions/setup-node@v5`. Si GitHub avisa de que una versión queda obsoleta, subir esos números en `.github/workflows/copia-seguridad.yml`.
 - El robot hace al menos un commit a la semana para que GitHub no desactive las tareas programadas por inactividad (60 días).
 - Firebase SDK fijado en la versión 10.8.0 (igual que la app de finanzas).
