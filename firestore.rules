@@ -1,0 +1,58 @@
+rules_version = '2';
+
+// Reglas de Firestore del proyecto familia-diaz-gonzalez (copia de lo publicado en la consola).
+// Si las cambias en la consola, actualiza también este archivo.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── App de finanzas (sin cambios): acceso completo a la colección appdata ──
+    match /appdata/{docId} {
+      allow read, write: if true;
+    }
+
+    // ── Calendario ──
+    function esDueno() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email == 'emmanuel050216@gmail.com';
+    }
+    function esFamilia() {
+      return esDueno() || (request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email.lower() in get(/databases/$(database)/documents/calendario_familia/miembros).data.emails);
+    }
+
+    // Lista de familiares que pueden editar: solo el dueño la cambia
+    match /calendario_familia/miembros {
+      allow read: if request.auth != null;
+      allow write: if esDueno()
+        && request.resource.data.keys().hasOnly(['emails'])
+        && request.resource.data.emails is list
+        && request.resource.data.emails.size() <= 30;
+    }
+
+    // Eventos: cualquiera puede verlos (igual que la suscripción de Google Calendar);
+    // solo la familia puede crearlos, cambiarlos o borrarlos, y con datos válidos
+    match /calendario_eventos/{id} {
+      function eventoValido() {
+        let d = request.resource.data;
+        return d.keys().hasOnly(['id', 'tipo', 'titulo', 'fecha', 'hora', 'repite', 'aviso', 'anioConocido', 'persona', 'notas', 'updatedAt', 'updatedBy'])
+          && d.id == id
+          && d.titulo is string && d.titulo.size() > 0 && d.titulo.size() <= 200
+          && d.fecha is string && d.fecha.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+          && d.tipo is string && d.tipo.size() <= 30
+          && d.repite in ['no', 'anual', 'mensual', 'semanal']
+          && (!('notas' in d) || (d.notas is string && d.notas.size() <= 3000))
+          && (!('persona' in d) || (d.persona is string && d.persona.size() <= 200));
+      }
+      allow read: if true;
+      allow create, update: if esFamilia() && eventoValido();
+      allow delete: if esFamilia();
+    }
+
+    // Todo lo demás, bloqueado
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

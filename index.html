@@ -13,6 +13,7 @@
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 <title>Calendario Díaz González</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -199,6 +200,12 @@ button { font-family: inherit; }
 .btn.small { flex: 0 0 auto; padding: 8px 14px; font-size: 13px; }
 .day-ev { display: flex; gap: 10px; align-items: center; padding: 10px 12px; border-radius: 12px; background: var(--card2); margin-bottom: 8px; cursor: pointer; border-left: 4px solid var(--c); }
 .day-ev .e { font-size: 22px; }
+.fam-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 13.5px; padding: 2px 0; word-break: break-all; }
+.fam-row .x { width: 26px; height: 26px; font-size: 12px; flex-shrink: 0; }
+.upd-banner { position: fixed; left: 50%; transform: translateX(-50%); bottom: 24px; z-index: 350; background: #1e293b; color: #fff; border-radius: 14px; padding: 10px 12px 10px 16px; display: flex; align-items: center; gap: 12px; font-size: 13.5px; font-weight: 600; box-shadow: 0 10px 30px rgba(0,0,0,.35); }
+.upd-banner[hidden] { display: none; }
+.upd-banner button { background: var(--pink); color: #fff; border: none; border-radius: 10px; padding: 8px 14px; font-weight: 700; cursor: pointer; font-family: inherit; }
+@media (max-width: 768px) { .upd-banner { bottom: calc(80px + env(safe-area-inset-bottom)); } }
 .gsteps { font-size: 13.5px; display: flex; flex-direction: column; gap: 6px; background: var(--card2); border-radius: 12px; padding: 12px 14px; }
 .hint { font-size: 12px; color: var(--hint); margin-top: -6px; margin-bottom: 12px; }
 
@@ -218,6 +225,7 @@ button { font-family: inherit; }
   .hdr-logo { font-size: 15px; }
   .hdr-btn { display: none; }
   .hdr-more { display: flex; font-size: 18px; padding: 4px 10px; }
+  .hdr-user { display: flex; }
   .sync-status { font-size: 0; width: 9px; height: 9px; border-radius: 50%; background: currentColor; box-shadow: 0 0 6px currentColor; }
   .content { padding: 14px 16px 24px; }
   .hero { grid-template-columns: 1fr; gap: 8px; }
@@ -260,6 +268,7 @@ button { font-family: inherit; }
     <div class="hdr-logo">📅 Calendario <em>Díaz González</em></div>
     <div class="hdr-actions">
       <span class="sync-status" id="sync-status">🔄 Conectando…</span>
+      <button class="hdr-btn hdr-user" id="hdr-user" onclick="USER ? openAjustes() : openLogin()">👤 Entrar</button>
       <button class="hdr-btn" onclick="openGoogle()">📅 Google Calendar</button>
       <button class="hdr-btn" onclick="openAjustes()">⚙️ Ajustes</button>
       <button class="hdr-btn" onclick="toggleTheme()" id="theme-btn">🌙</button>
@@ -328,7 +337,7 @@ button { font-family: inherit; }
     <div class="footer">
       <div style="font-weight:600;margin-bottom:4px;">Propiedad Familia Díaz González</div>
       <div>Creado por Emmanuel Díaz</div>
-      <div style="margin-top:6px;font-size:10px;opacity:.6;">v1.0 — 2026</div>
+      <div style="margin-top:6px;font-size:10px;opacity:.6;"><span id="app-version"></span> — 2026</div>
     </div>
   </main>
 </div>
@@ -400,6 +409,13 @@ button { font-family: inherit; }
   <div class="sheet">
     <div class="sheet-h"><h3>Ajustes</h3><button class="x" onclick="closeOv('ov-aj')">✕</button></div>
     <div class="sheet-b">
+      <div class="fld"><label>Tu sesión</label><div id="aj-sesion" class="gsteps"></div></div>
+      <div class="fld" id="aj-familia" style="display:none"><label>Quién puede editar (además de ti)</label>
+        <div class="gsteps"><div id="fam-list"></div>
+          <div style="display:flex;gap:6px;margin-top:4px"><input id="fam-email" type="email" placeholder="correo de Gmail de tu familiar" style="flex:1;min-width:0;padding:9px 10px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text);font:inherit"><button class="btn small primary" onclick="addMiembro()">Añadir</button></div>
+          <div class="ev-s" style="white-space:normal">Tiene que ser la cuenta de Google con la que esa persona entrará.</div>
+        </div>
+      </div>
       <div class="fld"><label>Días festivos</label>
         <select id="aj-festivos" onchange="setCfg('festivos', this.value)">
           <option value="AD">Andorra</option>
@@ -442,6 +458,19 @@ button { font-family: inherit; }
     </div>
   </div>
 </div>
+
+<!-- INICIAR SESIÓN -->
+<div class="ov" id="ov-login" onclick="if(event.target===this)closeOv('ov-login')">
+  <div class="sheet">
+    <div class="sheet-h"><h3>👤 Entrar</h3><button class="x" onclick="closeOv('ov-login')">✕</button></div>
+    <div class="sheet-b">
+      <p style="font-size:14px;margin-bottom:14px">Para proteger el calendario, solo la familia puede añadir o cambiar eventos. Entra con tu cuenta de Google (solo hace falta la primera vez en cada teléfono).</p>
+      <button class="btn primary" style="width:100%" onclick="login()">Entrar con Google</button>
+    </div>
+  </div>
+</div>
+
+<div class="upd-banner" id="upd-banner" hidden><span>Hay una versión nueva</span><button onclick="location.reload()">Actualizar</button></div>
 
 <div class="toast" id="toast"></div>
 
@@ -759,6 +788,7 @@ function pickTipo(k) {
   renderTipos();
 }
 function openForm(id, fecha, tipo) {
+  if (!id && !requireFamilia()) return;
   editId = id || null;
   const ev = id ? EVENTS.find(e => e.id === id) : null;
   selTipo = ev ? ev.tipo : (tipo || 'cumple');
@@ -792,15 +822,16 @@ function saveEvent() {
     persona: document.getElementById('f-persona').value.trim(),
     notas: document.getElementById('f-notas').value.trim(),
   };
-  if (editId) EVENTS = EVENTS.map(e => e.id === editId ? data : e); else EVENTS.push(data);
-  persist(true); closeOv('ov-form'); render();
+  if (!requireFamilia()) return;
+  cloudSet(data);
+  closeOv('ov-form');
   toast(editId ? 'Evento actualizado ✓' : 'Evento guardado ✓');
 }
 function delEvent() {
   const ev = EVENTS.find(e => e.id === editId);
-  if (!ev || !confirm('¿Borrar "' + ev.titulo + '"?')) return;
-  EVENTS = EVENTS.filter(e => e.id !== editId);
-  persist(true); closeOv('ov-form'); render(); toast('Evento borrado');
+  if (!ev || !requireFamilia() || !confirm('¿Borrar "' + ev.titulo + '"?')) return;
+  cloudDelete(ev.id);
+  closeOv('ov-form'); toast('Evento borrado');
 }
 function closeOv(id) { document.getElementById(id).classList.remove('open'); }
 document.addEventListener('keydown', e => {
@@ -810,6 +841,7 @@ document.addEventListener('keydown', e => {
 
 // ══ AJUSTES ══
 function openAjustes() {
+  renderSesion();
   document.getElementById('aj-festivos').value = CFG.festivos;
   document.getElementById('aj-popular').checked = CFG.populares;
   document.getElementById('ov-aj').classList.add('open');
@@ -862,18 +894,27 @@ function importJSON(input) {
     try {
       const d = JSON.parse(r.result);
       if (!Array.isArray(d.events)) throw 0;
+      if (!requireFamilia()) return;
       if (!confirm('Esto reemplazará los ' + EVENTS.length + ' eventos actuales por los ' + d.events.length + ' de la copia. ¿Continuar?')) return;
-      EVENTS = d.events; if (d.cfg) CFG = Object.assign(CFG, d.cfg);
-      persist(true); render(); closeOv('ov-aj'); toast('Copia restaurada ✓');
+      if (d.cfg) { CFG = Object.assign(CFG, d.cfg); persist(); }
+      cloudReplaceAll(d.events).then(() => toast('Copia restaurada ✓')).catch(cloudError);
+      closeOv('ov-aj');
     } catch (e) { toast('Ese archivo no es una copia válida'); }
     input.value = '';
   };
   r.readAsText(f);
 }
 
-// ══ GUARDADO LOCAL + NUBE (Firebase, igual que la app de finanzas) ══
-let db = null, cloudLoaded = false;
-const SYNC_DOC = 'calendario-diaz-gonzalez';
+// ══ NUBE (Firebase) ══
+// Cada evento es un documento de la colección calendario_eventos: si dos personas
+// guardan a la vez, cada cambio se conserva. Cualquiera puede ver el calendario
+// (igual que la suscripción de Google), pero solo la familia con sesión de Google
+// puede añadir, cambiar o borrar — lo imponen las reglas de seguridad de Firestore.
+const APP_VERSION = '1.2';
+const COL_EVENTOS = 'calendario_eventos';
+const DOC_FAMILIA = 'calendario_familia/miembros';   // { emails: [...] } — lo gestiona el dueño
+const DUENO = 'emmanuel050216@gmail.com';
+let db = null, auth = null, USER = null, FAMILIA = [];
 try {
   firebase.initializeApp({
     apiKey: "AIzaSyCi0cdF5VqJjcsHibnLg6kvPGVN-f2b_DY",
@@ -884,54 +925,140 @@ try {
     appId: "1:627582265304:web:3b5fae7e4b7919619734ad"
   });
   db = firebase.firestore();
+  // Copia local de Firestore: la app abre sin internet y los cambios se envían al volver la conexión
+  db.enablePersistence({ synchronizeTabs: true }).catch(e => console.warn('Sin caché offline:', e.code));
+  auth = firebase.auth();
 } catch (e) { console.warn('Firebase no disponible:', e); }
 
-function persist(toCloud) {
+// Solo preferencias de este dispositivo + copia de los eventos para pintar al instante
+function persist() {
   store.set(LS_KEY, JSON.stringify({ events: EVENTS, cfg: CFG }));
-  if (toCloud !== false) syncToCloud();
 }
-function syncToCloud() {
-  // Hasta haber leído la nube, no escribir: evita pisar datos de otro dispositivo
-  if (!db || !cloudLoaded) return;
-  updateSyncStatus('syncing');
-  db.collection('appdata').doc(SYNC_DOC).set({
-    events: JSON.stringify(EVENTS),
-    cfg: JSON.stringify({ festivos: CFG.festivos, populares: CFG.populares }),
-    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-  }, { merge: true })
-    .then(() => updateSyncStatus('synced'))
-    .catch(err => { console.warn('Sync error:', err); updateSyncStatus('error'); });
+
+const email = () => (USER && USER.email || '').toLowerCase();
+const esDueno = () => email() === DUENO;
+const esFamilia = () => !!USER && (esDueno() || FAMILIA.includes(email()));
+function requireFamilia() {
+  if (esFamilia()) return true;
+  if (!USER) { openLogin(); return false; }
+  toast('Tu cuenta (' + email() + ') no está en la familia. Pídele a Emmanuel que te añada.');
+  return false;
 }
-function applyCloud(data) {
-  try {
-    if (data.events) EVENTS = JSON.parse(data.events);
-    if (data.cfg) Object.assign(CFG, JSON.parse(data.cfg));
-  } catch (e) { console.warn('Datos de nube no válidos', e); }
-  persist(false); render();
+
+function cloudError(err) {
+  console.warn('Error de nube:', err);
+  if (err && err.code === 'permission-denied') toast('No tienes permiso para cambiar el calendario');
+  else toast('No se pudo guardar en la nube: ' + (err && err.message || err));
 }
-function loadCloud() {
+function cloudSet(ev) {
+  const data = { ...ev, updatedAt: firebase.firestore.FieldValue.serverTimestamp(), updatedBy: email() };
+  // Sin await: la caché local actualiza la pantalla al momento y se sube cuando haya conexión
+  db.collection(COL_EVENTOS).doc(ev.id).set(data).catch(cloudError);
+}
+function cloudDelete(id) {
+  db.collection(COL_EVENTOS).doc(id).delete().catch(cloudError);
+}
+async function cloudReplaceAll(events) {
+  const nuevos = new Set(events.map(e => e.id));
+  const ops = [...events.map(e => b => b.set(db.collection(COL_EVENTOS).doc(e.id), { ...e, updatedAt: firebase.firestore.FieldValue.serverTimestamp(), updatedBy: email() })),
+               ...EVENTS.filter(e => !nuevos.has(e.id)).map(e => b => b.delete(db.collection(COL_EVENTOS).doc(e.id)))];
+  for (let i = 0; i < ops.length; i += 400) {   // Firestore admite 500 operaciones por lote
+    const b = db.batch(); ops.slice(i, i + 400).forEach(op => op(b)); await b.commit();
+  }
+}
+
+function initCloud() {
   if (!db) { updateSyncStatus('error'); return; }
-  db.collection('appdata').doc(SYNC_DOC).get().then(doc => {
-    cloudLoaded = true;
-    if (doc.exists) applyCloud(doc.data());
-    else if (EVENTS.length) syncToCloud(); // primera vez: subir lo que haya en este dispositivo
-    updateSyncStatus('synced');
-    db.collection('appdata').doc(SYNC_DOC).onSnapshot(d => {
-      if (!d.exists || d.metadata.hasPendingWrites) return;
-      applyCloud(d.data()); updateSyncStatus('synced');
-    });
-  }).catch(err => { console.warn('Load error:', err); updateSyncStatus('error'); });
+  db.collection(COL_EVENTOS).onSnapshot({ includeMetadataChanges: true }, snap => {
+    EVENTS = snap.docs.map(d => { const { updatedAt, updatedBy, ...ev } = d.data(); return ev; });
+    persist(); render();
+    updateSyncStatus(snap.metadata.hasPendingWrites ? 'syncing' : snap.metadata.fromCache ? 'offline' : 'synced');
+  }, err => { console.warn('Lectura:', err); updateSyncStatus('error'); });
+
+  auth.onAuthStateChanged(async u => {
+    USER = u; FAMILIA = [];
+    if (u) {
+      try {
+        const d = await db.doc(DOC_FAMILIA).get();
+        FAMILIA = ((d.exists && d.data().emails) || []).map(x => x.toLowerCase());
+      } catch (e) { console.warn('Miembros:', e); }
+    }
+    renderSesion();
+  });
+  auth.getRedirectResult().catch(e => e.code && toast('No se pudo iniciar sesión: ' + e.message));
 }
+
+// ══ SESIÓN ══
+function openLogin() { document.getElementById('ov-login').classList.add('open'); }
+async function login() {
+  const provider = new firebase.auth.GoogleAuthProvider();
+  provider.setCustomParameters({ prompt: 'select_account' });
+  try {
+    await auth.signInWithPopup(provider);
+    closeOv('ov-login'); toast('Sesión iniciada ✓');
+  } catch (e) {
+    // Algunos móviles (app instalada) no permiten ventanas emergentes: probar con redirección
+    if (['auth/popup-blocked', 'auth/operation-not-supported-in-this-environment', 'auth/cancelled-popup-request'].includes(e.code)) auth.signInWithRedirect(provider);
+    else if (e.code !== 'auth/popup-closed-by-user') toast('No se pudo iniciar sesión: ' + e.message);
+  }
+}
+function logout() { auth.signOut(); toast('Sesión cerrada'); }
+function renderSesion() {
+  const el = document.getElementById('aj-sesion'), fam = document.getElementById('aj-familia');
+  const hdr = document.getElementById('hdr-user');
+  hdr.textContent = USER ? '👤 ' + (USER.displayName || email()).split(' ')[0] : '👤 Entrar';
+  if (!USER) {
+    el.innerHTML = `<div class="ev-s" style="white-space:normal;margin-bottom:8px">Cualquiera con el enlace puede ver el calendario. Para añadir o cambiar eventos, entra con tu cuenta de Google.</div><button class="btn primary" style="width:100%" onclick="login()">Entrar con Google</button>`;
+  } else {
+    el.innerHTML = `<div style="display:flex;align-items:center;gap:10px"><div style="flex:1;min-width:0"><div class="ev-t">${esc(USER.displayName || '')}</div><div class="ev-s">${esc(email())} · ${esFamilia() ? '✅ puede editar' : '⛔ solo ver'}</div></div><button class="btn small" onclick="logout()">Salir</button></div>`;
+  }
+  fam.style.display = esDueno() ? '' : 'none';
+  if (esDueno()) {
+    document.getElementById('fam-list').innerHTML = FAMILIA.length ? FAMILIA.map(m => `<div class="fam-row"><span>${esc(m)}</span><button class="x" onclick="quitarMiembro('${esc(m)}')">✕</button></div>`).join('')
+      : '<div class="ev-s" style="padding:4px 0">Todavía solo tú puedes editar.</div>';
+  }
+}
+async function guardarMiembros(lista) {
+  try {
+    await db.doc(DOC_FAMILIA).set({ emails: lista });
+    FAMILIA = lista; renderSesion(); toast('Familia actualizada ✓');
+  } catch (e) { cloudError(e); }
+}
+function addMiembro() {
+  const i = document.getElementById('fam-email'), m = i.value.trim().toLowerCase();
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(m)) { toast('Escribe un correo válido'); return; }
+  if (m === DUENO || FAMILIA.includes(m)) { toast('Ese correo ya está'); return; }
+  i.value = ''; guardarMiembros([...FAMILIA, m]);
+}
+function quitarMiembro(m) {
+  if (confirm('¿Quitar a ' + m + '? Ya no podrá cambiar el calendario.')) guardarMiembros(FAMILIA.filter(x => x !== m));
+}
+
 function updateSyncStatus(s) {
   const el = document.getElementById('sync-status');
-  if (s === 'synced') { el.textContent = '☁️ Sincronizado'; el.style.color = 'var(--emerald)'; }
-  else if (s === 'error') { el.textContent = '⚠️ Sin conexión'; el.style.color = 'var(--amber)'; }
-  else { el.textContent = '🔄 Sincronizando…'; el.style.color = 'var(--sky)'; }
+  const st = { synced: ['☁️ Sincronizado', 'var(--emerald)'], offline: ['📴 Sin conexión (se guarda al volver)', 'var(--amber)'],
+               error: ['⚠️ Error de conexión', 'var(--coral)'], syncing: ['🔄 Sincronizando…', 'var(--sky)'] }[s];
+  el.textContent = st[0]; el.style.color = st[1];
 }
+
+// ══ VERSIÓN NUEVA ══
+// Compara esta versión con la publicada; si hay una más nueva, ofrece recargar
+async function checkVersion() {
+  if (location.protocol !== 'https:') return;
+  try {
+    const html = await (await fetch('./?v=' + Date.now(), { cache: 'no-store' })).text();
+    const pub = (html.match(/const APP_VERSION = '([^']+)'/) || [])[1];
+    document.getElementById('upd-banner').hidden = !pub || pub === APP_VERSION;
+  } catch (e) {}
+}
+document.addEventListener('visibilitychange', () => { if (!document.hidden) checkVersion(); });
 
 applyTheme();
 render();
-loadCloud();
+initCloud();
+checkVersion();
+document.getElementById('app-version').textContent = 'v' + APP_VERSION;
+if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(e => console.warn('SW:', e));
 </script>
 </body>
 </html>
