@@ -25,7 +25,12 @@ Calendario familiar de cumpleaños, aniversarios, celebraciones, recordatorios, 
 - **Eventos de la familia** (se crean y editan en la app): cumpleaños, aniversarios, celebraciones, recordatorios… Los que «se repiten cada año» salen todos los años sin límite.
 - **Festivos y no laborables** (`festivos()` en `compartido.js`): nacionales de Andorra (con Carnaval) + locales de Andorra la Vella (Sant Joan 24/6, Fiesta Mayor = lunes tras el primer sábado de agosto, Santo Tomás 21/12), según la lista de días inhábiles del Consell General.
 - **Celebraciones** (`celebraciones()` en `compartido.js`): Día del Amor y la Amistad (14/2), Día del Padre Andorra (19/3), Flores Amarillas (21/3 y 21/9), Día de la Madre Andorra (1er domingo de mayo) y Venezuela (2º domingo de mayo), Día del Padre Venezuela (3er domingo de junio), Día del Niño Venezuela (3er domingo de julio), Día de la Mujer (8/3), Día de la Enfermera (12/5, Venezuela y Andorra), Virgen del Carmen (16/7, santo de Elibel del Carmen).
-- **Vacaciones escolares** (`ESCOLAR` en `compartido.js`): curso 2026-2027 (PDF oficial del Govern d'Andorra).
+- **Vacaciones escolares** (`ESCOLAR` en `compartido.js`): curso 2026-2027 (PDF oficial del Govern d'Andorra) + verano 3/7–8/9/2027 (vuelta a clase el 9/9, a confirmar con el PDF 2027-2028).
+- **Tipos de evento**: Cumpleaños, Aniversario, Celebración, Familiar, Recordatorio, Médico, Colegio, **En memoria** (🕊️ «N años de su partida» / «Cumpliría N años» si el título contiene «Cumpleaños») y Otro.
+- **Felicitar por WhatsApp**: botón verde en cumpleaños y en el aniversario de boda. Abre `wa.me` con un mensaje cariñoso según el parentesco (campo «¿De quién?»: Hijo, Esposa, Padre de Emmanuel, Suegra, Hermana/o, Sobrino/a, Prima/o, Tía, Cuñada… o genérico). Se edita en `mensajeWA()` de `index.html`.
+
+### Colores
+Cumpleaños `#d9528b` · Aniversario `#7c5cc4` · Celebraciones `#e27a45` · Vacaciones escolares `#3fa7d6` · Día festivo `#d64545` · En memoria `#9c8fb8`. Tema claro lavanda por defecto; oscuro suave con 🌙.
 
 Las capas de festivos, celebraciones y vacaciones se pueden ocultar en ⚙️ Ajustes → «Qué mostrar».
 
@@ -49,6 +54,10 @@ Las capas de festivos, celebraciones y vacaciones se pueden ocultar en ⚙️ Aj
 **Nueva celebración fija:** añadirla en `celebraciones()` de `compartido.js`.
 
 **Lanzar el robot a mano:** GitHub → pestaña «Actions» → «Copia de seguridad del calendario» → «Run workflow».
+
+## Añadir o cambiar eventos sin la app (desde un script)
+
+El documento `appdata/calendario-eventos` se puede escribir por la API REST de Firestore. **Siempre** con `updateMask.fieldPaths=eventos.\`<id>\`` por cada evento que se toca: **un PATCH sin máscara reemplaza el documento entero y borra todo** (pasó una vez; se restauró desde la copia). Antes de enviar, comprobar que la lista de cambios no está vacía, y después volver a leer el total.
 
 ## Cómo publicar cambios
 
