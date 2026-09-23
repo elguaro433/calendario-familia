@@ -1,7 +1,7 @@
 // Service worker: "red primero". Con internet siempre carga la versión publicada
 // (así no se queda una versión vieja en el móvil); sin internet usa la última copia guardada.
-const CACHE = 'calendario-dg';
-const BASICOS = ['./', './index.html', './compartido.js', './manifest.json', './icon-192.png', './icon-512.png'];
+const CACHE = 'calendario-dg-2';
+const BASICOS = ['./', './index.html', './manifest.json', './icon-180.png', './icon-192.png', './icon-512.png'];
 const HOSTS = [self.location.origin, 'https://www.gstatic.com', 'https://fonts.googleapis.com', 'https://fonts.gstatic.com'];
 
 self.addEventListener('install', e => {
@@ -22,7 +22,8 @@ self.addEventListener('fetch', e => {
     const cache = await caches.open(CACHE);
     try {
       // Si la red tarda más de 6 s y hay copia guardada, usar la copia
-      const red = fetch(req).then(res => { if (res.ok) cache.put(req, res.clone()); return res; });
+      // cache: 'no-cache' → el navegador pregunta al servidor si hay versión nueva (evita mezclar archivos viejos y nuevos)
+      const red = fetch(req, url.origin === self.location.origin ? { cache: 'no-cache' } : {}).then(res => { if (res.ok) cache.put(req, res.clone()); return res; });
       const lento = new Promise((_, rej) => setTimeout(() => rej(new Error('lento')), 6000));
       return await Promise.race([red, lento]).catch(async err => (await cache.match(req, { ignoreSearch: true })) || red);
     } catch (err) {

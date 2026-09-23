@@ -24,10 +24,10 @@ Calendario familiar de cumpleaños, aniversarios, celebraciones, recordatorios, 
 
 - **Eventos de la familia** (se crean y editan en la app): cumpleaños, aniversarios, celebraciones, recordatorios… Los que «se repiten cada año» salen todos los años sin límite.
 - **Festivos y no laborables** (`festivos()` en `compartido.js`): nacionales de Andorra (con Carnaval) + locales de Andorra la Vella (Sant Joan 24/6, Fiesta Mayor = lunes tras el primer sábado de agosto, Santo Tomás 21/12), según la lista de días inhábiles del Consell General.
-- **Celebraciones** (`celebraciones()` en `compartido.js`): Día del Amor y la Amistad (14/2), Día del Padre Andorra (19/3), Flores Amarillas (21/3), Día de la Madre Andorra (1er domingo de mayo) y Venezuela (2º domingo de mayo), Día del Padre Venezuela (3er domingo de junio), Día del Niño Venezuela (3er domingo de julio).
+- **Celebraciones** (`celebraciones()` en `compartido.js`): Día del Amor y la Amistad (14/2), Día del Padre Andorra (19/3), Flores Amarillas (21/3), Día de la Madre Andorra (1er domingo de mayo) y Venezuela (2º domingo de mayo), Día del Padre Venezuela (3er domingo de junio), Día del Niño Venezuela (3er domingo de julio), Día de la Mujer (8/3), Día de la Enfermera (12/5, Venezuela y Andorra), Virgen del Carmen (16/7, santo de Elibel del Carmen).
 - **Vacaciones escolares** (`ESCOLAR` en `compartido.js`): curso 2026-2027 (PDF oficial del Govern d'Andorra).
 
-Cada capa se puede ocultar desde «Mostrar» (menú lateral).
+Las capas de festivos, celebraciones y vacaciones se pueden ocultar en ⚙️ Ajustes → «Qué mostrar».
 
 ### Datos en Firebase (proyecto `familia-diaz-gonzalez`)
 
@@ -52,7 +52,7 @@ Cada capa se puede ocultar desde «Mostrar» (menú lateral).
 
 ## Cómo publicar cambios
 
-1. Editar los archivos y **subir el número** en `const APP_VERSION = '…'` (`index.html`). Los teléfonos con la app abierta verán el aviso «Hay una versión nueva».
+1. Editar los archivos y **subir el número** en `const APP_VERSION = '…'` **y** en `compartido.js?v=…` (ambos en `index.html`), para que los teléfonos no mezclen archivos viejos y nuevos. Los teléfonos con la app abierta verán el aviso «Hay una versión nueva».
 2. `git pull --rebase` (el robot hace commits propios) y después `git commit` + `git push`.
 3. GitHub Pages publica en ~1 minuto.
 

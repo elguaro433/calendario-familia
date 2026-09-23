@@ -9,7 +9,9 @@
 <meta name="theme-color" content="#5d4b80">
 <meta name="description" content="Calendario de celebraciones Familia Díaz González">
 <link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="apple-mobile-web-app-title" content="Familia DG">
+<link rel="icon" type="image/png" sizes="32x32" href="icon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
@@ -59,7 +61,8 @@ body {
   background: var(--bg); color: var(--text);
   min-height: 100vh; font-size: 15px; line-height: 1.5;
 }
-button { font-family: inherit; }
+button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
+.cell, .ev-row, .mini-g span, .metric { -webkit-tap-highlight-color: transparent; }
 
 /* ── LAYOUT ── */
 .app { display: grid; grid-template-columns: 230px 1fr; grid-template-rows: 60px 1fr; min-height: 100vh; }
@@ -225,11 +228,18 @@ button { font-family: inherit; }
   .hdr-more { display: flex; font-size: 18px; padding: 4px 10px; }
   .sync-status { font-size: 0; width: 9px; height: 9px; border-radius: 50%; background: currentColor; box-shadow: 0 0 6px currentColor; }
   .content { padding: 14px 16px 24px; }
-  .hero { grid-template-columns: 1fr; gap: 8px; }
-  .metric { padding: 12px 14px; }
+  /* Resumen en una fila que se desliza, para que el calendario quede a la vista */
+  .hero { display: flex; overflow-x: auto; gap: 8px; margin: 0 -16px 14px; padding: 0 16px 4px; scroll-padding: 0 16px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .hero::-webkit-scrollbar { display: none; }
+  .metric { flex: 0 0 78%; padding: 12px 14px; scroll-snap-align: start; }
   .metric-val { font-size: 15px; }
+  .avisos { padding: 10px 14px; margin-bottom: 12px; }
+  .fld input, .fld select, .fld textarea { font-size: 16px; }   /* evita el zoom automático del iPhone */
+  .cal-nav { margin-bottom: 10px; }
+  .nbtn { height: 40px; min-width: 40px; }
   .cal-title { font-size: 18px; min-width: 0; flex: 1; }
-  .cell { min-height: 58px; padding: 4px 2px; }
+  .cell { min-height: 54px; padding: 5px 2px; }
+  .dots i { width: 7px; height: 7px; }
   .dnum { margin: 0 auto 3px; font-size: 12.5px; }
   .pill, .more { display: none; }
   .dots { display: flex; }
@@ -244,7 +254,8 @@ button { font-family: inherit; }
     background: var(--surface); border-top: 1px solid var(--border);
     padding: 6px 4px calc(6px + env(safe-area-inset-bottom)); box-shadow: 0 -4px 16px rgba(0,0,0,.08);
   }
-  .tab-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; background: transparent; border: none; color: var(--muted); font-size: 10px; font-weight: 600; padding: 4px 0; cursor: pointer; }
+  .tab-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; background: transparent; border: none; color: var(--muted); font-size: 11px; font-weight: 600; padding: 4px 0; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .tab-ico { font-size: 22px; }
   .tab-ico { font-size: 20px; line-height: 1; filter: grayscale(1); opacity: .7; }
   .tab-item.active { color: var(--pink); }
   .tab-item.active .tab-ico { filter: none; opacity: 1; }
@@ -277,10 +288,6 @@ button { font-family: inherit; }
     <button class="nav-item" data-page="proximos" onclick="go('proximos')">⏳ Próximos</button>
     <button class="nav-item" data-page="anio" onclick="go('anio')">📆 Año completo</button>
     <button class="nav-item" data-page="cumples" onclick="go('cumples')">🎂 Cumpleaños</button>
-    <div class="side-sec">
-      <div class="side-lbl">Mostrar</div>
-      <div id="filtros"></div>
-    </div>
   </nav>
 
   <main class="content">
@@ -403,6 +410,7 @@ button { font-family: inherit; }
   <div class="sheet">
     <div class="sheet-h"><h3>Ajustes</h3><button class="x" onclick="closeOv('ov-aj')">✕</button></div>
     <div class="sheet-b">
+      <div class="fld"><label>Qué mostrar en el calendario</label><div id="filtros"></div></div>
       <div class="fld"><label>Días festivos</label>
         <select id="aj-festivos" onchange="setCfg('festivos', this.value)">
           <option value="AD">Andorra (con Andorra la Vella)</option>
@@ -426,7 +434,7 @@ button { font-family: inherit; }
 
 <div class="toast" id="toast"></div>
 
-<script src="compartido.js"></script>
+<script src="compartido.js?v=1.9"></script>
 <script>
 const TIPOS = CalComun.TIPOS; // en compartido.js
 const FEST_COLOR = '#94a3b8';
@@ -566,20 +574,25 @@ function festRow(f) {
 
 // ══ RENDER ══
 function render() {
-  renderFiltros();
-  if (page === 'mes') renderMes();
-  if (page === 'proximos') renderProximos();
-  if (page === 'anio') renderAnio();
-  if (page === 'cumples') renderCumples();
+  try {
+    if (page === 'mes') renderMes();
+    if (page === 'proximos') renderProximos();
+    if (page === 'anio') renderAnio();
+    if (page === 'cumples') renderCumples();
+  } catch (e) {
+    // Casi siempre es una versión a medio descargar: recargar lo arregla
+    console.error(e);
+    document.getElementById('upd-banner').hidden = false;
+  }
   document.getElementById('personas').innerHTML = [...new Set(EVENTS.map(e => e.persona).filter(Boolean))].map(p => `<option value="${esc(p)}">`).join('');
 }
 
+// Capas que se pueden ocultar (los eventos de la familia siempre se ven)
+const CAPAS = [['festivo', '🗓️ Festivos y no laborables'], ['celebraciones', '🎉 Celebraciones (Día de la Madre…)'], ['escolar', '🏫 Vacaciones escolares']];
+CFG.ocultos = CFG.ocultos.filter(k => CAPAS.some(c => c[0] === k));
 function renderFiltros() {
-  const all = { ...Object.fromEntries(Object.entries(TIPOS).map(([k, v]) => [k, v])), escolar: { label: 'Calendario escolar', icon: '🏫', color: ESC_COLOR }, celebraciones: { label: 'Celebraciones (Día de la Madre…)', icon: '🎉', color: CELEB_COLOR }, festivo: { label: 'Festivos y no laborables', icon: '🗓️', color: FEST_COLOR } };
-  document.getElementById('filtros').innerHTML = Object.entries(all).map(([k, t]) => {
-    const on = !CFG.ocultos.includes(k);
-    return `<label class="filt ${on ? '' : 'off'}"><input type="checkbox" ${on ? 'checked' : ''} onchange="toggleFiltro('${k}')"><span class="dot" style="background:${t.color}"></span>${t.icon} ${t.label}</label>`;
-  }).join('');
+  document.getElementById('filtros').innerHTML = CAPAS.map(([k, label]) =>
+    `<label class="chk"><input type="checkbox" ${CFG.ocultos.includes(k) ? '' : 'checked'} onchange="toggleFiltro('${k}')"> ${label}</label>`).join('');
 }
 function toggleFiltro(k) {
   CFG.ocultos = CFG.ocultos.includes(k) ? CFG.ocultos.filter(x => x !== k) : [...CFG.ocultos, k];
@@ -788,6 +801,7 @@ document.addEventListener('keydown', e => {
 
 // ══ AJUSTES ══
 function openAjustes() {
+  renderFiltros();
   document.getElementById('aj-festivos').value = CFG.festivos;
   document.getElementById('ov-aj').classList.add('open');
 }
@@ -842,7 +856,7 @@ function importJSON(input) {
 // "eventos" (un mapa id → evento). Cada cambio solo toca SU evento (eventos.<id>), así que si
 // dos personas guardan a la vez se conservan los dos cambios. Sin inicio de sesión: igual que
 // la app de finanzas, la colección appdata es de acceso libre.
-const APP_VERSION = '1.8';
+const APP_VERSION = '1.9';
 const DOC_EVENTOS = 'appdata/calendario-eventos';
 let db = null;
 try {
@@ -910,8 +924,8 @@ async function checkVersion() {
 document.addEventListener('visibilitychange', () => { if (!document.hidden) checkVersion(); });
 
 applyTheme();
-render();
 initCloud();
+render();
 checkVersion();
 document.getElementById('app-version').textContent = 'v' + APP_VERSION;
 if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(e => console.warn('SW:', e));

@@ -72,11 +72,14 @@
     const out = [];
     const add = (d, titulo, icon) => out.push({ fecha: d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()), titulo, icon, celeb: true });
     add(new Date(y, 1, 14), 'Día del Amor y la Amistad', '❤️');
+    add(new Date(y, 2, 8), 'Día de la Mujer (Venezuela y Andorra)', '💐');
     add(new Date(y, 2, 19), 'Día del Padre (Andorra)', '👨');
     add(new Date(y, 2, 21), 'Día de las Flores Amarillas', '🌼');
     add(domingo(y, 4, 1), 'Día de la Madre (Andorra)', '👩');
     add(domingo(y, 4, 2), 'Día de la Madre (Venezuela)', '👩');
+    add(new Date(y, 4, 12), 'Día de la Enfermera (Venezuela y Andorra)', '👩‍⚕️');
     add(domingo(y, 5, 3), 'Día del Padre (Venezuela)', '👨');
+    add(new Date(y, 6, 16), 'Virgen del Carmen (felicitar a Elibel del Carmen)', '🌸');
     add(domingo(y, 6, 3), 'Día del Niño (Venezuela)', '🧒');
     return out;
   }

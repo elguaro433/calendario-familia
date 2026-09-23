@@ -1,6 +1,6 @@
 {
   "name": "Familia Díaz González — Calendario",
-  "short_name": "Calendario DG",
+  "short_name": "Familia DG",
   "description": "Cumpleaños, celebraciones y recordatorios de la familia",
   "start_url": "./index.html",
   "display": "standalone",
