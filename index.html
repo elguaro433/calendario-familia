@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#1e293b">
+<meta name="theme-color" content="#5d4b80">
 <meta name="description" content="Calendario de celebraciones Familia Díaz González">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
@@ -17,14 +17,15 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #f4f6fb;
-  --surface: #ffffff;
-  --card: #ffffff;
-  --card2: #f8f9fc;
-  --border: rgba(0,0,0,.07);
-  --text: #1e293b;
-  --muted: #64748b;
-  --hint: #94a3b8;
+  /* Tema claro pastel (lavanda suave): sin blancos puros para no deslumbrar */
+  --bg: #ece6f3;
+  --surface: #f3eef8;
+  --card: #f4eff9;
+  --card2: #ebe3f2;
+  --border: rgba(76,56,110,.12);
+  --text: #2b2440;
+  --muted: #6b6282;
+  --hint: #9a91ad;
 
   --emerald: #00d68f;
   --emerald-dim: rgba(0,214,143,.12);
@@ -39,16 +40,16 @@
   --r-sm: 10px;
 }
 [data-theme="dark"] {
-  --bg: #0f172a;
-  --surface: #1e293b;
-  --card: #1e293b;
-  --card2: #334155;
+  --bg: #2b2d42;
+  --surface: #36384f;
+  --card: #36384f;
+  --card2: #45475f;
   --border: rgba(255,255,255,.08);
   --text: #e2e8f0;
   --muted: #94a3b8;
   --hint: #64748b;
 }
-[data-theme="dark"] .hdr { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); }
+[data-theme="dark"] .hdr { background: linear-gradient(135deg, #3b3556 0%, #4a4368 100%); }
 [data-theme="dark"] .hero { background: linear-gradient(135deg, #3b0a2a 0%, #1e1b4b 100%); border-color: rgba(247,37,133,.3); }
 [data-theme="dark"] input, [data-theme="dark"] select, [data-theme="dark"] textarea { color-scheme: dark; }
 
@@ -64,12 +65,12 @@ button { font-family: inherit; }
 .app { display: grid; grid-template-columns: 230px 1fr; grid-template-rows: 60px 1fr; min-height: 100vh; }
 .hdr {
   grid-column: 1/-1;
-  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  background: linear-gradient(135deg, #5d4b80 0%, #7c67a3 100%);
   display: flex; align-items: center; justify-content: space-between;
   padding: 0 24px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,.12);
 }
 .hdr-logo { font-size: 16px; font-weight: 700; letter-spacing: -.3px; color: #fff; }
-.hdr-logo em { color: #ff7ab8; font-style: normal; }
+.hdr-logo em { color: #ffd0e7; font-style: normal; }
 .hdr-actions { display: flex; align-items: center; gap: 8px; }
 .hdr-btn {
   background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.15);
@@ -792,12 +793,12 @@ function openAjustes() {
 }
 function setCfg(k, v) { CFG[k] = v; persist(); render(); }
 function applyTheme() {
-  const t = store.get('calendario_dg_theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  const t = store.get('calendario_dg_tema') || 'light';
   document.documentElement.dataset.theme = t;
   document.getElementById('theme-btn').textContent = t === 'dark' ? '☀️' : '🌙';
 }
 function toggleTheme() {
-  store.set('calendario_dg_theme', document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
+  store.set('calendario_dg_tema', document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
   applyTheme();
 }
 function toast(msg) {
@@ -841,7 +842,7 @@ function importJSON(input) {
 // "eventos" (un mapa id → evento). Cada cambio solo toca SU evento (eventos.<id>), así que si
 // dos personas guardan a la vez se conservan los dos cambios. Sin inicio de sesión: igual que
 // la app de finanzas, la colección appdata es de acceso libre.
-const APP_VERSION = '1.7';
+const APP_VERSION = '1.8';
 const DOC_EVENTOS = 'appdata/calendario-eventos';
 let db = null;
 try {

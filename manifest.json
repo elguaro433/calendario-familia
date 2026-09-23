@@ -4,8 +4,8 @@
   "description": "Cumpleaños, celebraciones y recordatorios de la familia",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#1e293b",
-  "theme_color": "#1e293b",
+  "background_color": "#ece6f3",
+  "theme_color": "#5d4b80",
   "orientation": "any",
   "icons": [
     { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
