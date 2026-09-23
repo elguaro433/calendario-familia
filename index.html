@@ -532,7 +532,12 @@ function festivos(y) {
     add(addD(E, -2), 'Viernes Santo', '🇦🇩', true);
     add(addD(E, 1), 'Lunes de Pascua', '🇦🇩', true);
     add(addD(E, 50), 'Lunes de Pentecostés', '🇦🇩', true);
-    add(addD(E, -48), 'Carnaval', '🎭', false);
+    add(addD(E, -48), 'Carnaval', '🎭', true);
+    // Fiestas locales de Andorra la Vella (lista de días inhábiles del Consell General)
+    add(new Date(y, 5, 24), 'Sant Joan (Andorra la Vella)', '🇦🇩', true);
+    const primerSabadoAgosto = new Date(y, 7, 1 + (6 - new Date(y, 7, 1).getDay() + 7) % 7);
+    add(addD(primerSabadoAgosto, 2), 'Fiesta Mayor (Andorra la Vella)', '🇦🇩', true);
+    add(new Date(y, 11, 21), 'Santo Tomás (Andorra la Vella)', '🇦🇩', true);
   } else if (CFG.festivos === 'ES') {
     [[0,1,'Año Nuevo'],[0,6,'Reyes'],[4,1,'Día del Trabajo'],[7,15,'La Asunción'],[9,12,'Fiesta Nacional'],
      [10,1,'Todos los Santos'],[11,6,'Día de la Constitución'],[11,8,'La Inmaculada'],[11,25,'Navidad']]
@@ -544,9 +549,9 @@ function festivos(y) {
     add(new Date(y, 1, 14), 'San Valentín', '❤️', false);
     add(new Date(y, 2, 19), 'Día del Padre', '👨', false);
     add(new Date(y, 3, 23), 'Sant Jordi', '🌹', false);
+    add(new Date(y, 5, 23), 'Noche de San Juan', '🔥', false);
     add(nthSunday(y, 4, 1), 'Día de la Madre', '👩', false);
     add(E, 'Domingo de Pascua', '🐣', false);
-    add(new Date(y, 5, 23), 'Noche de San Juan', '🔥', false);
     add(new Date(y, 9, 31), 'Halloween', '🎃', false);
     add(new Date(y, 11, 24), 'Nochebuena', '🎄', false);
     add(new Date(y, 11, 31), 'Nochevieja', '🥂', false);
@@ -593,6 +598,26 @@ function festivosEntre(start, end) {
   return out;
 }
 
+// ══ CALENDARIO ESCOLAR ══ (periodos fijos de compartido.js; se ocultan con el filtro 'escolar')
+const ESC_COLOR = CalComun.ESCOLAR_COLOR;
+function escolarEntre(start, end) {
+  if (CFG.ocultos.includes('escolar')) return [];
+  return CalComun.ESCOLAR.map(e => ({ ...e, d: parse(e.desde), h: parse(e.hasta) })).filter(e => e.d <= end && e.h >= start);
+}
+function rangoTexto(e) {
+  if (+e.d === +e.h) return fechaLarga(e.d);
+  const n = diffDays(e.d, e.h) + 1;
+  return e.d.getDate() + ' ' + MES_C[e.d.getMonth()] + ' – ' + e.h.getDate() + ' ' + MES_C[e.h.getMonth()] + ' · ' + n + ' días';
+}
+function escRow(e) {
+  const ahora = e.d <= TODAY && e.h >= TODAY && +e.d !== +e.h;
+  const [txt, cls] = ahora ? ['Ahora', 'hoy'] : e.h < TODAY ? ['Pasado', ''] : cuando(e.d);
+  return `<div class="ev-row" style="--c:${ESC_COLOR};cursor:default">
+    <div class="date-badge"><div class="d">${e.d.getDate()}</div><div class="m">${MES_C[e.d.getMonth()]}</div></div>
+    <div class="ev-main"><div class="ev-t">${e.icon} ${esc(e.titulo)}</div><div class="ev-s">${rangoTexto(e)} · Calendario escolar</div></div>
+    <span class="when ${cls}">${txt}</span></div>`;
+}
+
 // ══ TEXTOS ══
 function cuando(d) {
   const n = diffDays(TODAY, d);
@@ -636,7 +661,7 @@ function render() {
 }
 
 function renderFiltros() {
-  const all = { ...Object.fromEntries(Object.entries(TIPOS).map(([k, v]) => [k, v])), festivo: { label: 'Festivos y días especiales', icon: '🗓️', color: FEST_COLOR } };
+  const all = { ...Object.fromEntries(Object.entries(TIPOS).map(([k, v]) => [k, v])), escolar: { label: 'Calendario escolar', icon: '🏫', color: ESC_COLOR }, festivo: { label: 'Festivos y días especiales', icon: '🗓️', color: FEST_COLOR } };
   document.getElementById('filtros').innerHTML = Object.entries(all).map(([k, t]) => {
     const on = !CFG.ocultos.includes(k);
     return `<label class="filt ${on ? '' : 'off'}"><input type="checkbox" ${on ? 'checked' : ''} onchange="toggleFiltro('${k}')"><span class="dot" style="background:${t.color}"></span>${t.icon} ${t.label}</label>`;
@@ -651,10 +676,11 @@ function renderMes() {
   // Avisos: eventos cuya ventana de aviso incluye hoy
   const lejos = addD(TODAY, 31);
   const av = occurrences(TODAY, lejos).filter(o => diffDays(TODAY, o.fecha) <= (o.ev.aviso ?? 0));
-  document.getElementById('avisos').innerHTML = av.length ? `<div class="avisos"><div class="avisos-t">🔔 No te olvides</div>${av.map(o => {
+  const avEsc = escolarEntre(TODAY, lejos).filter(e => e.d >= TODAY && diffDays(TODAY, e.d) <= e.aviso);
+  document.getElementById('avisos').innerHTML = av.length + avEsc.length ? `<div class="avisos"><div class="avisos-t">🔔 No te olvides</div>${av.map(o => {
     const t = TIPOS[o.ev.tipo] || TIPOS.otro, [txt] = cuando(o.fecha);
     return `<div class="aviso" onclick="openForm('${o.ev.id}')">${t.icon} <b>${esc(o.ev.titulo)}</b> — ${txt.toLowerCase()}${o.edad != null && o.ev.tipo === 'cumple' ? ' (cumple ' + o.edad + ')' : ''}</div>`;
-  }).join('')}</div>` : '';
+  }).join('')}${avEsc.map(e => `<div class="aviso" onclick="openDay('${e.desde}')">${e.icon} <b>${esc(e.titulo)}</b> — ${cuando(e.d)[0].toLowerCase()}</div>`).join('')}</div>` : '';
 
   // Resumen
   const prox = occurrences(TODAY, addD(TODAY, 366), true);
@@ -678,17 +704,19 @@ function renderMes() {
   const end = addD(start, 41);
   const occ = occurrences(start, end);
   const fest = festivosEntre(start, end);
-  const byDay = {}, festDay = {};
+  const byDay = {}, festDay = {}, escDay = {};
   occ.forEach(o => (byDay[iso(o.fecha)] ||= []).push(o));
   fest.forEach(f => (festDay[f.fecha] ||= []).push(f));
+  escolarEntre(start, end).forEach(e => { for (let d = new Date(e.d); d <= e.h; d = addD(d, 1)) (escDay[iso(d)] ||= []).push(e); });
   let html = '';
   for (let i = 0; i < 42; i++) {
-    const d = addD(start, i), k = iso(d), evs = byDay[k] || [], fs = festDay[k] || [];
+    const d = addD(start, i), k = iso(d), evs = byDay[k] || [], fs = festDay[k] || [], es = escDay[k] || [];
     if (i === 35 && d.getMonth() !== viewM) break; // no pintar 6ª fila vacía
     const cls = ['cell', d.getMonth() !== viewM && 'other', +d === +TODAY && 'today', (d.getDay() % 6 === 0) && 'weekend', fs.some(f => f.oficial) && 'holiday'].filter(Boolean).join(' ');
-    const items = [...evs.map(o => { const t = TIPOS[o.ev.tipo] || TIPOS.otro; return `<span class="pill" style="--c:${t.color}">${t.icon} ${esc(o.ev.titulo)}</span>`; }),
+    const items = [...es.map(e => `<span class="pill" style="--c:${ESC_COLOR}">${e.icon} ${esc(e.titulo)}</span>`),
+                   ...evs.map(o => { const t = TIPOS[o.ev.tipo] || TIPOS.otro; return `<span class="pill" style="--c:${t.color}">${t.icon} ${esc(o.ev.titulo)}</span>`; }),
                    ...fs.map(f => `<span class="pill fest" style="--c:${FEST_COLOR}">${f.icon} ${esc(f.titulo)}</span>`)];
-    const dots = [...evs.map(o => (TIPOS[o.ev.tipo] || TIPOS.otro).color), ...fs.map(() => FEST_COLOR)].slice(0, 4).map(c => `<i style="--c:${c}"></i>`).join('');
+    const dots = [...es.map(() => ESC_COLOR), ...evs.map(o => (TIPOS[o.ev.tipo] || TIPOS.otro).color), ...fs.map(() => FEST_COLOR)].slice(0, 4).map(c => `<i style="--c:${c}"></i>`).join('');
     html += `<div class="${cls}" onclick="openDay('${k}')"><div class="dnum">${d.getDate()}</div>${items.slice(0, 3).join('')}${items.length > 3 ? `<div class="more">+${items.length - 3} más</div>` : ''}<div class="dots">${dots}</div></div>`;
   }
   document.getElementById('cal-grid').innerHTML = html;
@@ -696,7 +724,8 @@ function renderMes() {
   // Lista del mes
   const mStart = new Date(viewY, viewM, 1), mEnd = new Date(viewY, viewM, daysIn(viewY, viewM));
   const mOcc = occurrences(mStart, mEnd), mFest = festivosEntre(mStart, mEnd);
-  const rows = [...mOcc.map(o => ({ d: o.fecha, h: evRow(o) })), ...mFest.map(f => ({ d: f.d, h: festRow(f) }))].sort((a, b) => a.d - b.d);
+  const rows = [...mOcc.map(o => ({ d: o.fecha, h: evRow(o) })), ...mFest.map(f => ({ d: f.d, h: festRow(f) })),
+                ...escolarEntre(mStart, mEnd).map(e => ({ d: e.d < mStart ? mStart : e.d, h: escRow(e) }))].sort((a, b) => a.d - b.d);
   document.getElementById('mes-list-title').textContent = 'En ' + MESES[viewM];
   document.getElementById('mes-list').innerHTML = rows.length ? rows.map(r => r.h).join('')
     : `<div class="empty">No hay nada apuntado en ${MESES[viewM]}.<br><button class="btn primary small" onclick="openForm()">＋ Añadir evento</button></div>`;
@@ -705,7 +734,8 @@ function renderMes() {
 function renderProximos() {
   const end = addD(TODAY, 365);
   const occ = occurrences(TODAY, end), fest = festivosEntre(TODAY, end);
-  const rows = [...occ.map(o => ({ d: o.fecha, h: evRow(o) })), ...fest.map(f => ({ d: f.d, h: festRow(f) }))].sort((a, b) => a.d - b.d);
+  const rows = [...occ.map(o => ({ d: o.fecha, h: evRow(o) })), ...fest.map(f => ({ d: f.d, h: festRow(f) })),
+                ...escolarEntre(TODAY, end).map(e => ({ d: e.d < TODAY ? TODAY : e.d, h: escRow(e) }))].sort((a, b) => a.d - b.d);
   const vacio = occ.length ? '' : `<div class="sc"><div class="empty">Todavía no has añadido eventos.<br>Empieza por los cumpleaños de la familia 🎂<br><button class="btn primary small" onclick="openForm()">＋ Añadir evento</button></div></div>`;
   const groups = {};
   rows.forEach(r => (groups[r.d.getFullYear() + '-' + pad(r.d.getMonth())] ||= []).push(r.h));
@@ -716,19 +746,22 @@ function renderProximos() {
 
 function renderAnio() {
   document.getElementById('year-title').textContent = yearView;
-  document.getElementById('legend').innerHTML = Object.values(TIPOS).map(t => `<span><i style="--c:${t.color}"></i>${t.icon} ${t.label}</span>`).join('') + `<span><i style="--c:var(--coral)"></i>Festivo</span>`;
+  document.getElementById('legend').innerHTML = Object.values(TIPOS).map(t => `<span><i style="--c:${t.color}"></i>${t.icon} ${t.label}</span>`).join('') + `<span><i style="--c:${ESC_COLOR}"></i>🏫 Vacaciones escolares</span><span><i style="--c:var(--coral)"></i>Festivo</span>`;
   const start = new Date(yearView, 0, 1), end = new Date(yearView, 11, 31);
   const byDay = {}, festSet = new Set(festivosEntre(start, end).filter(f => f.oficial).map(f => f.fecha));
   occurrences(start, end).forEach(o => (byDay[iso(o.fecha)] ||= []).push(o));
+  const escDay = {};
+  escolarEntre(start, end).forEach(e => { for (let d = new Date(e.d); d <= e.h; d = addD(d, 1)) escDay[iso(d)] = e.titulo; });
   let html = '';
   for (let m = 0; m < 12; m++) {
     const off = (new Date(yearView, m, 1).getDay() + 6) % 7;
     let g = ['L','M','X','J','V','S','D'].map(x => `<span class="h">${x}</span>`).join('') + '<span class="h"></span>'.repeat(off);
     for (let d = 1; d <= daysIn(yearView, m); d++) {
       const dt = new Date(yearView, m, d), k = iso(dt), evs = byDay[k];
-      const cls = [evs && 'ev', !evs && festSet.has(k) && 'fest', +dt === +TODAY && 'today'].filter(Boolean).join(' ');
-      const tip = evs ? evs.map(o => o.ev.titulo).join(', ') : '';
-      g += `<span class="${cls}" ${evs ? `style="--c:${(TIPOS[evs[0].ev.tipo] || TIPOS.otro).color}"` : ''} title="${esc(tip)}" onclick="openDay('${k}')">${d}</span>`;
+      const color = evs ? (TIPOS[evs[0].ev.tipo] || TIPOS.otro).color : escDay[k] ? ESC_COLOR : '';
+      const cls = [color && 'ev', !color && festSet.has(k) && 'fest', +dt === +TODAY && 'today'].filter(Boolean).join(' ');
+      const tip = [...(evs || []).map(o => o.ev.titulo), escDay[k]].filter(Boolean).join(', ');
+      g += `<span class="${cls}" ${color ? `style="--c:${color}"` : ''} title="${esc(tip)}" onclick="openDay('${k}')">${d}</span>`;
     }
     html += `<div class="mini"><div class="mini-t" onclick="viewY=${yearView};viewM=${m};go('mes')">${MESES[m]}</div><div class="mini-g">${g}</div></div>`;
   }
@@ -764,6 +797,7 @@ function openDay(k) {
   const occ = occurrences(d, d), fest = festivosEntre(d, d);
   document.getElementById('day-title').textContent = fechaLarga(d).replace(/^./, c => c.toUpperCase());
   document.getElementById('day-list').innerHTML = [
+    ...escolarEntre(d, d).map(e => `<div class="day-ev" style="--c:${ESC_COLOR};cursor:default"><span class="e">${e.icon}</span><div><div class="ev-t">${esc(e.titulo)}</div><div class="ev-s">${rangoTexto(e)} · Calendario escolar</div></div></div>`),
     ...fest.map(f => `<div class="day-ev" style="--c:${FEST_COLOR};cursor:default"><span class="e">${f.icon}</span><div><div class="ev-t">${esc(f.titulo)}</div><div class="ev-s">${f.oficial ? 'Festivo' : 'Día especial'}</div></div></div>`),
     ...occ.map(o => { const t = TIPOS[o.ev.tipo] || TIPOS.otro;
       return `<div class="day-ev" style="--c:${t.color}" onclick="closeOv('ov-day');openForm('${o.ev.id}')"><span class="e">${t.icon}</span><div style="min-width:0"><div class="ev-t">${esc(o.ev.titulo)}</div><div class="ev-s" style="white-space:normal">${esc(subtitulo(o)) || t.label}</div></div></div>`; })
@@ -910,7 +944,7 @@ function importJSON(input) {
 // guardan a la vez, cada cambio se conserva. Cualquiera puede ver el calendario
 // (igual que la suscripción de Google), pero solo la familia con sesión de Google
 // puede añadir, cambiar o borrar — lo imponen las reglas de seguridad de Firestore.
-const APP_VERSION = '1.2';
+const APP_VERSION = '1.3';
 const COL_EVENTOS = 'calendario_eventos';
 const DOC_FAMILIA = 'calendario_familia/miembros';   // { emails: [...] } — lo gestiona el dueño
 const DUENO = 'emmanuel050216@gmail.com';

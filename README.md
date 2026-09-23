@@ -46,6 +46,10 @@ Calendario familiar de cumpleaños, aniversarios, celebraciones y recordatorios.
 2. Pulsa «Raw» y guarda el archivo (Ctrl+S).
 3. En la app → ⚙️ Ajustes → «Restaurar copia de seguridad» y elige ese archivo.
 
+**Calendario escolar de un curso nuevo:** añadir sus periodos a la lista `ESCOLAR` de `compartido.js` (id, desde, hasta, icono, título). Salen en la app (capa «Calendario escolar») y en Google Calendar. Curso actual: 2026-2027 (PDF oficial del Govern d'Andorra).
+
+**Festivos:** se calculan en `festivos()` de `index.html`. Andorra incluye los nacionales + Carnaval + las fiestas locales de Andorra la Vella (Sant Joan 24/6, Fiesta Mayor = lunes tras el primer sábado de agosto, Santo Tomás 21/12), según la lista de días inhábiles del Consell General.
+
 **Lanzar el robot a mano:** GitHub → pestaña «Actions» → «Actualizar calendario de Google y copia» → «Run workflow».
 
 ## Cómo publicar cambios

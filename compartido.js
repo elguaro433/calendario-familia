@@ -17,6 +17,19 @@
     otro:         { label: 'Otro',         icon: '📌', color: '#64748b', anual: false, aviso: 0 },
   };
   const ZONA = 'Europe/Andorra';
+
+  // Calendario escolar oficial de Andorra (curs 2026-2027). Cada curso nuevo: añadir sus fechas aquí.
+  // Los festivos (Immaculada, Constitució, Festa del Treball) ya salen en los festivos de la app.
+  const ESCOLAR_COLOR = '#0ea5e9';
+  const ESCOLAR = [
+    { id: 'esc-2627-inicio',     desde: '2026-09-09', hasta: '2026-09-09', icon: '🎒', titulo: 'Inicio del curso escolar',       aviso: 7 },
+    { id: 'esc-2627-totsants',   desde: '2026-10-26', hasta: '2026-11-01', icon: '🍂', titulo: 'Vacaciones de Todos los Santos', aviso: 7 },
+    { id: 'esc-2627-nadal',      desde: '2026-12-23', hasta: '2027-01-06', icon: '🎄', titulo: 'Vacaciones de Navidad',          aviso: 7 },
+    { id: 'esc-2627-carnaval',   desde: '2027-02-08', hasta: '2027-02-14', icon: '🎭', titulo: 'Vacaciones de Carnaval',         aviso: 7 },
+    { id: 'esc-2627-pasqua',     desde: '2027-03-22', hasta: '2027-04-04', icon: '🐣', titulo: 'Vacaciones de Pascua',           aviso: 7 },
+    { id: 'esc-2627-pentecosta', desde: '2027-05-17', hasta: '2027-05-23', icon: '🕊️', titulo: 'Vacaciones de Pentecostés',       aviso: 7 },
+    { id: 'esc-2627-fi',         desde: '2027-07-02', hasta: '2027-07-02', icon: '🎓', titulo: 'Fin del curso escolar',          aviso: 7 },
+  ];
   const RRULE = { anual: 'YEARLY', mensual: 'MONTHLY', semanal: 'WEEKLY' };
 
   const pad = n => String(n).padStart(2, '0');
@@ -77,6 +90,14 @@
       L.push('BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:' + icsEsc(ev.titulo), 'TRIGGER:' + trig, 'END:VALARM');
       L.push('END:VEVENT');
     }
+    if (opts.escolar !== false) for (const e of ESCOLAR) {
+      const fin = parse(e.hasta); fin.setDate(fin.getDate() + 1);
+      L.push('BEGIN:VEVENT', 'UID:' + e.id + '@calendario-diaz-gonzalez', 'DTSTAMP:' + stamp,
+        'DTSTART;VALUE=DATE:' + e.desde.replace(/-/g, ''), 'DTEND;VALUE=DATE:' + ymd(fin),
+        'SUMMARY:' + icsEsc(e.icon + ' ' + e.titulo), 'CATEGORIES:Calendario escolar', 'TRANSP:TRANSPARENT',
+        'BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:' + icsEsc(e.titulo), 'TRIGGER:-PT' + (e.aviso * 24 - 9) + 'H', 'END:VALARM',
+        'END:VEVENT');
+    }
     L.push('END:VCALENDAR');
     return L.map(fold).join('\r\n') + '\r\n';
   }
@@ -90,5 +111,5 @@
     return 'https://calendar.google.com/calendar/render?' + p.toString();
   }
 
-  return { TIPOS, buildICS, googleLink };
+  return { TIPOS, ESCOLAR, ESCOLAR_COLOR, buildICS, googleLink };
 });
