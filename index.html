@@ -434,7 +434,7 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
 
 <div class="toast" id="toast"></div>
 
-<script src="compartido.js?v=1.13"></script>
+<script src="compartido.js?v=1.14"></script>
 <script>
 const TIPOS = CalComun.TIPOS; // en compartido.js
 const FEST_COLOR = '#dc2626';   // días festivos (no se trabaja)
@@ -555,7 +555,8 @@ function cuando(d) {
 function fechaLarga(d) { return DIAS[d.getDay()] + ' ' + d.getDate() + ' de ' + MESES[d.getMonth()]; }
 function subtitulo(o) {
   const ev = o.ev, bits = [];
-  if (o.edad != null) bits.push(ev.tipo === 'cumple' ? 'Cumple ' + o.edad + ' año' + (o.edad === 1 ? '' : 's') : o.edad + ' año' + (o.edad === 1 ? '' : 's') + ' juntos');
+  const anios = o.edad + ' año' + (o.edad === 1 ? '' : 's');
+  if (o.edad != null) bits.push(ev.tipo === 'cumple' ? 'Cumple ' + anios : ev.tipo === 'recuerdo' ? (/cumpleaños/i.test(ev.titulo) ? 'Cumpliría ' + anios : anios + ' de su partida') : anios + ' juntos');
   if (ev.hora) bits.push(ev.hora + ' h');
   if (ev.persona) bits.push(ev.persona);
   if (ev.notas) bits.push(ev.notas);
@@ -699,7 +700,7 @@ function renderAnio() {
 }
 
 function renderCumples() {
-  const occ = occurrences(TODAY, addD(TODAY, 366), true).filter(o => o.ev.repite === 'anual' && ['cumple', 'aniversario'].includes(o.ev.tipo));
+  const occ = occurrences(TODAY, addD(TODAY, 366), true).filter(o => o.ev.repite === 'anual' && ['cumple', 'aniversario', 'recuerdo'].includes(o.ev.tipo));
   const seen = new Set(), list = occ.filter(o => !seen.has(o.ev.id) && seen.add(o.ev.id));
   document.getElementById('cumple-list').innerHTML = `<div class="sc">${list.length ? list.map(o => evRow(o)).join('')
     : `<div class="empty">Aún no hay cumpleaños.<br><button class="btn primary small" onclick="openForm(null,null,'cumple')">＋ Añadir cumpleaños</button></div>`}</div>`;
@@ -741,10 +742,10 @@ function openDay(k) {
 function renderTipos() {
   document.getElementById('f-tipos').innerHTML = Object.entries(TIPOS).map(([k, t]) =>
     `<div class="tipo ${k === selTipo ? 'sel' : ''}" style="--c:${t.color}" onclick="pickTipo('${k}')"><span class="e">${t.icon}</span>${t.label}</div>`).join('');
-  const anual = ['cumple', 'aniversario'].includes(selTipo);
+  const anual = ['cumple', 'aniversario', 'recuerdo'].includes(selTipo);
   document.getElementById('f-anio-wrap').style.display = anual ? '' : 'none';
-  document.getElementById('f-anio-txt').textContent = selTipo === 'cumple' ? 'Sé el año de nacimiento (para mostrar la edad que cumple)' : 'Sé el año en que empezó (para contar los años)';
-  document.getElementById('f-titulo').placeholder = { cumple: 'Ej: Emiliano', aniversario: 'Ej: Aniversario de boda', celebracion: 'Ej: Comunión de la prima', familiar: 'Ej: Comida en casa de los abuelos', recordatorio: 'Ej: Renovar el pasaporte', salud: 'Ej: Pediatra de Emiliano', escuela: 'Ej: Reunión de padres', otro: 'Ej: …' }[selTipo];
+  document.getElementById('f-anio-txt').textContent = selTipo === 'cumple' ? 'Sé el año de nacimiento (para mostrar la edad que cumple)' : selTipo === 'recuerdo' ? 'Sé el año (para contar los años que han pasado)' : 'Sé el año en que empezó (para contar los años)';
+  document.getElementById('f-titulo').placeholder = { cumple: 'Ej: Emiliano', aniversario: 'Ej: Aniversario de boda', celebracion: 'Ej: Comunión de la prima', familiar: 'Ej: Comida en casa de los abuelos', recordatorio: 'Ej: Renovar el pasaporte', salud: 'Ej: Pediatra de Emiliano', escuela: 'Ej: Reunión de padres', recuerdo: 'Ej: Mamá Eunice', otro: 'Ej: …' }[selTipo];
   document.getElementById('f-titulo-lbl').textContent = selTipo === 'cumple' ? '¿Quién cumple años?' : 'Título';
 }
 function pickTipo(k) {
@@ -781,7 +782,7 @@ function saveEvent() {
     hora: document.getElementById('f-hora').value || '',
     repite: document.getElementById('f-repite').value,
     aviso: Number(document.getElementById('f-aviso').value),
-    anioConocido: ['cumple', 'aniversario'].includes(selTipo) && document.getElementById('f-anio').checked,
+    anioConocido: ['cumple', 'aniversario', 'recuerdo'].includes(selTipo) && document.getElementById('f-anio').checked,
     persona: document.getElementById('f-persona').value.trim(),
     notas: document.getElementById('f-notas').value.trim(),
   };
@@ -858,7 +859,7 @@ function importJSON(input) {
 // "eventos" (un mapa id → evento). Cada cambio solo toca SU evento (eventos.<id>), así que si
 // dos personas guardan a la vez se conservan los dos cambios. Sin inicio de sesión: igual que
 // la app de finanzas, la colección appdata es de acceso libre.
-const APP_VERSION = '1.13';
+const APP_VERSION = '1.14';
 const DOC_EVENTOS = 'appdata/calendario-eventos';
 let db = null;
 try {

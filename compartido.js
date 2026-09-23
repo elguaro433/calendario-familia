@@ -13,6 +13,7 @@
     recordatorio: { label: 'Recordatorio', icon: '🔔', color: '#e0a100', anual: false, aviso: 1 },
     salud:        { label: 'Médico',       icon: '🩺', color: '#ff3d71', anual: false, aviso: 1 },
     escuela:      { label: 'Colegio',      icon: '🎒', color: '#00a3c4', anual: false, aviso: 1 },
+    recuerdo:     { label: 'En memoria',   icon: '🕊️', color: '#8b7fa8', anual: true,  aviso: 7 },
     otro:         { label: 'Otro',         icon: '📌', color: '#64748b', anual: false, aviso: 0 },
   };
   const ZONA = 'Europe/Andorra';
