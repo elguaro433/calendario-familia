@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#1e293b">
+<meta name="description" content="Calendario de celebraciones Familia Díaz González">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+<title>Calendario Díaz González</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f4f6fb;
+  --surface: #ffffff;
+  --card: #ffffff;
+  --card2: #f8f9fc;
+  --border: rgba(0,0,0,.07);
+  --text: #1e293b;
+  --muted: #64748b;
+  --hint: #94a3b8;
+
+  --emerald: #00d68f;
+  --emerald-dim: rgba(0,214,143,.12);
+  --coral: #ff3d71;
+  --violet: #7b61ff;
+  --amber: #ffaa00;
+  --sky: #00b4d8;
+  --pink: #f72585;
+  --pink-dim: rgba(247,37,133,.1);
+
+  --r: 16px;
+  --r-sm: 10px;
+}
+[data-theme="dark"] {
+  --bg: #0f172a;
+  --surface: #1e293b;
+  --card: #1e293b;
+  --card2: #334155;
+  --border: rgba(255,255,255,.08);
+  --text: #e2e8f0;
+  --muted: #94a3b8;
+  --hint: #64748b;
+}
+[data-theme="dark"] .hdr { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); }
+[data-theme="dark"] .hero { background: linear-gradient(135deg, #3b0a2a 0%, #1e1b4b 100%); border-color: rgba(247,37,133,.3); }
+[data-theme="dark"] input, [data-theme="dark"] select, [data-theme="dark"] textarea { color-scheme: dark; }
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background: var(--bg); color: var(--text);
+  min-height: 100vh; font-size: 15px; line-height: 1.5;
+}
+button { font-family: inherit; }
+
+/* ── LAYOUT ── */
+.app { display: grid; grid-template-columns: 230px 1fr; grid-template-rows: 60px 1fr; min-height: 100vh; }
+.hdr {
+  grid-column: 1/-1;
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 24px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,.12);
+}
+.hdr-logo { font-size: 16px; font-weight: 700; letter-spacing: -.3px; color: #fff; }
+.hdr-logo em { color: #ff7ab8; font-style: normal; }
+.hdr-actions { display: flex; align-items: center; gap: 8px; }
+.hdr-btn {
+  background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.15);
+  color: rgba(255,255,255,.85); border-radius: 8px; padding: 6px 12px;
+  font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px;
+}
+.hdr-btn:hover { background: rgba(255,255,255,.18); color: #fff; }
+.sync-status { font-size: 12px; font-weight: 600; color: var(--sky); margin-right: 4px; }
+
+.side { background: var(--surface); border-right: 1px solid var(--border); padding: 20px 12px; display: flex; flex-direction: column; gap: 4px; }
+.nav-item {
+  display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: var(--r-sm);
+  border: none; background: transparent; color: var(--muted); font-size: 13px; font-weight: 500;
+  cursor: pointer; text-align: left; width: 100%; transition: all .15s;
+}
+.nav-item:hover { background: var(--card2); color: var(--text); }
+.nav-item.active { background: linear-gradient(90deg, var(--pink-dim), transparent); color: var(--pink); border-left: 3px solid var(--pink); font-weight: 700; }
+.side-add { margin: 4px 0 14px; padding: 11px; border-radius: var(--r-sm); border: none; background: linear-gradient(135deg,#f72585,#b5179e); color: #fff; font-weight: 700; font-size: 13px; cursor: pointer; box-shadow: 0 6px 16px rgba(247,37,133,.3); }
+.side-sec { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border); }
+.side-lbl { font-size: 10px; color: var(--hint); text-transform: uppercase; letter-spacing: .6px; margin: 0 4px 8px; font-weight: 700; }
+.filt { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 8px; cursor: pointer; font-size: 12.5px; color: var(--text); user-select: none; }
+.filt:hover { background: var(--card2); }
+.filt input { accent-color: var(--pink); }
+.filt .dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+.filt.off { color: var(--hint); }
+
+.content { padding: 24px 28px 40px; overflow-y: auto; min-width: 0; }
+.page { display: none; }
+.page.active { display: block; }
+.page-title { font-size: 22px; font-weight: 800; letter-spacing: -.4px; margin-bottom: 4px; }
+.page-sub { color: var(--muted); font-size: 13px; margin-bottom: 18px; }
+
+/* ── HERO / RESUMEN ── */
+.hero { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+.metric { background: var(--card); border: 1px solid var(--border); border-radius: var(--r); padding: 16px; position: relative; overflow: hidden; cursor: pointer; }
+.metric::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--c, var(--pink)); }
+.metric-lbl { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; font-weight: 700; }
+.metric-val { font-size: 17px; font-weight: 800; margin-top: 4px; line-height: 1.3; }
+.metric-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+.avisos { background: linear-gradient(135deg, rgba(247,37,133,.1), rgba(123,97,255,.1)); border: 1px solid rgba(247,37,133,.25); border-radius: var(--r); padding: 12px 16px; margin-bottom: 18px; }
+.avisos-t { font-size: 12px; font-weight: 800; color: var(--pink); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; }
+.aviso { font-size: 13.5px; padding: 3px 0; cursor: pointer; }
+.aviso b { font-weight: 700; }
+
+/* ── MES ── */
+.cal-nav { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+.cal-title { font-size: 22px; font-weight: 800; letter-spacing: -.4px; text-transform: capitalize; min-width: 200px; }
+.nbtn { height: 36px; min-width: 36px; padding: 0 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-weight: 700; cursor: pointer; font-size: 14px; }
+.nbtn:hover { border-color: var(--pink); color: var(--pink); }
+.cal { background: var(--card); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; }
+.cal-head, .cal-grid { display: grid; grid-template-columns: repeat(7, minmax(0,1fr)); }
+.cal-head div { padding: 10px 8px; font-size: 11px; font-weight: 700; color: var(--hint); text-transform: uppercase; letter-spacing: .5px; text-align: center; border-bottom: 1px solid var(--border); }
+.cell { min-height: 112px; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 6px; cursor: pointer; position: relative; transition: background .1s; min-width: 0; }
+.cell:nth-child(7n) { border-right: none; }
+.cell:hover { background: var(--card2); }
+.cell.other { background: var(--bg); opacity: .55; }
+.cell.weekend .dnum { color: var(--muted); }
+.dnum { font-size: 13px; font-weight: 700; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; border-radius: 50%; margin-bottom: 3px; }
+.cell.today .dnum { background: var(--pink); color: #fff; }
+.cell.holiday .dnum { color: var(--coral); }
+.pill { display: block; font-size: 11px; font-weight: 600; padding: 2px 6px; border-radius: 6px; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; background: color-mix(in srgb, var(--c) 15%, transparent); color: var(--c); border-left: 3px solid var(--c); }
+.pill.fest { background: transparent; border-left-style: dotted; color: var(--muted); font-weight: 500; }
+.more { font-size: 10.5px; color: var(--muted); font-weight: 700; padding-left: 4px; }
+.dots { display: none; gap: 3px; flex-wrap: wrap; justify-content: center; }
+.dots i { width: 6px; height: 6px; border-radius: 50%; background: var(--c); display: block; }
+
+/* ── LISTAS ── */
+.sc { background: var(--card); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; margin-bottom: 16px; }
+.sc-hdr { padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+.sc-title { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); }
+.ev-row { display: flex; align-items: center; gap: 12px; padding: 11px 16px; border-bottom: 1px solid var(--border); cursor: pointer; }
+.ev-row:last-child { border-bottom: none; }
+.ev-row:hover { background: var(--card2); }
+.date-badge { width: 46px; flex-shrink: 0; text-align: center; border-radius: 10px; padding: 4px 0; background: color-mix(in srgb, var(--c) 13%, transparent); color: var(--c); }
+.date-badge .d { font-size: 18px; font-weight: 800; line-height: 1.1; }
+.date-badge .m { font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; }
+.ev-main { flex: 1; min-width: 0; }
+.ev-t { font-size: 14.5px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ev-s { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.when { font-size: 11.5px; font-weight: 700; padding: 3px 10px; border-radius: 20px; background: var(--card2); color: var(--muted); white-space: nowrap; }
+.when.hoy { background: var(--pink); color: #fff; }
+.when.pronto { background: rgba(255,170,0,.15); color: #d48c00; }
+.empty { padding: 28px 16px; text-align: center; color: var(--hint); font-size: 13.5px; }
+.empty button { margin-top: 10px; }
+
+/* ── AÑO ── */
+.year-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.mini { background: var(--card); border: 1px solid var(--border); border-radius: var(--r); padding: 12px; }
+.mini-t { font-size: 13px; font-weight: 800; text-transform: capitalize; margin-bottom: 6px; cursor: pointer; }
+.mini-t:hover { color: var(--pink); }
+.mini-g { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+.mini-g span { font-size: 10.5px; text-align: center; padding: 3px 0; border-radius: 6px; cursor: pointer; position: relative; }
+.mini-g span.h { color: var(--hint); font-weight: 700; font-size: 9px; cursor: default; }
+.mini-g span.ev { font-weight: 800; color: #fff; background: var(--c); }
+.mini-g span.fest { color: var(--coral); font-weight: 700; }
+.mini-g span.today { outline: 2px solid var(--pink); }
+.legend { display: flex; flex-wrap: wrap; gap: 8px 14px; margin-bottom: 16px; font-size: 12px; color: var(--muted); }
+.legend span { display: flex; align-items: center; gap: 5px; }
+.legend i { width: 10px; height: 10px; border-radius: 3px; background: var(--c); display: block; }
+
+/* ── MODAL / HOJA ── */
+.ov { position: fixed; inset: 0; background: rgba(15,23,42,.55); z-index: 300; display: none; align-items: center; justify-content: center; padding: 16px; }
+.ov.open { display: flex; }
+.sheet { background: var(--surface); border-radius: 20px; width: 100%; max-width: 480px; max-height: 92vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,.35); }
+.sheet-h { padding: 18px 20px 10px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: var(--surface); z-index: 1; }
+.sheet-h h3 { font-size: 18px; font-weight: 800; }
+.x { width: 32px; height: 32px; border-radius: 50%; border: none; background: var(--card2); color: var(--muted); font-size: 16px; cursor: pointer; }
+.sheet-b { padding: 4px 20px 20px; }
+.fld { margin-bottom: 12px; }
+.fld label { display: block; font-size: 11.5px; font-weight: 700; color: var(--muted); margin-bottom: 5px; text-transform: uppercase; letter-spacing: .4px; }
+.fld input, .fld select, .fld textarea { width: 100%; padding: 11px 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--card2); color: var(--text); font-family: inherit; font-size: 15px; outline: none; min-width: 0; max-width: 100%; }
+.fld input[type=date], .fld input[type=time] { -webkit-appearance: none; appearance: none; min-height: 46px; }
+.fld input:focus, .fld select:focus, .fld textarea:focus { border-color: var(--pink); }
+.fld textarea { resize: vertical; min-height: 64px; }
+.row2 { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 10px; }
+.tipos { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 6px; }
+.tipo { border: 2px solid var(--border); background: var(--card2); border-radius: 12px; padding: 8px 2px; text-align: center; cursor: pointer; font-size: 10.5px; font-weight: 700; color: var(--muted); }
+.tipo .e { font-size: 20px; display: block; line-height: 1.3; }
+.tipo.sel { border-color: var(--c); color: var(--c); background: color-mix(in srgb, var(--c) 10%, transparent); }
+.chk { display: flex; align-items: center; gap: 8px; font-size: 13.5px; font-weight: 600; cursor: pointer; margin-bottom: 12px; }
+.chk input { width: 18px; height: 18px; accent-color: var(--pink); }
+.btns { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+.btn { flex: 1; padding: 12px 10px; border-radius: 10px; border: 1px solid var(--border); background: var(--card2); color: var(--text); font-weight: 700; font-size: 14px; cursor: pointer; }
+.btn.primary { background: linear-gradient(135deg,#f72585,#b5179e); color: #fff; border: none; }
+.btn.danger { color: var(--coral); border-color: rgba(255,61,113,.4); background: transparent; flex: 0 0 auto; padding: 12px 16px; }
+.btn.small { flex: 0 0 auto; padding: 8px 14px; font-size: 13px; }
+.day-ev { display: flex; gap: 10px; align-items: center; padding: 10px 12px; border-radius: 12px; background: var(--card2); margin-bottom: 8px; cursor: pointer; border-left: 4px solid var(--c); }
+.day-ev .e { font-size: 22px; }
+.hint { font-size: 12px; color: var(--hint); margin-top: -6px; margin-bottom: 12px; }
+
+.toast { position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%) translateY(20px); background: #1e293b; color: #fff; padding: 10px 18px; border-radius: 12px; font-size: 13.5px; font-weight: 600; opacity: 0; pointer-events: none; transition: all .2s; z-index: 400; box-shadow: 0 10px 30px rgba(0,0,0,.3); }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+.tabbar, .fab, .hdr-more { display: none; }
+.footer { text-align: center; padding: 30px 20px 10px; color: var(--hint); font-size: 11px; border-top: 1px solid var(--border); margin-top: 30px; }
+
+/* ── MÓVIL ── */
+@media (max-width: 1100px) { .year-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 768px) {
+  body { padding-bottom: calc(64px + env(safe-area-inset-bottom)); }
+  .app { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+  .side { display: none; }
+  .hdr { padding: calc(6px + env(safe-area-inset-top)) 16px 6px; min-height: 52px; }
+  .hdr-logo { font-size: 15px; }
+  .hdr-btn { display: none; }
+  .hdr-more { display: flex; font-size: 18px; padding: 4px 10px; }
+  .sync-status { font-size: 0; width: 9px; height: 9px; border-radius: 50%; background: currentColor; box-shadow: 0 0 6px currentColor; }
+  .content { padding: 14px 16px 24px; }
+  .hero { grid-template-columns: 1fr; gap: 8px; }
+  .metric { padding: 12px 14px; }
+  .metric-val { font-size: 15px; }
+  .cal-title { font-size: 18px; min-width: 0; flex: 1; }
+  .cell { min-height: 58px; padding: 4px 2px; }
+  .dnum { margin: 0 auto 3px; font-size: 12.5px; }
+  .pill, .more { display: none; }
+  .dots { display: flex; }
+  .cal-head div { padding: 8px 0; font-size: 10px; }
+  .year-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .mini { padding: 10px 8px; }
+  .mini-g span { font-size: 10px; padding: 2px 0; }
+  .ov { align-items: flex-end; padding: 0; }
+  .sheet { border-radius: 20px 20px 0 0; max-height: 94vh; padding-bottom: env(safe-area-inset-bottom); }
+  .tabbar {
+    display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 200;
+    background: var(--surface); border-top: 1px solid var(--border);
+    padding: 6px 4px calc(6px + env(safe-area-inset-bottom)); box-shadow: 0 -4px 16px rgba(0,0,0,.08);
+  }
+  .tab-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; background: transparent; border: none; color: var(--muted); font-size: 10px; font-weight: 600; padding: 4px 0; cursor: pointer; }
+  .tab-ico { font-size: 20px; line-height: 1; filter: grayscale(1); opacity: .7; }
+  .tab-item.active { color: var(--pink); }
+  .tab-item.active .tab-ico { filter: none; opacity: 1; }
+  .fab {
+    display: flex; position: fixed; right: 18px; bottom: calc(76px + env(safe-area-inset-bottom)); z-index: 210;
+    width: 56px; height: 56px; border-radius: 50%; border: none;
+    background: linear-gradient(135deg,#f72585,#b5179e); color: #fff; font-size: 30px; font-weight: 700;
+    box-shadow: 0 8px 20px rgba(247,37,133,.4); cursor: pointer; align-items: center; justify-content: center;
+  }
+  .toast { bottom: calc(90px + env(safe-area-inset-bottom)); }
+  .tipo { font-size: 9.5px; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="hdr">
+    <div class="hdr-logo">📅 Calendario <em>Díaz González</em></div>
+    <div class="hdr-actions">
+      <span class="sync-status" id="sync-status">🔄 Conectando…</span>
+      <button class="hdr-btn" onclick="exportICS()" title="Descargar para el calendario del móvil">📲 Exportar al móvil</button>
+      <button class="hdr-btn" onclick="openAjustes()">⚙️ Ajustes</button>
+      <button class="hdr-btn" onclick="toggleTheme()" id="theme-btn">🌙</button>
+      <button class="hdr-btn hdr-more" onclick="openAjustes()">⋯</button>
+    </div>
+  </header>
+
+  <nav class="side">
+    <button class="side-add" onclick="openForm()">＋ Nuevo evento</button>
+    <button class="nav-item active" data-page="mes" onclick="go('mes')">🗓️ Mes</button>
+    <button class="nav-item" data-page="proximos" onclick="go('proximos')">⏳ Próximos</button>
+    <button class="nav-item" data-page="anio" onclick="go('anio')">📆 Año completo</button>
+    <button class="nav-item" data-page="cumples" onclick="go('cumples')">🎂 Cumpleaños</button>
+    <div class="side-sec">
+      <div class="side-lbl">Mostrar</div>
+      <div id="filtros"></div>
+    </div>
+  </nav>
+
+  <main class="content">
+    <!-- MES -->
+    <section class="page active" id="page-mes">
+      <div id="avisos"></div>
+      <div class="hero" id="hero"></div>
+      <div class="cal-nav">
+        <button class="nbtn" onclick="moveMonth(-1)">‹</button>
+        <div class="cal-title" id="cal-title"></div>
+        <button class="nbtn" onclick="moveMonth(1)">›</button>
+        <button class="nbtn" onclick="goToday()">Hoy</button>
+      </div>
+      <div class="cal">
+        <div class="cal-head"><div>Lun</div><div>Mar</div><div>Mié</div><div>Jue</div><div>Vie</div><div>Sáb</div><div>Dom</div></div>
+        <div class="cal-grid" id="cal-grid"></div>
+      </div>
+      <div class="sc" style="margin-top:16px">
+        <div class="sc-hdr"><div class="sc-title" id="mes-list-title">Este mes</div></div>
+        <div id="mes-list"></div>
+      </div>
+    </section>
+
+    <!-- PRÓXIMOS -->
+    <section class="page" id="page-proximos">
+      <div class="page-title">Próximos eventos</div>
+      <div class="page-sub">Todo lo que viene en los próximos 12 meses.</div>
+      <div id="prox-list"></div>
+    </section>
+
+    <!-- AÑO -->
+    <section class="page" id="page-anio">
+      <div class="cal-nav">
+        <button class="nbtn" onclick="moveYear(-1)">‹</button>
+        <div class="cal-title" id="year-title"></div>
+        <button class="nbtn" onclick="moveYear(1)">›</button>
+      </div>
+      <div class="legend" id="legend"></div>
+      <div class="year-grid" id="year-grid"></div>
+    </section>
+
+    <!-- CUMPLEAÑOS -->
+    <section class="page" id="page-cumples">
+      <div class="page-title">Cumpleaños y aniversarios</div>
+      <div class="page-sub">Ordenados por el que llega antes.</div>
+      <div id="cumple-list"></div>
+    </section>
+
+    <div class="footer">
+      <div style="font-weight:600;margin-bottom:4px;">Propiedad Familia Díaz González</div>
+      <div>Creado por Emmanuel Díaz</div>
+      <div style="margin-top:6px;font-size:10px;opacity:.6;">v1.0 — 2026</div>
+    </div>
+  </main>
+</div>
+
+<nav class="tabbar">
+  <button class="tab-item active" data-page="mes" onclick="go('mes')"><span class="tab-ico">🗓️</span>Mes</button>
+  <button class="tab-item" data-page="proximos" onclick="go('proximos')"><span class="tab-ico">⏳</span>Próximos</button>
+  <button class="tab-item" data-page="anio" onclick="go('anio')"><span class="tab-ico">📆</span>Año</button>
+  <button class="tab-item" data-page="cumples" onclick="go('cumples')"><span class="tab-ico">🎂</span>Cumples</button>
+</nav>
+<button class="fab" onclick="openForm()" aria-label="Nuevo evento">＋</button>
+
+<!-- FORMULARIO -->
+<div class="ov" id="ov-form" onclick="if(event.target===this)closeOv('ov-form')">
+  <div class="sheet">
+    <div class="sheet-h"><h3 id="form-title">Nuevo evento</h3><button class="x" onclick="closeOv('ov-form')">✕</button></div>
+    <div class="sheet-b">
+      <div class="fld"><label>Tipo</label><div class="tipos" id="f-tipos"></div></div>
+      <div class="fld"><label id="f-titulo-lbl">Título</label><input id="f-titulo" type="text" placeholder="Ej: Cumpleaños de la abuela" autocomplete="off"></div>
+      <div class="row2">
+        <div class="fld"><label>Fecha</label><input id="f-fecha" type="date"></div>
+        <div class="fld"><label>Hora (opcional)</label><input id="f-hora" type="time"></div>
+      </div>
+      <label class="chk" id="f-anio-wrap"><input type="checkbox" id="f-anio"> <span id="f-anio-txt">Sé el año de nacimiento (para calcular la edad)</span></label>
+      <div class="row2">
+        <div class="fld"><label>Se repite</label>
+          <select id="f-repite">
+            <option value="no">No, una sola vez</option>
+            <option value="anual">Cada año</option>
+            <option value="mensual">Cada mes</option>
+            <option value="semanal">Cada semana</option>
+          </select>
+        </div>
+        <div class="fld"><label>Avisarme</label>
+          <select id="f-aviso">
+            <option value="0">El mismo día</option>
+            <option value="1">1 día antes</option>
+            <option value="3">3 días antes</option>
+            <option value="7">1 semana antes</option>
+            <option value="14">2 semanas antes</option>
+            <option value="30">1 mes antes</option>
+          </select>
+        </div>
+      </div>
+      <div class="fld"><label>¿De quién? / Familia (opcional)</label><input id="f-persona" type="text" list="personas" placeholder="Ej: Emiliano, Familia Díaz, Abuelos…" autocomplete="off"><datalist id="personas"></datalist></div>
+      <div class="fld"><label>Notas (opcional)</label><textarea id="f-notas" placeholder="Ideas de regalo, lugar, qué llevar…"></textarea></div>
+      <div class="btns">
+        <button class="btn danger" id="f-del" onclick="delEvent()">🗑️</button>
+        <button class="btn" onclick="closeOv('ov-form')">Cancelar</button>
+        <button class="btn primary" onclick="saveEvent()">Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DÍA -->
+<div class="ov" id="ov-day" onclick="if(event.target===this)closeOv('ov-day')">
+  <div class="sheet">
+    <div class="sheet-h"><h3 id="day-title"></h3><button class="x" onclick="closeOv('ov-day')">✕</button></div>
+    <div class="sheet-b"><div id="day-list"></div>
+      <div class="btns"><button class="btn primary" id="day-add">＋ Añadir en este día</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- AJUSTES -->
+<div class="ov" id="ov-aj" onclick="if(event.target===this)closeOv('ov-aj')">
+  <div class="sheet">
+    <div class="sheet-h"><h3>Ajustes</h3><button class="x" onclick="closeOv('ov-aj')">✕</button></div>
+    <div class="sheet-b">
+      <div class="fld"><label>Días festivos</label>
+        <select id="aj-festivos" onchange="setCfg('festivos', this.value)">
+          <option value="AD">Andorra</option>
+          <option value="ES">España</option>
+          <option value="no">No mostrar</option>
+        </select>
+      </div>
+      <label class="chk"><input type="checkbox" id="aj-popular" onchange="setCfg('populares', this.checked)"> Mostrar días especiales (Día de la Madre, del Padre, Sant Jordi…)</label>
+      <div class="btns" style="flex-direction:column">
+        <button class="btn" onclick="exportICS()">📲 Exportar al calendario del móvil (.ics)</button>
+        <button class="btn" onclick="toggleTheme()">🌙 Cambiar modo claro / oscuro</button>
+        <button class="btn" onclick="exportJSON()">💾 Descargar copia de seguridad</button>
+        <button class="btn" onclick="document.getElementById('imp-file').click()">📂 Restaurar copia de seguridad</button>
+        <input type="file" id="imp-file" accept=".json" hidden onchange="importJSON(this)">
+      </div>
+      <p class="hint" style="margin-top:14px">“Exportar al móvil” descarga un archivo que puedes abrir en el iPhone o Android para añadir todos los eventos a tu calendario, con sus avisos.</p>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══ TIPOS DE EVENTO ══
+const TIPOS = {
+  cumple:       { label: 'Cumpleaños',   icon: '🎂', color: '#f72585', anual: true,  aviso: 7 },
+  aniversario:  { label: 'Aniversario',  icon: '💍', color: '#7b61ff', anual: true,  aviso: 7 },
+  celebracion:  { label: 'Celebración',  icon: '🎉', color: '#fb8500', anual: false, aviso: 7 },
+  familiar:     { label: 'Familiar',     icon: '👨‍👩‍👦', color: '#00b87a', anual: false, aviso: 1 },
+  recordatorio: { label: 'Recordatorio', icon: '🔔', color: '#e0a100', anual: false, aviso: 1 },
+  salud:        { label: 'Médico',       icon: '🩺', color: '#ff3d71', anual: false, aviso: 1 },
+  escuela:      { label: 'Colegio',      icon: '🎒', color: '#00a3c4', anual: false, aviso: 1 },
+  otro:         { label: 'Otro',         icon: '📌', color: '#64748b', anual: false, aviso: 0 },
+};
+const FEST_COLOR = '#94a3b8';
+const MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+const MES_C = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+const DIAS = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+
+// ══ ESTADO ══
+const LS_KEY = 'calendario_dg_data';
+// localStorage puede no estar disponible (incógnito, etc.): nunca romper la app por eso
+const store = { get: k => { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} } };
+let EVENTS = [];
+let CFG = { festivos: 'AD', populares: true, ocultos: [] };
+try {
+  const s = JSON.parse(store.get(LS_KEY));
+  if (s) { EVENTS = s.events || []; CFG = Object.assign(CFG, s.cfg || {}); }
+} catch (e) {}
+
+const TODAY = new Date(); TODAY.setHours(0,0,0,0);
+let viewY = TODAY.getFullYear(), viewM = TODAY.getMonth();
+let yearView = TODAY.getFullYear();
+let page = 'mes';
+let editId = null, selTipo = 'cumple';
+
+// ══ UTILIDADES DE FECHA ══
+const pad = n => String(n).padStart(2, '0');
+const iso = d => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+const parse = s => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+const daysIn = (y, m) => new Date(y, m + 1, 0).getDate();
+const diffDays = (a, b) => Math.round((b - a) / 86400000);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+
+function easter(y) { // Algoritmo anónimo gregoriano
+  const a = y % 19, b = Math.floor(y / 100), c = y % 100, d = Math.floor(b / 4), e = b % 4,
+    f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3), h = (19 * a + b - d - g + 15) % 30,
+    i = Math.floor(c / 4), k = c % 4, l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451);
+  return new Date(y, Math.floor((h + l - 7 * m + 114) / 31) - 1, ((h + l - 7 * m + 114) % 31) + 1);
+}
+const addD = (d, n) => { const r = new Date(d); r.setDate(r.getDate() + n); return r; };
+function nthSunday(y, m, n) { const d = new Date(y, m, 1); d.setDate(1 + (7 - d.getDay()) % 7 + 7 * (n - 1)); return d; }
+
+// ══ FESTIVOS ══
+const festCache = {};
+function festivos(y) {
+  const key = y + CFG.festivos + CFG.populares;
+  if (festCache[key]) return festCache[key];
+  const out = [];
+  const add = (d, t, icon, oficial) => out.push({ fecha: iso(d), titulo: t, icon, oficial });
+  const E = easter(y);
+  if (CFG.festivos === 'AD') {
+    [[0,1,'Año Nuevo'],[0,6,'Reyes'],[2,14,'Día de la Constitución'],[4,1,'Día del Trabajo'],[7,15,'La Asunción'],
+     [8,8,'Nuestra Señora de Meritxell'],[10,1,'Todos los Santos'],[11,8,'La Inmaculada'],[11,25,'Navidad'],[11,26,'San Esteban']]
+      .forEach(([m, d, t]) => add(new Date(y, m, d), t, '🇦🇩', true));
+    add(addD(E, -2), 'Viernes Santo', '🇦🇩', true);
+    add(addD(E, 1), 'Lunes de Pascua', '🇦🇩', true);
+    add(addD(E, 50), 'Lunes de Pentecostés', '🇦🇩', true);
+    add(addD(E, -48), 'Carnaval', '🎭', false);
+  } else if (CFG.festivos === 'ES') {
+    [[0,1,'Año Nuevo'],[0,6,'Reyes'],[4,1,'Día del Trabajo'],[7,15,'La Asunción'],[9,12,'Fiesta Nacional'],
+     [10,1,'Todos los Santos'],[11,6,'Día de la Constitución'],[11,8,'La Inmaculada'],[11,25,'Navidad']]
+      .forEach(([m, d, t]) => add(new Date(y, m, d), t, '🇪🇸', true));
+    add(addD(E, -3), 'Jueves Santo', '🇪🇸', true);
+    add(addD(E, -2), 'Viernes Santo', '🇪🇸', true);
+  }
+  if (CFG.populares) {
+    add(new Date(y, 1, 14), 'San Valentín', '❤️', false);
+    add(new Date(y, 2, 19), 'Día del Padre', '👨', false);
+    add(new Date(y, 3, 23), 'Sant Jordi', '🌹', false);
+    add(nthSunday(y, 4, 1), 'Día de la Madre', '👩', false);
+    add(E, 'Domingo de Pascua', '🐣', false);
+    add(new Date(y, 5, 23), 'Noche de San Juan', '🔥', false);
+    add(new Date(y, 9, 31), 'Halloween', '🎃', false);
+    add(new Date(y, 11, 24), 'Nochebuena', '🎄', false);
+    add(new Date(y, 11, 31), 'Nochevieja', '🥂', false);
+  }
+  return (festCache[key] = out);
+}
+
+// ══ OCURRENCIAS ══
+// Devuelve [{ev, fecha:Date, edad}] entre start y end (incluidos)
+function occurrences(start, end, incluirOcultos) {
+  const res = [];
+  for (const ev of EVENTS) {
+    if (!incluirOcultos && CFG.ocultos.includes(ev.tipo)) continue;
+    const base = parse(ev.fecha);
+    const push = d => {
+      if (d < base || d < start || d > end) return;
+      const o = { ev, fecha: d };
+      if (ev.anioConocido && ev.repite === 'anual') o.edad = d.getFullYear() - base.getFullYear();
+      res.push(o);
+    };
+    if (ev.repite === 'anual') {
+      for (let y = start.getFullYear(); y <= end.getFullYear(); y++) {
+        push(new Date(y, base.getMonth(), Math.min(base.getDate(), daysIn(y, base.getMonth()))));
+      }
+    } else if (ev.repite === 'mensual') {
+      for (let y = start.getFullYear(), m = start.getMonth(); y < end.getFullYear() || (y === end.getFullYear() && m <= end.getMonth()); m++) {
+        if (m > 11) { m = 0; y++; }
+        push(new Date(y, m, Math.min(base.getDate(), daysIn(y, m))));
+      }
+    } else if (ev.repite === 'semanal') {
+      let d = new Date(base);
+      if (d < start) d = addD(d, Math.ceil(diffDays(d, start) / 7) * 7);
+      for (; d <= end; d = addD(d, 7)) push(new Date(d));
+    } else push(base);
+  }
+  res.sort((a, b) => a.fecha - b.fecha || (a.ev.hora || '').localeCompare(b.ev.hora || ''));
+  return res;
+}
+function festivosEntre(start, end) {
+  if (CFG.ocultos.includes('festivo')) return [];
+  const out = [];
+  for (let y = start.getFullYear(); y <= end.getFullYear(); y++)
+    festivos(y).forEach(f => { const d = parse(f.fecha); if (d >= start && d <= end) out.push({ ...f, d }); });
+  return out;
+}
+
+// ══ TEXTOS ══
+function cuando(d) {
+  const n = diffDays(TODAY, d);
+  if (n === 0) return ['¡Hoy!', 'hoy'];
+  if (n === 1) return ['Mañana', 'pronto'];
+  if (n < 0) return ['Hace ' + (-n) + ' d', ''];
+  if (n <= 7) return ['En ' + n + ' días', 'pronto'];
+  if (n < 60) return ['En ' + n + ' días', ''];
+  return ['En ' + Math.round(n / 30.4) + ' meses', ''];
+}
+function fechaLarga(d) { return DIAS[d.getDay()] + ' ' + d.getDate() + ' de ' + MESES[d.getMonth()]; }
+function subtitulo(o) {
+  const ev = o.ev, bits = [];
+  if (o.edad != null) bits.push(ev.tipo === 'cumple' ? 'Cumple ' + o.edad + ' año' + (o.edad === 1 ? '' : 's') : o.edad + ' año' + (o.edad === 1 ? '' : 's') + ' juntos');
+  if (ev.hora) bits.push(ev.hora + ' h');
+  if (ev.persona) bits.push(ev.persona);
+  if (ev.notas) bits.push(ev.notas);
+  return bits.join(' · ');
+}
+function evRow(o, showCuando = true) {
+  const t = TIPOS[o.ev.tipo] || TIPOS.otro, [txt, cls] = cuando(o.fecha);
+  return `<div class="ev-row" style="--c:${t.color}" onclick="openForm('${o.ev.id}')">
+    <div class="date-badge"><div class="d">${o.fecha.getDate()}</div><div class="m">${MES_C[o.fecha.getMonth()]}</div></div>
+    <div class="ev-main"><div class="ev-t">${t.icon} ${esc(o.ev.titulo)}</div><div class="ev-s">${esc(subtitulo(o)) || t.label}</div></div>
+    ${showCuando ? `<span class="when ${cls}">${txt}</span>` : ''}</div>`;
+}
+function festRow(f) {
+  return `<div class="ev-row" style="--c:${FEST_COLOR};cursor:default">
+    <div class="date-badge"><div class="d">${f.d.getDate()}</div><div class="m">${MES_C[f.d.getMonth()]}</div></div>
+    <div class="ev-main"><div class="ev-t" style="font-weight:600;color:var(--muted)">${f.icon} ${esc(f.titulo)}</div><div class="ev-s">${f.oficial ? 'Festivo' : 'Día especial'}</div></div></div>`;
+}
+
+// ══ RENDER ══
+function render() {
+  renderFiltros();
+  if (page === 'mes') renderMes();
+  if (page === 'proximos') renderProximos();
+  if (page === 'anio') renderAnio();
+  if (page === 'cumples') renderCumples();
+  document.getElementById('personas').innerHTML = [...new Set(EVENTS.map(e => e.persona).filter(Boolean))].map(p => `<option value="${esc(p)}">`).join('');
+}
+
+function renderFiltros() {
+  const all = { ...Object.fromEntries(Object.entries(TIPOS).map(([k, v]) => [k, v])), festivo: { label: 'Festivos y días especiales', icon: '🗓️', color: FEST_COLOR } };
+  document.getElementById('filtros').innerHTML = Object.entries(all).map(([k, t]) => {
+    const on = !CFG.ocultos.includes(k);
+    return `<label class="filt ${on ? '' : 'off'}"><input type="checkbox" ${on ? 'checked' : ''} onchange="toggleFiltro('${k}')"><span class="dot" style="background:${t.color}"></span>${t.icon} ${t.label}</label>`;
+  }).join('');
+}
+function toggleFiltro(k) {
+  CFG.ocultos = CFG.ocultos.includes(k) ? CFG.ocultos.filter(x => x !== k) : [...CFG.ocultos, k];
+  persist(); render();
+}
+
+function renderMes() {
+  // Avisos: eventos cuya ventana de aviso incluye hoy
+  const lejos = addD(TODAY, 31);
+  const av = occurrences(TODAY, lejos).filter(o => diffDays(TODAY, o.fecha) <= (o.ev.aviso ?? 0));
+  document.getElementById('avisos').innerHTML = av.length ? `<div class="avisos"><div class="avisos-t">🔔 No te olvides</div>${av.map(o => {
+    const t = TIPOS[o.ev.tipo] || TIPOS.otro, [txt] = cuando(o.fecha);
+    return `<div class="aviso" onclick="openForm('${o.ev.id}')">${t.icon} <b>${esc(o.ev.titulo)}</b> — ${txt.toLowerCase()}${o.edad != null && o.ev.tipo === 'cumple' ? ' (cumple ' + o.edad + ')' : ''}</div>`;
+  }).join('')}</div>` : '';
+
+  // Resumen
+  const prox = occurrences(TODAY, addD(TODAY, 366), true);
+  const hoy = prox.filter(o => diffDays(TODAY, o.fecha) === 0);
+  const semana = prox.filter(o => diffDays(TODAY, o.fecha) <= 7);
+  const cumple = prox.find(o => o.ev.tipo === 'cumple');
+  const card = (c, lbl, val, sub, onclick) => `<div class="metric" style="--c:${c}" onclick="${onclick}"><div class="metric-lbl">${lbl}</div><div class="metric-val">${val}</div><div class="metric-sub">${sub}</div></div>`;
+  document.getElementById('hero').innerHTML =
+    card('#f72585', 'Hoy · ' + TODAY.getDate() + ' ' + MES_C[TODAY.getMonth()],
+      hoy.length ? hoy.map(o => (TIPOS[o.ev.tipo] || TIPOS.otro).icon + ' ' + esc(o.ev.titulo)).join('<br>') : 'Nada especial',
+      hoy.some(o => ['cumple','aniversario','celebracion'].includes(o.ev.tipo)) ? '¡A celebrar! 🎉' : hoy.length ? 'No te olvides' : 'Un día tranquilo', `openDay('${iso(TODAY)}')`) +
+    card('#fb8500', 'Próximos 7 días', semana.length + (semana.length === 1 ? ' evento' : ' eventos'),
+      semana.slice(0, 2).map(o => esc(o.ev.titulo)).join(', ') || 'Semana libre', "go('proximos')") +
+    card('#7b61ff', 'Próximo cumpleaños', cumple ? '🎂 ' + esc(cumple.ev.titulo) : 'Aún no hay ninguno',
+      cumple ? fechaLarga(cumple.fecha) + ' · ' + cuando(cumple.fecha)[0].toLowerCase() + (cumple.edad != null ? ' · cumple ' + cumple.edad : '') : 'Añade el primero con el botón ＋', cumple ? "go('cumples')" : 'openForm()');
+
+  // Cuadrícula
+  document.getElementById('cal-title').textContent = MESES[viewM] + ' ' + viewY;
+  const first = new Date(viewY, viewM, 1);
+  const start = addD(first, -((first.getDay() + 6) % 7));
+  const end = addD(start, 41);
+  const occ = occurrences(start, end);
+  const fest = festivosEntre(start, end);
+  const byDay = {}, festDay = {};
+  occ.forEach(o => (byDay[iso(o.fecha)] ||= []).push(o));
+  fest.forEach(f => (festDay[f.fecha] ||= []).push(f));
+  let html = '';
+  for (let i = 0; i < 42; i++) {
+    const d = addD(start, i), k = iso(d), evs = byDay[k] || [], fs = festDay[k] || [];
+    if (i === 35 && d.getMonth() !== viewM) break; // no pintar 6ª fila vacía
+    const cls = ['cell', d.getMonth() !== viewM && 'other', +d === +TODAY && 'today', (d.getDay() % 6 === 0) && 'weekend', fs.some(f => f.oficial) && 'holiday'].filter(Boolean).join(' ');
+    const items = [...evs.map(o => { const t = TIPOS[o.ev.tipo] || TIPOS.otro; return `<span class="pill" style="--c:${t.color}">${t.icon} ${esc(o.ev.titulo)}</span>`; }),
+                   ...fs.map(f => `<span class="pill fest" style="--c:${FEST_COLOR}">${f.icon} ${esc(f.titulo)}</span>`)];
+    const dots = [...evs.map(o => (TIPOS[o.ev.tipo] || TIPOS.otro).color), ...fs.map(() => FEST_COLOR)].slice(0, 4).map(c => `<i style="--c:${c}"></i>`).join('');
+    html += `<div class="${cls}" onclick="openDay('${k}')"><div class="dnum">${d.getDate()}</div>${items.slice(0, 3).join('')}${items.length > 3 ? `<div class="more">+${items.length - 3} más</div>` : ''}<div class="dots">${dots}</div></div>`;
+  }
+  document.getElementById('cal-grid').innerHTML = html;
+
+  // Lista del mes
+  const mStart = new Date(viewY, viewM, 1), mEnd = new Date(viewY, viewM, daysIn(viewY, viewM));
+  const mOcc = occurrences(mStart, mEnd), mFest = festivosEntre(mStart, mEnd);
+  const rows = [...mOcc.map(o => ({ d: o.fecha, h: evRow(o) })), ...mFest.map(f => ({ d: f.d, h: festRow(f) }))].sort((a, b) => a.d - b.d);
+  document.getElementById('mes-list-title').textContent = 'En ' + MESES[viewM];
+  document.getElementById('mes-list').innerHTML = rows.length ? rows.map(r => r.h).join('')
+    : `<div class="empty">No hay nada apuntado en ${MESES[viewM]}.<br><button class="btn primary small" onclick="openForm()">＋ Añadir evento</button></div>`;
+}
+
+function renderProximos() {
+  const end = addD(TODAY, 365);
+  const occ = occurrences(TODAY, end), fest = festivosEntre(TODAY, end);
+  const rows = [...occ.map(o => ({ d: o.fecha, h: evRow(o) })), ...fest.map(f => ({ d: f.d, h: festRow(f) }))].sort((a, b) => a.d - b.d);
+  const vacio = occ.length ? '' : `<div class="sc"><div class="empty">Todavía no has añadido eventos.<br>Empieza por los cumpleaños de la familia 🎂<br><button class="btn primary small" onclick="openForm()">＋ Añadir evento</button></div></div>`;
+  const groups = {};
+  rows.forEach(r => (groups[r.d.getFullYear() + '-' + pad(r.d.getMonth())] ||= []).push(r.h));
+  document.getElementById('prox-list').innerHTML = vacio +
+    Object.entries(groups).map(([k, hs]) => { const [y, m] = k.split('-').map(Number);
+      return `<div class="sc"><div class="sc-hdr"><div class="sc-title">${MESES[m]} ${y}</div><div class="sc-title">${hs.length}</div></div>${hs.join('')}</div>`; }).join('');
+}
+
+function renderAnio() {
+  document.getElementById('year-title').textContent = yearView;
+  document.getElementById('legend').innerHTML = Object.values(TIPOS).map(t => `<span><i style="--c:${t.color}"></i>${t.icon} ${t.label}</span>`).join('') + `<span><i style="--c:var(--coral)"></i>Festivo</span>`;
+  const start = new Date(yearView, 0, 1), end = new Date(yearView, 11, 31);
+  const byDay = {}, festSet = new Set(festivosEntre(start, end).filter(f => f.oficial).map(f => f.fecha));
+  occurrences(start, end).forEach(o => (byDay[iso(o.fecha)] ||= []).push(o));
+  let html = '';
+  for (let m = 0; m < 12; m++) {
+    const off = (new Date(yearView, m, 1).getDay() + 6) % 7;
+    let g = ['L','M','X','J','V','S','D'].map(x => `<span class="h">${x}</span>`).join('') + '<span class="h"></span>'.repeat(off);
+    for (let d = 1; d <= daysIn(yearView, m); d++) {
+      const dt = new Date(yearView, m, d), k = iso(dt), evs = byDay[k];
+      const cls = [evs && 'ev', !evs && festSet.has(k) && 'fest', +dt === +TODAY && 'today'].filter(Boolean).join(' ');
+      const tip = evs ? evs.map(o => o.ev.titulo).join(', ') : '';
+      g += `<span class="${cls}" ${evs ? `style="--c:${(TIPOS[evs[0].ev.tipo] || TIPOS.otro).color}"` : ''} title="${esc(tip)}" onclick="openDay('${k}')">${d}</span>`;
+    }
+    html += `<div class="mini"><div class="mini-t" onclick="viewY=${yearView};viewM=${m};go('mes')">${MESES[m]}</div><div class="mini-g">${g}</div></div>`;
+  }
+  document.getElementById('year-grid').innerHTML = html;
+}
+
+function renderCumples() {
+  const occ = occurrences(TODAY, addD(TODAY, 366), true).filter(o => o.ev.repite === 'anual' && ['cumple', 'aniversario'].includes(o.ev.tipo));
+  const seen = new Set(), list = occ.filter(o => !seen.has(o.ev.id) && seen.add(o.ev.id));
+  document.getElementById('cumple-list').innerHTML = `<div class="sc">${list.length ? list.map(o => evRow(o)).join('')
+    : `<div class="empty">Aún no hay cumpleaños.<br><button class="btn primary small" onclick="openForm(null,null,'cumple')">＋ Añadir cumpleaños</button></div>`}</div>`;
+}
+
+// ══ NAVEGACIÓN ══
+function go(p) {
+  page = p;
+  document.querySelectorAll('.page').forEach(x => x.classList.toggle('active', x.id === 'page-' + p));
+  document.querySelectorAll('[data-page]').forEach(x => x.classList.toggle('active', x.dataset.page === p));
+  render(); window.scrollTo(0, 0);
+}
+function moveMonth(n) { viewM += n; if (viewM < 0) { viewM = 11; viewY--; } if (viewM > 11) { viewM = 0; viewY++; } renderMes(); }
+function moveYear(n) { yearView += n; renderAnio(); }
+function goToday() { viewY = TODAY.getFullYear(); viewM = TODAY.getMonth(); renderMes(); }
+// Deslizar en el calendario para cambiar de mes (móvil)
+(() => { let x0 = null; const g = () => document.getElementById('cal-grid');
+  document.addEventListener('touchstart', e => { x0 = g().contains(e.target) ? e.touches[0].clientX : null; }, { passive: true });
+  document.addEventListener('touchend', e => { if (x0 == null) return; const dx = e.changedTouches[0].clientX - x0; if (Math.abs(dx) > 60) moveMonth(dx < 0 ? 1 : -1); x0 = null; });
+})();
+
+// ══ HOJA DEL DÍA ══
+function openDay(k) {
+  const d = parse(k);
+  const occ = occurrences(d, d), fest = festivosEntre(d, d);
+  document.getElementById('day-title').textContent = fechaLarga(d).replace(/^./, c => c.toUpperCase());
+  document.getElementById('day-list').innerHTML = [
+    ...fest.map(f => `<div class="day-ev" style="--c:${FEST_COLOR};cursor:default"><span class="e">${f.icon}</span><div><div class="ev-t">${esc(f.titulo)}</div><div class="ev-s">${f.oficial ? 'Festivo' : 'Día especial'}</div></div></div>`),
+    ...occ.map(o => { const t = TIPOS[o.ev.tipo] || TIPOS.otro;
+      return `<div class="day-ev" style="--c:${t.color}" onclick="closeOv('ov-day');openForm('${o.ev.id}')"><span class="e">${t.icon}</span><div style="min-width:0"><div class="ev-t">${esc(o.ev.titulo)}</div><div class="ev-s" style="white-space:normal">${esc(subtitulo(o)) || t.label}</div></div></div>`; })
+  ].join('') || '<div class="empty" style="padding:14px">Nada apuntado este día.</div>';
+  document.getElementById('day-add').onclick = () => { closeOv('ov-day'); openForm(null, k); };
+  document.getElementById('ov-day').classList.add('open');
+}
+
+// ══ FORMULARIO ══
+function renderTipos() {
+  document.getElementById('f-tipos').innerHTML = Object.entries(TIPOS).map(([k, t]) =>
+    `<div class="tipo ${k === selTipo ? 'sel' : ''}" style="--c:${t.color}" onclick="pickTipo('${k}')"><span class="e">${t.icon}</span>${t.label}</div>`).join('');
+  const anual = ['cumple', 'aniversario'].includes(selTipo);
+  document.getElementById('f-anio-wrap').style.display = anual ? '' : 'none';
+  document.getElementById('f-anio-txt').textContent = selTipo === 'cumple' ? 'Sé el año de nacimiento (para mostrar la edad que cumple)' : 'Sé el año en que empezó (para contar los años)';
+  document.getElementById('f-titulo').placeholder = { cumple: 'Ej: Emiliano', aniversario: 'Ej: Aniversario de boda', celebracion: 'Ej: Comunión de la prima', familiar: 'Ej: Comida en casa de los abuelos', recordatorio: 'Ej: Renovar el pasaporte', salud: 'Ej: Pediatra de Emiliano', escuela: 'Ej: Reunión de padres', otro: 'Ej: …' }[selTipo];
+  document.getElementById('f-titulo-lbl').textContent = selTipo === 'cumple' ? '¿Quién cumple años?' : 'Título';
+}
+function pickTipo(k) {
+  selTipo = k; const t = TIPOS[k];
+  if (!editId) { document.getElementById('f-repite').value = t.anual ? 'anual' : 'no'; document.getElementById('f-aviso').value = t.aviso; }
+  renderTipos();
+}
+function openForm(id, fecha, tipo) {
+  editId = id || null;
+  const ev = id ? EVENTS.find(e => e.id === id) : null;
+  selTipo = ev ? ev.tipo : (tipo || 'cumple');
+  const t = TIPOS[selTipo];
+  document.getElementById('form-title').textContent = ev ? 'Editar evento' : 'Nuevo evento';
+  document.getElementById('f-titulo').value = ev ? ev.titulo : '';
+  document.getElementById('f-fecha').value = ev ? ev.fecha : (fecha || iso(TODAY));
+  document.getElementById('f-hora').value = ev?.hora || '';
+  document.getElementById('f-anio').checked = ev ? !!ev.anioConocido : false;
+  document.getElementById('f-repite').value = ev ? ev.repite : (t.anual ? 'anual' : 'no');
+  document.getElementById('f-aviso').value = ev ? (ev.aviso ?? 0) : t.aviso;
+  document.getElementById('f-persona').value = ev?.persona || '';
+  document.getElementById('f-notas').value = ev?.notas || '';
+  document.getElementById('f-del').style.display = ev ? '' : 'none';
+  renderTipos();
+  document.getElementById('ov-form').classList.add('open');
+  if (!ev && window.innerWidth > 768) setTimeout(() => document.getElementById('f-titulo').focus(), 50);
+}
+function saveEvent() {
+  const titulo = document.getElementById('f-titulo').value.trim();
+  const fecha = document.getElementById('f-fecha').value;
+  if (!titulo) { toast('Escribe un título'); document.getElementById('f-titulo').focus(); return; }
+  if (!fecha) { toast('Elige una fecha'); return; }
+  const data = {
+    id: editId || uid(), tipo: selTipo, titulo, fecha,
+    hora: document.getElementById('f-hora').value || '',
+    repite: document.getElementById('f-repite').value,
+    aviso: Number(document.getElementById('f-aviso').value),
+    anioConocido: ['cumple', 'aniversario'].includes(selTipo) && document.getElementById('f-anio').checked,
+    persona: document.getElementById('f-persona').value.trim(),
+    notas: document.getElementById('f-notas').value.trim(),
+  };
+  if (editId) EVENTS = EVENTS.map(e => e.id === editId ? data : e); else EVENTS.push(data);
+  persist(true); closeOv('ov-form'); render();
+  toast(editId ? 'Evento actualizado ✓' : 'Evento guardado ✓');
+}
+function delEvent() {
+  const ev = EVENTS.find(e => e.id === editId);
+  if (!ev || !confirm('¿Borrar "' + ev.titulo + '"?')) return;
+  EVENTS = EVENTS.filter(e => e.id !== editId);
+  persist(true); closeOv('ov-form'); render(); toast('Evento borrado');
+}
+function closeOv(id) { document.getElementById(id).classList.remove('open'); }
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') document.querySelectorAll('.ov.open').forEach(o => o.classList.remove('open'));
+  if (e.key === 'Enter' && document.getElementById('ov-form').classList.contains('open') && e.target.tagName === 'INPUT') saveEvent();
+});
+
+// ══ AJUSTES ══
+function openAjustes() {
+  document.getElementById('aj-festivos').value = CFG.festivos;
+  document.getElementById('aj-popular').checked = CFG.populares;
+  document.getElementById('ov-aj').classList.add('open');
+}
+function setCfg(k, v) { CFG[k] = v; persist(); render(); }
+function applyTheme() {
+  const t = store.get('calendario_dg_theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('theme-btn').textContent = t === 'dark' ? '☀️' : '🌙';
+}
+function toggleTheme() {
+  store.set('calendario_dg_theme', document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
+  applyTheme();
+}
+function toast(msg) {
+  const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('show'), 2200);
+}
+function download(name, text, type) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([text], { type }));
+  a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+
+// ══ EXPORTAR / IMPORTAR ══
+function exportICS() {
+  if (!EVENTS.length) { toast('Aún no hay eventos que exportar'); return; }
+  const icsEsc = s => String(s).replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\n/g, '\\n');
+  const stamp = new Date().toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+  const L = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Familia Diaz Gonzalez//Calendario//ES', 'CALSCALE:GREGORIAN', 'X-WR-CALNAME:Familia Díaz González'];
+  for (const ev of EVENTS) {
+    const t = TIPOS[ev.tipo] || TIPOS.otro, f = ev.fecha.replace(/-/g, '');
+    L.push('BEGIN:VEVENT', 'UID:' + ev.id + '@calendario-diaz-gonzalez', 'DTSTAMP:' + stamp);
+    if (ev.hora) {
+      const h = ev.hora.replace(':', '') + '00';
+      const [hh, mm] = ev.hora.split(':').map(Number), endH = new Date(2000, 0, 1, hh + 1, mm);
+      L.push('DTSTART:' + f + 'T' + h, 'DTEND:' + f + 'T' + pad(endH.getHours()) + pad(endH.getMinutes()) + '00');
+    } else {
+      L.push('DTSTART;VALUE=DATE:' + f, 'DTEND;VALUE=DATE:' + iso(addD(parse(ev.fecha), 1)).replace(/-/g, ''));
+    }
+    const rr = { anual: 'YEARLY', mensual: 'MONTHLY', semanal: 'WEEKLY' }[ev.repite];
+    if (rr) L.push('RRULE:FREQ=' + rr);
+    L.push('SUMMARY:' + icsEsc(t.icon + ' ' + (ev.tipo === 'cumple' ? 'Cumpleaños de ' + ev.titulo : ev.titulo)));
+    const desc = [ev.persona, ev.notas, ev.anioConocido ? (ev.tipo === 'cumple' ? 'Nació en ' : 'Desde ') + ev.fecha.slice(0, 4) : ''].filter(Boolean).join('\n');
+    if (desc) L.push('DESCRIPTION:' + icsEsc(desc));
+    L.push('CATEGORIES:' + icsEsc(t.label));
+    const av = ev.aviso ?? 0;
+    // Con hora: X días antes (o 1 h antes). Día completo: a las 9:00, X días antes.
+    const trig = ev.hora ? (av ? '-P' + av + 'D' : '-PT1H') : (av ? '-PT' + (av * 24 - 9) + 'H' : 'PT9H');
+    L.push('BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:' + icsEsc(ev.titulo), 'TRIGGER:' + trig, 'END:VALARM');
+    L.push('END:VEVENT');
+  }
+  L.push('END:VCALENDAR');
+  download('calendario-familia-diaz-gonzalez.ics', L.join('\r\n'), 'text/calendar');
+  toast('Archivo descargado — ábrelo en tu móvil 📲');
+}
+function exportJSON() {
+  download('calendario-backup-' + iso(new Date()) + '.json', JSON.stringify({ events: EVENTS, cfg: CFG }, null, 2), 'application/json');
+}
+function importJSON(input) {
+  const f = input.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    try {
+      const d = JSON.parse(r.result);
+      if (!Array.isArray(d.events)) throw 0;
+      if (!confirm('Esto reemplazará los ' + EVENTS.length + ' eventos actuales por los ' + d.events.length + ' de la copia. ¿Continuar?')) return;
+      EVENTS = d.events; if (d.cfg) CFG = Object.assign(CFG, d.cfg);
+      persist(true); render(); closeOv('ov-aj'); toast('Copia restaurada ✓');
+    } catch (e) { toast('Ese archivo no es una copia válida'); }
+    input.value = '';
+  };
+  r.readAsText(f);
+}
+
+// ══ GUARDADO LOCAL + NUBE (Firebase, igual que la app de finanzas) ══
+let db = null, cloudLoaded = false;
+const SYNC_DOC = 'calendario-diaz-gonzalez';
+try {
+  firebase.initializeApp({
+    apiKey: "AIzaSyCi0cdF5VqJjcsHibnLg6kvPGVN-f2b_DY",
+    authDomain: "familia-diaz-gonzalez.firebaseapp.com",
+    projectId: "familia-diaz-gonzalez",
+    storageBucket: "familia-diaz-gonzalez.firebasestorage.app",
+    messagingSenderId: "627582265304",
+    appId: "1:627582265304:web:3b5fae7e4b7919619734ad"
+  });
+  db = firebase.firestore();
+} catch (e) { console.warn('Firebase no disponible:', e); }
+
+function persist(toCloud) {
+  store.set(LS_KEY, JSON.stringify({ events: EVENTS, cfg: CFG }));
+  if (toCloud !== false) syncToCloud();
+}
+function syncToCloud() {
+  // Hasta haber leído la nube, no escribir: evita pisar datos de otro dispositivo
+  if (!db || !cloudLoaded) return;
+  updateSyncStatus('syncing');
+  db.collection('appdata').doc(SYNC_DOC).set({
+    events: JSON.stringify(EVENTS),
+    cfg: JSON.stringify({ festivos: CFG.festivos, populares: CFG.populares }),
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  }, { merge: true })
+    .then(() => updateSyncStatus('synced'))
+    .catch(err => { console.warn('Sync error:', err); updateSyncStatus('error'); });
+}
+function applyCloud(data) {
+  try {
+    if (data.events) EVENTS = JSON.parse(data.events);
+    if (data.cfg) Object.assign(CFG, JSON.parse(data.cfg));
+  } catch (e) { console.warn('Datos de nube no válidos', e); }
+  persist(false); render();
+}
+function loadCloud() {
+  if (!db) { updateSyncStatus('error'); return; }
+  db.collection('appdata').doc(SYNC_DOC).get().then(doc => {
+    cloudLoaded = true;
+    if (doc.exists) applyCloud(doc.data());
+    else if (EVENTS.length) syncToCloud(); // primera vez: subir lo que haya en este dispositivo
+    updateSyncStatus('synced');
+    db.collection('appdata').doc(SYNC_DOC).onSnapshot(d => {
+      if (!d.exists || d.metadata.hasPendingWrites) return;
+      applyCloud(d.data()); updateSyncStatus('synced');
+    });
+  }).catch(err => { console.warn('Load error:', err); updateSyncStatus('error'); });
+}
+function updateSyncStatus(s) {
+  const el = document.getElementById('sync-status');
+  if (s === 'synced') { el.textContent = '☁️ Sincronizado'; el.style.color = 'var(--emerald)'; }
+  else if (s === 'error') { el.textContent = '⚠️ Sin conexión'; el.style.color = 'var(--amber)'; }
+  else { el.textContent = '🔄 Sincronizando…'; el.style.color = 'var(--sky)'; }
+}
+
+applyTheme();
+render();
+loadCloud();
+</script>
+</body>
+</html>
