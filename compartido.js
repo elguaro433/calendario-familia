@@ -21,6 +21,7 @@
   // Los festivos (Immaculada, Constitució, Festa del Treball) ya salen en festivos().
   const ESCOLAR_COLOR = '#0ea5e9';
   const ESCOLAR = [
+    { id: 'esc-2627-estiu',      desde: '2026-09-01', hasta: '2026-09-08', icon: '🏫', titulo: 'Vacaciones escolares',          aviso: 7 },
     { id: 'esc-2627-totsants',   desde: '2026-10-26', hasta: '2026-11-01', icon: '🏫', titulo: 'Vacaciones escolares', aviso: 7 },
     { id: 'esc-2627-nadal',      desde: '2026-12-23', hasta: '2027-01-06', icon: '🏫', titulo: 'Vacaciones escolares',          aviso: 7 },
     { id: 'esc-2627-carnaval',   desde: '2027-02-08', hasta: '2027-02-14', icon: '🏫', titulo: 'Vacaciones escolares',         aviso: 7 },

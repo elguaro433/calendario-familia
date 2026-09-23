@@ -434,7 +434,7 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
 
 <div class="toast" id="toast"></div>
 
-<script src="compartido.js?v=1.11"></script>
+<script src="compartido.js?v=1.12"></script>
 <script>
 const TIPOS = CalComun.TIPOS; // en compartido.js
 const FEST_COLOR = '#dc2626';   // días festivos (no se trabaja)
@@ -858,7 +858,7 @@ function importJSON(input) {
 // "eventos" (un mapa id → evento). Cada cambio solo toca SU evento (eventos.<id>), así que si
 // dos personas guardan a la vez se conservan los dos cambios. Sin inicio de sesión: igual que
 // la app de finanzas, la colección appdata es de acceso libre.
-const APP_VERSION = '1.11';
+const APP_VERSION = '1.12';
 const DOC_EVENTOS = 'appdata/calendario-eventos';
 let db = null;
 try {
