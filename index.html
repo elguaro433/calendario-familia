@@ -13,7 +13,6 @@
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 <title>Calendario Díaz González</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -111,8 +110,6 @@ button { font-family: inherit; }
 .metric-val { font-size: 17px; font-weight: 800; margin-top: 4px; line-height: 1.3; }
 .metric-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
 
-.importar { background: linear-gradient(135deg, rgba(14,165,233,.12), rgba(0,214,143,.12)); border: 1px solid rgba(14,165,233,.35); border-radius: var(--r); padding: 12px 16px; margin-bottom: 14px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-.importar .t { flex: 1; min-width: 200px; font-size: 14px; }
 .avisos { background: linear-gradient(135deg, rgba(247,37,133,.1), rgba(123,97,255,.1)); border: 1px solid rgba(247,37,133,.25); border-radius: var(--r); padding: 12px 16px; margin-bottom: 18px; }
 .avisos-t { font-size: 12px; font-weight: 800; color: var(--pink); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; }
 .aviso { font-size: 13.5px; padding: 3px 0; cursor: pointer; }
@@ -202,8 +199,6 @@ button { font-family: inherit; }
 .btn.small { flex: 0 0 auto; padding: 8px 14px; font-size: 13px; }
 .day-ev { display: flex; gap: 10px; align-items: center; padding: 10px 12px; border-radius: 12px; background: var(--card2); margin-bottom: 8px; cursor: pointer; border-left: 4px solid var(--c); }
 .day-ev .e { font-size: 22px; }
-.fam-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 13.5px; padding: 2px 0; word-break: break-all; }
-.fam-row .x { width: 26px; height: 26px; font-size: 12px; flex-shrink: 0; }
 .upd-banner { position: fixed; left: 50%; transform: translateX(-50%); bottom: 24px; z-index: 350; background: #1e293b; color: #fff; border-radius: 14px; padding: 10px 12px 10px 16px; display: flex; align-items: center; gap: 12px; font-size: 13.5px; font-weight: 600; box-shadow: 0 10px 30px rgba(0,0,0,.35); }
 .upd-banner[hidden] { display: none; }
 .upd-banner button { background: var(--pink); color: #fff; border: none; border-radius: 10px; padding: 8px 14px; font-weight: 700; cursor: pointer; font-family: inherit; }
@@ -227,7 +222,6 @@ button { font-family: inherit; }
   .hdr-logo { font-size: 15px; }
   .hdr-btn { display: none; }
   .hdr-more { display: flex; font-size: 18px; padding: 4px 10px; }
-  .hdr-user { display: flex; }
   .sync-status { font-size: 0; width: 9px; height: 9px; border-radius: 50%; background: currentColor; box-shadow: 0 0 6px currentColor; }
   .content { padding: 14px 16px 24px; }
   .hero { grid-template-columns: 1fr; gap: 8px; }
@@ -270,8 +264,6 @@ button { font-family: inherit; }
     <div class="hdr-logo">📅 Calendario <em>Díaz González</em></div>
     <div class="hdr-actions">
       <span class="sync-status" id="sync-status">🔄 Conectando…</span>
-      <button class="hdr-btn hdr-user" id="hdr-user" onclick="USER ? openAjustes() : openLogin()">👤 Entrar</button>
-      <button class="hdr-btn" onclick="openGoogle()">📅 Google Calendar</button>
       <button class="hdr-btn" onclick="openAjustes()">⚙️ Ajustes</button>
       <button class="hdr-btn" onclick="toggleTheme()" id="theme-btn">🌙</button>
       <button class="hdr-btn hdr-more" onclick="openAjustes()">⋯</button>
@@ -293,7 +285,6 @@ button { font-family: inherit; }
   <main class="content">
     <!-- MES -->
     <section class="page active" id="page-mes">
-      <div id="importar"></div>
       <div id="avisos"></div>
       <div class="hero" id="hero"></div>
       <div class="cal-nav">
@@ -389,7 +380,6 @@ button { font-family: inherit; }
       <div class="fld"><label>Notas (opcional)</label><textarea id="f-notas" placeholder="Ideas de regalo, lugar, qué llevar…"></textarea></div>
       <div class="btns">
         <button class="btn danger" id="f-del" onclick="delEvent()">🗑️</button>
-        <button class="btn small" id="f-google" onclick="window.open(CalComun.googleLink(EVENTS.find(e => e.id === editId)), '_blank')" title="Añadir este evento a Google Calendar ahora">📅 Añadir a Google</button>
         <button class="btn" onclick="closeOv('ov-form')">Cancelar</button>
         <button class="btn primary" onclick="saveEvent()">Guardar</button>
       </div>
@@ -412,13 +402,6 @@ button { font-family: inherit; }
   <div class="sheet">
     <div class="sheet-h"><h3>Ajustes</h3><button class="x" onclick="closeOv('ov-aj')">✕</button></div>
     <div class="sheet-b">
-      <div class="fld"><label>Tu sesión</label><div id="aj-sesion" class="gsteps"></div></div>
-      <div class="fld" id="aj-familia" style="display:none"><label>Quién puede editar (además de ti)</label>
-        <div class="gsteps"><div id="fam-list"></div>
-          <div style="display:flex;gap:6px;margin-top:4px"><input id="fam-email" type="email" placeholder="correo de Gmail de tu familiar" style="flex:1;min-width:0;padding:9px 10px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text);font:inherit"><button class="btn small primary" onclick="addMiembro()">Añadir</button></div>
-          <div class="ev-s" style="white-space:normal">Tiene que ser la cuenta de Google con la que esa persona entrará.</div>
-        </div>
-      </div>
       <div class="fld"><label>Días festivos</label>
         <select id="aj-festivos" onchange="setCfg('festivos', this.value)">
           <option value="AD">Andorra (con Andorra la Vella)</option>
@@ -427,47 +410,13 @@ button { font-family: inherit; }
         </select>
       </div>
       <div class="btns" style="flex-direction:column">
-        <button class="btn" onclick="closeOv('ov-aj');openGoogle()">📅 Ver en Google Calendar</button>
         <button class="btn" onclick="exportICS()">📲 Descargar todos los eventos (.ics)</button>
         <button class="btn" onclick="toggleTheme()">🌙 Cambiar modo claro / oscuro</button>
         <button class="btn" onclick="exportJSON()">💾 Descargar copia de seguridad</button>
         <button class="btn" onclick="document.getElementById('imp-file').click()">📂 Restaurar copia de seguridad</button>
         <input type="file" id="imp-file" accept=".json" hidden onchange="importJSON(this)">
       </div>
-      <p class="hint" style="margin-top:14px">“Descargar todos los eventos” crea un archivo que puedes abrir en el iPhone o Android para copiar los eventos a su calendario, con sus avisos. Es una copia: para que se actualice solo, usa “Ver en Google Calendar”.</p>
-    </div>
-  </div>
-</div>
-
-<!-- GOOGLE CALENDAR -->
-<div class="ov" id="ov-google" onclick="if(event.target===this)closeOv('ov-google')">
-  <div class="sheet">
-    <div class="sheet-h"><h3>📅 Google Calendar</h3><button class="x" onclick="closeOv('ov-google')">✕</button></div>
-    <div class="sheet-b">
-      <p style="font-size:14px;margin-bottom:12px">Suscríbete <b>una sola vez</b> y tendrás en tu Google Calendar un calendario <b>«Familia Díaz González»</b> que se actualiza solo con todo lo que se añada aquí.</p>
-      <div class="gsteps">
-        <div><b>1.</b> Hazlo desde el <b>ordenador</b> (la app de Google Calendar del móvil no deja suscribirse). Pulsa:</div>
-        <button class="btn primary" style="width:100%;margin:8px 0 12px" onclick="window.open(GOOGLE_SUB, '_blank')">➕ Añadir a mi Google Calendar</button>
-        <div><b>2.</b> Google preguntará si quieres añadir el calendario: pulsa <b>Añadir</b>.</div>
-        <div><b>3.</b> Listo. En unos minutos aparecerá también en tu móvil. Si no lo ves, en la app de Google Calendar → Ajustes → «Familia Díaz González» → activa <b>Sincronizar</b>.</div>
-        <div><b>4.</b> Cada miembro de la familia lo hace con su propia cuenta de Google.</div>
-      </div>
-      <div class="fld" style="margin-top:14px"><label>¿No funciona el botón? Copia esta dirección</label>
-        <div style="display:flex;gap:6px"><input id="g-url" readonly onclick="this.select()"><button class="btn small" onclick="copyFeed()">Copiar</button></div>
-      </div>
-      <p class="hint">…y pégala en Google Calendar → «Otros calendarios» → <b>＋</b> → <b>Desde URL</b>. <a href="https://calendar.google.com/calendar/u/0/r/settings/addbyurl" target="_blank" style="color:var(--pink)">Abrir esa pantalla</a></p>
-      <p class="hint" style="margin-top:8px">⏱️ La app actualiza el calendario cada hora, pero Google lo refresca a su ritmo (unas horas). Si necesitas algo al momento, abre el evento y pulsa <b>«Añadir a Google»</b>.<br>🔔 Para recibir avisos: en Google Calendar abre la configuración de «Familia Díaz González» y pon las <b>notificaciones de eventos de todo el día</b> que prefieras.</p>
-    </div>
-  </div>
-</div>
-
-<!-- INICIAR SESIÓN -->
-<div class="ov" id="ov-login" onclick="if(event.target===this)closeOv('ov-login')">
-  <div class="sheet">
-    <div class="sheet-h"><h3>👤 Entrar</h3><button class="x" onclick="closeOv('ov-login')">✕</button></div>
-    <div class="sheet-b">
-      <p style="font-size:14px;margin-bottom:14px">Para proteger el calendario, solo la familia puede añadir o cambiar eventos. Entra con tu cuenta de Google (solo hace falta la primera vez en cada teléfono).</p>
-      <button class="btn primary" style="width:100%" onclick="login()">Entrar con Google</button>
+      <p class="hint" style="margin-top:14px">“Descargar todos los eventos” crea un archivo que puedes abrir en el móvil para copiar los eventos a su calendario.</p>
     </div>
   </div>
 </div>
@@ -784,7 +733,6 @@ function pickTipo(k) {
   renderTipos();
 }
 function openForm(id, fecha, tipo) {
-  if (!id && !requireFamilia()) return;
   editId = id || null;
   const ev = id ? EVENTS.find(e => e.id === id) : null;
   selTipo = ev ? ev.tipo : (tipo || 'cumple');
@@ -799,7 +747,6 @@ function openForm(id, fecha, tipo) {
   document.getElementById('f-persona').value = ev?.persona || '';
   document.getElementById('f-notas').value = ev?.notas || '';
   document.getElementById('f-del').style.display = ev ? '' : 'none';
-  document.getElementById('f-google').style.display = ev ? '' : 'none';
   renderTipos();
   document.getElementById('ov-form').classList.add('open');
   if (!ev && window.innerWidth > 768) setTimeout(() => document.getElementById('f-titulo').focus(), 50);
@@ -818,14 +765,13 @@ function saveEvent() {
     persona: document.getElementById('f-persona').value.trim(),
     notas: document.getElementById('f-notas').value.trim(),
   };
-  if (!requireFamilia()) return;
   cloudSet(data);
   closeOv('ov-form');
   toast(editId ? 'Evento actualizado ✓' : 'Evento guardado ✓');
 }
 function delEvent() {
   const ev = EVENTS.find(e => e.id === editId);
-  if (!ev || !requireFamilia() || !confirm('¿Borrar "' + ev.titulo + '"?')) return;
+  if (!ev || !confirm('¿Borrar "' + ev.titulo + '"?')) return;
   cloudDelete(ev.id);
   closeOv('ov-form'); toast('Evento borrado');
 }
@@ -837,7 +783,6 @@ document.addEventListener('keydown', e => {
 
 // ══ AJUSTES ══
 function openAjustes() {
-  renderSesion();
   document.getElementById('aj-festivos').value = CFG.festivos;
   document.getElementById('ov-aj').classList.add('open');
 }
@@ -867,18 +812,6 @@ function exportICS() {
   download('calendario-familia-diaz-gonzalez.ics', CalComun.buildICS(EVENTS), 'text/calendar');
   toast('Archivo descargado — ábrelo en tu móvil 📲');
 }
-// Suscripción de Google Calendar: el robot de GitHub publica familia.ics cada hora
-const FEED_URL = 'https://elguaro433.github.io/calendario-familia/familia.ics';
-const GOOGLE_SUB = 'https://calendar.google.com/calendar/render?cid=' + encodeURIComponent(FEED_URL.replace('https://', 'webcal://'));
-function openGoogle() {
-  document.getElementById('g-url').value = FEED_URL;
-  document.getElementById('ov-google').classList.add('open');
-}
-function copyFeed() {
-  const i = document.getElementById('g-url'); i.select();
-  (navigator.clipboard ? navigator.clipboard.writeText(FEED_URL) : Promise.reject()).catch(() => document.execCommand('copy'));
-  toast('Dirección copiada ✓');
-}
 function exportJSON() {
   download('calendario-backup-' + iso(new Date()) + '.json', JSON.stringify({ events: EVENTS, cfg: CFG }, null, 2), 'application/json');
 }
@@ -889,7 +822,6 @@ function importJSON(input) {
     try {
       const d = JSON.parse(r.result);
       if (!Array.isArray(d.events)) throw 0;
-      if (!requireFamilia()) return;
       if (!confirm('Esto reemplazará los ' + EVENTS.length + ' eventos actuales por los ' + d.events.length + ' de la copia. ¿Continuar?')) return;
       if (d.cfg) { CFG = Object.assign(CFG, d.cfg); persist(); }
       cloudReplaceAll(d.events).then(() => toast('Copia restaurada ✓')).catch(cloudError);
@@ -901,15 +833,13 @@ function importJSON(input) {
 }
 
 // ══ NUBE (Firebase) ══
-// Cada evento es un documento de la colección calendario_eventos: si dos personas
-// guardan a la vez, cada cambio se conserva. Cualquiera puede ver el calendario
-// (igual que la suscripción de Google), pero solo la familia con sesión de Google
-// puede añadir, cambiar o borrar — lo imponen las reglas de seguridad de Firestore.
-const APP_VERSION = '1.5';
-const COL_EVENTOS = 'calendario_eventos';
-const DOC_FAMILIA = 'calendario_familia/miembros';   // { emails: [...] } — lo gestiona el dueño
-const DUENO = 'emmanuel050216@gmail.com';
-let db = null, auth = null, USER = null, FAMILIA = [];
+// Todos los eventos viven en un documento, appdata/calendario-eventos, dentro del campo
+// "eventos" (un mapa id → evento). Cada cambio solo toca SU evento (eventos.<id>), así que si
+// dos personas guardan a la vez se conservan los dos cambios. Sin inicio de sesión: igual que
+// la app de finanzas, la colección appdata es de acceso libre.
+const APP_VERSION = '1.6';
+const DOC_EVENTOS = 'appdata/calendario-eventos';
+let db = null;
 try {
   firebase.initializeApp({
     apiKey: "AIzaSyCi0cdF5VqJjcsHibnLg6kvPGVN-f2b_DY",
@@ -922,7 +852,6 @@ try {
   db = firebase.firestore();
   // Copia local de Firestore: la app abre sin internet y los cambios se envían al volver la conexión
   db.enablePersistence({ synchronizeTabs: true }).catch(e => console.warn('Sin caché offline:', e.code));
-  auth = firebase.auth();
 } catch (e) { console.warn('Firebase no disponible:', e); }
 
 // Solo preferencias de este dispositivo + copia de los eventos para pintar al instante
@@ -930,103 +859,30 @@ function persist() {
   store.set(LS_KEY, JSON.stringify({ events: EVENTS, cfg: CFG }));
 }
 
-const email = () => (USER && USER.email || '').toLowerCase();
-const esDueno = () => email() === DUENO;
-const esFamilia = () => !!USER && (esDueno() || FAMILIA.includes(email()));
-function requireFamilia() {
-  if (esFamilia()) return true;
-  if (!USER) { openLogin(); return false; }
-  toast('Tu cuenta (' + email() + ') no está en la familia. Pídele a Emmanuel que te añada.');
-  return false;
-}
-
 function cloudError(err) {
   console.warn('Error de nube:', err);
-  if (err && err.code === 'permission-denied') toast('No tienes permiso para cambiar el calendario');
-  else toast('No se pudo guardar en la nube: ' + (err && err.message || err));
+  toast('No se pudo guardar en la nube: ' + (err && err.message || err));
 }
+const docRef = () => db.doc(DOC_EVENTOS);
 function cloudSet(ev) {
-  const data = { ...ev, updatedAt: firebase.firestore.FieldValue.serverTimestamp(), updatedBy: email() };
-  // Sin await: la caché local actualiza la pantalla al momento y se sube cuando haya conexión
-  db.collection(COL_EVENTOS).doc(ev.id).set(data).catch(cloudError);
+  // Sin await: la caché local actualiza la pantalla al momento y se sube cuando haya conexión.
+  // set+merge crea el documento si aún no existe y solo cambia este evento.
+  docRef().set({ eventos: { [ev.id]: ev } }, { merge: true }).catch(cloudError);
 }
 function cloudDelete(id) {
-  db.collection(COL_EVENTOS).doc(id).delete().catch(cloudError);
+  docRef().update({ ['eventos.' + id]: firebase.firestore.FieldValue.delete() }).catch(cloudError);
 }
 async function cloudReplaceAll(events) {
-  const nuevos = new Set(events.map(e => e.id));
-  const ops = [...events.map(e => b => b.set(db.collection(COL_EVENTOS).doc(e.id), { ...e, updatedAt: firebase.firestore.FieldValue.serverTimestamp(), updatedBy: email() })),
-               ...EVENTS.filter(e => !nuevos.has(e.id)).map(e => b => b.delete(db.collection(COL_EVENTOS).doc(e.id)))];
-  for (let i = 0; i < ops.length; i += 400) {   // Firestore admite 500 operaciones por lote
-    const b = db.batch(); ops.slice(i, i + 400).forEach(op => op(b)); await b.commit();
-  }
+  await docRef().set({ eventos: Object.fromEntries(events.map(e => [e.id, e])) });
 }
 
 function initCloud() {
   if (!db) { updateSyncStatus('error'); return; }
-  db.collection(COL_EVENTOS).onSnapshot({ includeMetadataChanges: true }, snap => {
-    EVENTS = snap.docs.map(d => { const { updatedAt, updatedBy, ...ev } = d.data(); return ev; });
-    persist(); render(); checkImportar();
+  docRef().onSnapshot({ includeMetadataChanges: true }, snap => {
+    EVENTS = Object.values((snap.exists && snap.data().eventos) || {});
+    persist(); render();
     updateSyncStatus(snap.metadata.hasPendingWrites ? 'syncing' : snap.metadata.fromCache ? 'offline' : 'synced');
   }, err => { console.warn('Lectura:', err); updateSyncStatus('error'); });
-
-  auth.onAuthStateChanged(async u => {
-    USER = u; FAMILIA = [];
-    if (u) {
-      try {
-        const d = await db.doc(DOC_FAMILIA).get();
-        FAMILIA = ((d.exists && d.data().emails) || []).map(x => x.toLowerCase());
-      } catch (e) { console.warn('Miembros:', e); }
-    }
-    renderSesion(); checkImportar();
-  });
-  auth.getRedirectResult().catch(e => e.code && toast('No se pudo iniciar sesión: ' + e.message));
-}
-
-// ══ SESIÓN ══
-function openLogin() { document.getElementById('ov-login').classList.add('open'); }
-async function login() {
-  const provider = new firebase.auth.GoogleAuthProvider();
-  provider.setCustomParameters({ prompt: 'select_account' });
-  try {
-    await auth.signInWithPopup(provider);
-    closeOv('ov-login'); toast('Sesión iniciada ✓');
-  } catch (e) {
-    // Algunos móviles (app instalada) no permiten ventanas emergentes: probar con redirección
-    if (['auth/popup-blocked', 'auth/operation-not-supported-in-this-environment', 'auth/cancelled-popup-request'].includes(e.code)) auth.signInWithRedirect(provider);
-    else if (e.code !== 'auth/popup-closed-by-user') toast('No se pudo iniciar sesión: ' + e.message);
-  }
-}
-function logout() { auth.signOut(); toast('Sesión cerrada'); }
-function renderSesion() {
-  const el = document.getElementById('aj-sesion'), fam = document.getElementById('aj-familia');
-  const hdr = document.getElementById('hdr-user');
-  hdr.textContent = USER ? '👤 ' + (USER.displayName || email()).split(' ')[0] : '👤 Entrar';
-  if (!USER) {
-    el.innerHTML = `<div class="ev-s" style="white-space:normal;margin-bottom:8px">Cualquiera con el enlace puede ver el calendario. Para añadir o cambiar eventos, entra con tu cuenta de Google.</div><button class="btn primary" style="width:100%" onclick="login()">Entrar con Google</button>`;
-  } else {
-    el.innerHTML = `<div style="display:flex;align-items:center;gap:10px"><div style="flex:1;min-width:0"><div class="ev-t">${esc(USER.displayName || '')}</div><div class="ev-s">${esc(email())} · ${esFamilia() ? '✅ puede editar' : '⛔ solo ver'}</div></div><button class="btn small" onclick="logout()">Salir</button></div>`;
-  }
-  fam.style.display = esDueno() ? '' : 'none';
-  if (esDueno()) {
-    document.getElementById('fam-list').innerHTML = FAMILIA.length ? FAMILIA.map(m => `<div class="fam-row"><span>${esc(m)}</span><button class="x" onclick="quitarMiembro('${esc(m)}')">✕</button></div>`).join('')
-      : '<div class="ev-s" style="padding:4px 0">Todavía solo tú puedes editar.</div>';
-  }
-}
-async function guardarMiembros(lista) {
-  try {
-    await db.doc(DOC_FAMILIA).set({ emails: lista });
-    FAMILIA = lista; renderSesion(); toast('Familia actualizada ✓');
-  } catch (e) { cloudError(e); }
-}
-function addMiembro() {
-  const i = document.getElementById('fam-email'), m = i.value.trim().toLowerCase();
-  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(m)) { toast('Escribe un correo válido'); return; }
-  if (m === DUENO || FAMILIA.includes(m)) { toast('Ese correo ya está'); return; }
-  i.value = ''; guardarMiembros([...FAMILIA, m]);
-}
-function quitarMiembro(m) {
-  if (confirm('¿Quitar a ' + m + '? Ya no podrá cambiar el calendario.')) guardarMiembros(FAMILIA.filter(x => x !== m));
 }
 
 function updateSyncStatus(s) {
@@ -1034,47 +890,6 @@ function updateSyncStatus(s) {
   const st = { synced: ['☁️ Sincronizado', 'var(--emerald)'], offline: ['📴 Sin conexión (se guarda al volver)', 'var(--amber)'],
                error: ['⚠️ Error de conexión', 'var(--coral)'], syncing: ['🔄 Sincronizando…', 'var(--sky)'] }[s];
   el.textContent = st[0]; el.style.color = st[1];
-}
-
-// ══ EVENTOS PREPARADOS (importar.json) ══
-// Listas que Claude prepara en el repositorio (p. ej. cumpleaños dictados). Cuando entra alguien
-// de la familia, la app ofrece añadir los que aún no están. Los ids son fijos: nunca se duplican.
-let PENDIENTES = [], IMP_DESC = '', impCargado = null;
-const impHechos = () => { try { return JSON.parse(store.get('calendario_dg_importados')) || []; } catch (e) { return []; } };
-async function checkImportar() {
-  const box = document.getElementById('importar');
-  if (!esFamilia() || location.protocol === 'file:') { box.innerHTML = ''; return; }
-  try {
-    impCargado ||= fetch('importar.json?v=' + Date.now(), { cache: 'no-store' }).then(r => r.ok ? r.json() : { events: [] });
-    const d = await impCargado, ya = new Set([...EVENTS.map(e => e.id), ...impHechos()]);
-    IMP_DESC = d.descripcion || 'Eventos preparados';
-    PENDIENTES = (d.events || []).filter(e => !ya.has(e.id));
-  } catch (e) { PENDIENTES = []; }
-  box.innerHTML = PENDIENTES.length ? `<div class="importar"><div class="t">📥 <b>${PENDIENTES.length} eventos listos para añadir</b><br><span class="ev-s">${esc(IMP_DESC)}</span></div>
-    <button class="btn small" onclick="verImportar()">Ver</button><button class="btn small primary" onclick="hacerImportar()">Añadir todos</button></div>` : '';
-}
-function verImportar() {
-  document.getElementById('day-title').textContent = '📥 ' + IMP_DESC;
-  document.getElementById('day-list').innerHTML = PENDIENTES.map(e => { const t = TIPOS[e.tipo] || TIPOS.otro, d = parse(e.fecha);
-    return `<div class="day-ev" style="--c:${t.color};cursor:default"><span class="e">${t.icon}</span><div><div class="ev-t">${esc(e.titulo)}</div><div class="ev-s">${d.getDate()} de ${MESES[d.getMonth()]}${e.anioConocido ? ' de ' + d.getFullYear() : ''}${e.persona ? ' · ' + esc(e.persona) : ''}</div></div></div>`; }).join('');
-  const b = document.getElementById('day-add');
-  b.textContent = '＋ Añadir todos'; b.onclick = () => { closeOv('ov-day'); hacerImportar(); };
-  document.getElementById('ov-day').classList.add('open');
-}
-async function hacerImportar() {
-  if (!requireFamilia() || !PENDIENTES.length) return;
-  const evs = PENDIENTES.map(e => ({ hora: '', repite: 'anual', aviso: (TIPOS[e.tipo] || TIPOS.otro).aviso, notas: '', persona: '', anioConocido: false,
-    ...Object.fromEntries(Object.entries(e).filter(([k]) => ['id', 'tipo', 'titulo', 'fecha', 'hora', 'repite', 'aviso', 'anioConocido', 'persona', 'notas'].includes(k))) }));
-  try {
-    for (let i = 0; i < evs.length; i += 400) {
-      const b = db.batch();
-      evs.slice(i, i + 400).forEach(e => b.set(db.collection(COL_EVENTOS).doc(e.id), { ...e, updatedAt: firebase.firestore.FieldValue.serverTimestamp(), updatedBy: email() }));
-      await b.commit();
-    }
-    store.set('calendario_dg_importados', JSON.stringify([...impHechos(), ...evs.map(e => e.id)]));
-    PENDIENTES = []; document.getElementById('importar').innerHTML = '';
-    toast(evs.length + ' eventos añadidos ✓');
-  } catch (e) { cloudError(e); }
 }
 
 // ══ VERSIÓN NUEVA ══

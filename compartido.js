@@ -1,6 +1,5 @@
 // ══ CÓDIGO COMPARTIDO ══
-// Lo usan la app (index.html) y el robot de GitHub que genera familia.ics
-// para la suscripción de Google Calendar (scripts/generar-ics.js).
+// Lo usa la app (index.html): tipos de evento, festivos, vacaciones escolares y el archivo .ics descargable.
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory();
   else root.CalComun = factory();
@@ -101,7 +100,6 @@
     return out.join('\r\n ');
   }
 
-  // opts.stamp: fecha fija para DTSTAMP (el robot usa una por semana para no cambiar el archivo cada hora)
   function buildICS(events, opts = {}) {
     const stamp = opts.stamp || new Date().toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
     const L = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Familia Diaz Gonzalez//Calendario//ES', 'CALSCALE:GREGORIAN',
@@ -144,14 +142,5 @@
     return L.map(fold).join('\r\n') + '\r\n';
   }
 
-  // Enlace para añadir un solo evento a Google Calendar al instante
-  function googleLink(ev) {
-    const r = rango(ev), p = new URLSearchParams({ action: 'TEMPLATE', text: tituloLargo(ev), dates: r.ini + '/' + r.fin, ctz: ZONA });
-    const desc = descripcion(ev);
-    if (desc) p.set('details', desc);
-    if (RRULE[ev.repite]) p.set('recur', 'RRULE:FREQ=' + RRULE[ev.repite]);
-    return 'https://calendar.google.com/calendar/render?' + p.toString();
-  }
-
-  return { TIPOS, ESCOLAR, ESCOLAR_COLOR, festivos, buildICS, googleLink };
+  return { TIPOS, ESCOLAR, ESCOLAR_COLOR, festivos, buildICS };
 });
