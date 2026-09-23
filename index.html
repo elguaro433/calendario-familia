@@ -434,7 +434,7 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
 
 <div class="toast" id="toast"></div>
 
-<script src="compartido.js?v=1.14"></script>
+<script src="compartido.js?v=1.15"></script>
 <script>
 const TIPOS = CalComun.TIPOS; // en compartido.js
 const FEST_COLOR = '#dc2626';   // días festivos (no se trabaja)
@@ -556,7 +556,7 @@ function fechaLarga(d) { return DIAS[d.getDay()] + ' ' + d.getDate() + ' de ' + 
 function subtitulo(o) {
   const ev = o.ev, bits = [];
   const anios = o.edad + ' año' + (o.edad === 1 ? '' : 's');
-  if (o.edad != null) bits.push(ev.tipo === 'cumple' ? 'Cumple ' + anios : ev.tipo === 'recuerdo' ? (/cumpleaños/i.test(ev.titulo) ? 'Cumpliría ' + anios : anios + ' de su partida') : anios + ' juntos');
+  if (o.edad != null) bits.push(ev.tipo === 'cumple' ? 'Cumple ' + anios : ev.tipo === 'recuerdo' ? (/cumpleaños/i.test(ev.titulo) ? 'Cumpliría ' + anios : anios + ' de su partida') : /boda|casad/i.test(ev.titulo) ? anios + ' juntos' : 'Se cumplen ' + anios);
   if (ev.hora) bits.push(ev.hora + ' h');
   if (ev.persona) bits.push(ev.persona);
   if (ev.notas) bits.push(ev.notas);
@@ -859,7 +859,7 @@ function importJSON(input) {
 // "eventos" (un mapa id → evento). Cada cambio solo toca SU evento (eventos.<id>), así que si
 // dos personas guardan a la vez se conservan los dos cambios. Sin inicio de sesión: igual que
 // la app de finanzas, la colección appdata es de acceso libre.
-const APP_VERSION = '1.14';
+const APP_VERSION = '1.15';
 const DOC_EVENTOS = 'appdata/calendario-eventos';
 let db = null;
 try {
