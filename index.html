@@ -172,7 +172,7 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
 .mini-g { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
 .mini-g span { font-size: 10.5px; text-align: center; padding: 3px 0; border-radius: 6px; cursor: pointer; position: relative; }
 .mini-g span.h { color: var(--hint); font-weight: 700; font-size: 9px; cursor: default; }
-.mini-g span.ev { font-weight: 800; color: #fff; background: var(--c); }
+.mini-g span.ev { font-weight: 800; color: #fff; background: var(--c); border-radius: 8px; box-shadow: 0 1px 3px color-mix(in srgb, var(--c) 35%, transparent); }
 .mini-g span.fest { color: var(--coral); font-weight: 700; }
 .mini-g span.today { outline: 2px solid var(--pink); }
 .legend { display: flex; flex-wrap: wrap; gap: 8px 14px; margin-bottom: 16px; font-size: 12px; color: var(--muted); }
@@ -439,10 +439,10 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
 
 <div class="toast" id="toast"></div>
 
-<script src="compartido.js?v=1.16"></script>
+<script src="compartido.js?v=1.17"></script>
 <script>
 const TIPOS = CalComun.TIPOS; // en compartido.js
-const FEST_COLOR = '#dc2626';   // días festivos (no se trabaja)
+const FEST_COLOR = '#d64545';   // días festivos (no se trabaja)
 const MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
 const MES_C = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
 const DIAS = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
@@ -886,7 +886,7 @@ function importJSON(input) {
 // "eventos" (un mapa id → evento). Cada cambio solo toca SU evento (eventos.<id>), así que si
 // dos personas guardan a la vez se conservan los dos cambios. Sin inicio de sesión: igual que
 // la app de finanzas, la colección appdata es de acceso libre.
-const APP_VERSION = '1.16';
+const APP_VERSION = '1.17';
 const DOC_EVENTOS = 'appdata/calendario-eventos';
 let db = null;
 try {

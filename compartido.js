@@ -6,21 +6,21 @@
 })(typeof self !== 'undefined' ? self : this, function () {
 
   const TIPOS = {
-    cumple:       { label: 'Cumpleaños',   icon: '🎂', color: '#f72585', anual: true,  aviso: 7 },
-    aniversario:  { label: 'Aniversario',  icon: '💍', color: '#7b61ff', anual: true,  aviso: 7 },
-    celebracion:  { label: 'Celebración',  icon: '🎉', color: '#fb8500', anual: false, aviso: 7 },
-    familiar:     { label: 'Familiar',     icon: '👨‍👩‍👦', color: '#00b87a', anual: false, aviso: 1 },
-    recordatorio: { label: 'Recordatorio', icon: '🔔', color: '#e0a100', anual: false, aviso: 1 },
-    salud:        { label: 'Médico',       icon: '🩺', color: '#ff3d71', anual: false, aviso: 1 },
-    escuela:      { label: 'Colegio',      icon: '🎒', color: '#00a3c4', anual: false, aviso: 1 },
-    recuerdo:     { label: 'En memoria',   icon: '🕊️', color: '#8b7fa8', anual: true,  aviso: 7 },
-    otro:         { label: 'Otro',         icon: '📌', color: '#64748b', anual: false, aviso: 0 },
+    cumple:       { label: 'Cumpleaños',   icon: '🎂', color: '#d9528b', anual: true,  aviso: 7 },
+    aniversario:  { label: 'Aniversario',  icon: '💍', color: '#7c5cc4', anual: true,  aviso: 7 },
+    celebracion:  { label: 'Celebración',  icon: '🎉', color: '#e27a45', anual: false, aviso: 7 },
+    familiar:     { label: 'Familiar',     icon: '👨‍👩‍👦', color: '#2f9e78', anual: false, aviso: 1 },
+    recordatorio: { label: 'Recordatorio', icon: '🔔', color: '#c9962b', anual: false, aviso: 1 },
+    salud:        { label: 'Médico',       icon: '🩺', color: '#1f9aa3', anual: false, aviso: 1 },
+    escuela:      { label: 'Colegio',      icon: '🎒', color: '#4a7fd6', anual: false, aviso: 1 },
+    recuerdo:     { label: 'En memoria',   icon: '🕊️', color: '#9c8fb8', anual: true,  aviso: 7 },
+    otro:         { label: 'Otro',         icon: '📌', color: '#7a7f91', anual: false, aviso: 0 },
   };
   const ZONA = 'Europe/Andorra';
 
   // Vacaciones escolares oficiales de Andorra (curs 2026-2027). Cada curso nuevo: añadir sus fechas aquí.
   // Los festivos (Immaculada, Constitució, Festa del Treball) ya salen en festivos().
-  const ESCOLAR_COLOR = '#0ea5e9';
+  const ESCOLAR_COLOR = '#3fa7d6';
   const ESCOLAR = [
     { id: 'esc-2627-estiu',      desde: '2026-09-01', hasta: '2026-09-08', icon: '🏫', titulo: 'Vacaciones escolares',          aviso: 7 },
     { id: 'esc-2627-totsants',   desde: '2026-10-26', hasta: '2026-11-01', icon: '🏫', titulo: 'Vacaciones escolares', aviso: 7 },
@@ -67,7 +67,7 @@
   }
 
   // Celebraciones de la familia (no son festivos): se calculan solas para cualquier año
-  const CELEB_COLOR = '#fb8500';
+  const CELEB_COLOR = '#e27a45';
   function domingo(y, mes, n) {            // n-ésimo domingo del mes (mes 0-11)
     const d = new Date(y, mes, 1);
     return new Date(y, mes, 1 + (7 - d.getDay()) % 7 + 7 * (n - 1));
