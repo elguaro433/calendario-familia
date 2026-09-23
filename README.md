@@ -48,7 +48,7 @@ Calendario familiar de cumpleaños, aniversarios, celebraciones y recordatorios.
 
 **Calendario escolar de un curso nuevo:** añadir sus periodos a la lista `ESCOLAR` de `compartido.js` (id, desde, hasta, icono, título). Salen en la app (capa «Calendario escolar») y en Google Calendar. Curso actual: 2026-2027 (PDF oficial del Govern d'Andorra).
 
-**Festivos:** se calculan en `festivos()` de `index.html`. Andorra incluye los nacionales + Carnaval + las fiestas locales de Andorra la Vella (Sant Joan 24/6, Fiesta Mayor = lunes tras el primer sábado de agosto, Santo Tomás 21/12), según la lista de días inhábiles del Consell General.
+**Festivos:** se calculan en `festivos()` de `compartido.js` (app y Google Calendar). Solo días no laborables: los nacionales de Andorra (con Carnaval) + los locales de Andorra la Vella (Sant Joan 24/6, Fiesta Mayor = lunes tras el primer sábado de agosto, Santo Tomás 21/12), según la lista de días inhábiles del Consell General. Google Calendar recibe los de este año y el siguiente.
 
 **Lanzar el robot a mano:** GitHub → pestaña «Actions» → «Actualizar calendario de Google y copia» → «Run workflow».
 

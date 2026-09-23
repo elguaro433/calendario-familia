@@ -418,12 +418,11 @@ button { font-family: inherit; }
       </div>
       <div class="fld"><label>Días festivos</label>
         <select id="aj-festivos" onchange="setCfg('festivos', this.value)">
-          <option value="AD">Andorra</option>
+          <option value="AD">Andorra (con Andorra la Vella)</option>
           <option value="ES">España</option>
           <option value="no">No mostrar</option>
         </select>
       </div>
-      <label class="chk"><input type="checkbox" id="aj-popular" onchange="setCfg('populares', this.checked)"> Mostrar días especiales (Día de la Madre, del Padre, Sant Jordi…)</label>
       <div class="btns" style="flex-direction:column">
         <button class="btn" onclick="closeOv('ov-aj');openGoogle()">📅 Ver en Google Calendar</button>
         <button class="btn" onclick="exportICS()">📲 Descargar todos los eventos (.ics)</button>
@@ -487,7 +486,7 @@ const LS_KEY = 'calendario_dg_data';
 // localStorage puede no estar disponible (incógnito, etc.): nunca romper la app por eso
 const store = { get: k => { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} } };
 let EVENTS = [];
-let CFG = { festivos: 'AD', populares: true, ocultos: [] };
+let CFG = { festivos: 'AD', ocultos: [] };
 try {
   const s = JSON.parse(store.get(LS_KEY));
   if (s) { EVENTS = s.events || []; CFG = Object.assign(CFG, s.cfg || {}); }
@@ -508,56 +507,15 @@ const diffDays = (a, b) => Math.round((b - a) / 86400000);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 
-function easter(y) { // Algoritmo anónimo gregoriano
-  const a = y % 19, b = Math.floor(y / 100), c = y % 100, d = Math.floor(b / 4), e = b % 4,
-    f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3), h = (19 * a + b - d - g + 15) % 30,
-    i = Math.floor(c / 4), k = c % 4, l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451);
-  return new Date(y, Math.floor((h + l - 7 * m + 114) / 31) - 1, ((h + l - 7 * m + 114) % 31) + 1);
-}
 const addD = (d, n) => { const r = new Date(d); r.setDate(r.getDate() + n); return r; };
-function nthSunday(y, m, n) { const d = new Date(y, m, 1); d.setDate(1 + (7 - d.getDay()) % 7 + 7 * (n - 1)); return d; }
 
-// ══ FESTIVOS ══
+// ══ FESTIVOS ══ (nacionales + no laborables de Andorra la Vella; se calculan en compartido.js)
 const festCache = {};
 function festivos(y) {
-  const key = y + CFG.festivos + CFG.populares;
-  if (festCache[key]) return festCache[key];
-  const out = [];
-  const add = (d, t, icon, oficial) => out.push({ fecha: iso(d), titulo: t, icon, oficial });
-  const E = easter(y);
-  if (CFG.festivos === 'AD') {
-    [[0,1,'Año Nuevo'],[0,6,'Reyes'],[2,14,'Día de la Constitución'],[4,1,'Día del Trabajo'],[7,15,'La Asunción'],
-     [8,8,'Nuestra Señora de Meritxell'],[10,1,'Todos los Santos'],[11,8,'La Inmaculada'],[11,25,'Navidad'],[11,26,'San Esteban']]
-      .forEach(([m, d, t]) => add(new Date(y, m, d), t, '🇦🇩', true));
-    add(addD(E, -2), 'Viernes Santo', '🇦🇩', true);
-    add(addD(E, 1), 'Lunes de Pascua', '🇦🇩', true);
-    add(addD(E, 50), 'Lunes de Pentecostés', '🇦🇩', true);
-    add(addD(E, -48), 'Carnaval', '🎭', true);
-    // Fiestas locales de Andorra la Vella (lista de días inhábiles del Consell General)
-    add(new Date(y, 5, 24), 'Sant Joan (Andorra la Vella)', '🇦🇩', true);
-    const primerSabadoAgosto = new Date(y, 7, 1 + (6 - new Date(y, 7, 1).getDay() + 7) % 7);
-    add(addD(primerSabadoAgosto, 2), 'Fiesta Mayor (Andorra la Vella)', '🇦🇩', true);
-    add(new Date(y, 11, 21), 'Santo Tomás (Andorra la Vella)', '🇦🇩', true);
-  } else if (CFG.festivos === 'ES') {
-    [[0,1,'Año Nuevo'],[0,6,'Reyes'],[4,1,'Día del Trabajo'],[7,15,'La Asunción'],[9,12,'Fiesta Nacional'],
-     [10,1,'Todos los Santos'],[11,6,'Día de la Constitución'],[11,8,'La Inmaculada'],[11,25,'Navidad']]
-      .forEach(([m, d, t]) => add(new Date(y, m, d), t, '🇪🇸', true));
-    add(addD(E, -3), 'Jueves Santo', '🇪🇸', true);
-    add(addD(E, -2), 'Viernes Santo', '🇪🇸', true);
-  }
-  if (CFG.populares) {
-    add(new Date(y, 1, 14), 'San Valentín', '❤️', false);
-    add(new Date(y, 2, 19), 'Día del Padre', '👨', false);
-    add(new Date(y, 3, 23), 'Sant Jordi', '🌹', false);
-    add(new Date(y, 5, 23), 'Noche de San Juan', '🔥', false);
-    add(nthSunday(y, 4, 1), 'Día de la Madre', '👩', false);
-    add(E, 'Domingo de Pascua', '🐣', false);
-    add(new Date(y, 9, 31), 'Halloween', '🎃', false);
-    add(new Date(y, 11, 24), 'Nochebuena', '🎄', false);
-    add(new Date(y, 11, 31), 'Nochevieja', '🥂', false);
-  }
-  return (festCache[key] = out);
+  const key = y + CFG.festivos;
+  return festCache[key] ||= CalComun.festivos(y, CFG.festivos);
 }
+const festTipo = f => f.local ? 'No laborable en Andorra la Vella' : 'Festivo nacional';
 
 // ══ OCURRENCIAS ══
 // Devuelve [{ev, fecha:Date, edad}] entre start y end (incluidos)
@@ -647,7 +605,7 @@ function evRow(o, showCuando = true) {
 function festRow(f) {
   return `<div class="ev-row" style="--c:${FEST_COLOR};cursor:default">
     <div class="date-badge"><div class="d">${f.d.getDate()}</div><div class="m">${MES_C[f.d.getMonth()]}</div></div>
-    <div class="ev-main"><div class="ev-t" style="font-weight:600;color:var(--muted)">${f.icon} ${esc(f.titulo)}</div><div class="ev-s">${f.oficial ? 'Festivo' : 'Día especial'}</div></div></div>`;
+    <div class="ev-main"><div class="ev-t" style="font-weight:600;color:var(--muted)">${f.icon} ${esc(f.titulo)}</div><div class="ev-s">${festTipo(f)}</div></div></div>`;
 }
 
 // ══ RENDER ══
@@ -661,7 +619,7 @@ function render() {
 }
 
 function renderFiltros() {
-  const all = { ...Object.fromEntries(Object.entries(TIPOS).map(([k, v]) => [k, v])), escolar: { label: 'Calendario escolar', icon: '🏫', color: ESC_COLOR }, festivo: { label: 'Festivos y días especiales', icon: '🗓️', color: FEST_COLOR } };
+  const all = { ...Object.fromEntries(Object.entries(TIPOS).map(([k, v]) => [k, v])), escolar: { label: 'Calendario escolar', icon: '🏫', color: ESC_COLOR }, festivo: { label: 'Festivos y no laborables', icon: '🗓️', color: FEST_COLOR } };
   document.getElementById('filtros').innerHTML = Object.entries(all).map(([k, t]) => {
     const on = !CFG.ocultos.includes(k);
     return `<label class="filt ${on ? '' : 'off'}"><input type="checkbox" ${on ? 'checked' : ''} onchange="toggleFiltro('${k}')"><span class="dot" style="background:${t.color}"></span>${t.icon} ${t.label}</label>`;
@@ -712,7 +670,7 @@ function renderMes() {
   for (let i = 0; i < 42; i++) {
     const d = addD(start, i), k = iso(d), evs = byDay[k] || [], fs = festDay[k] || [], es = escDay[k] || [];
     if (i === 35 && d.getMonth() !== viewM) break; // no pintar 6ª fila vacía
-    const cls = ['cell', d.getMonth() !== viewM && 'other', +d === +TODAY && 'today', (d.getDay() % 6 === 0) && 'weekend', fs.some(f => f.oficial) && 'holiday'].filter(Boolean).join(' ');
+    const cls = ['cell', d.getMonth() !== viewM && 'other', +d === +TODAY && 'today', (d.getDay() % 6 === 0) && 'weekend', fs.length && 'holiday'].filter(Boolean).join(' ');
     const items = [...es.map(e => `<span class="pill" style="--c:${ESC_COLOR}">${e.icon} ${esc(e.titulo)}</span>`),
                    ...evs.map(o => { const t = TIPOS[o.ev.tipo] || TIPOS.otro; return `<span class="pill" style="--c:${t.color}">${t.icon} ${esc(o.ev.titulo)}</span>`; }),
                    ...fs.map(f => `<span class="pill fest" style="--c:${FEST_COLOR}">${f.icon} ${esc(f.titulo)}</span>`)];
@@ -748,7 +706,7 @@ function renderAnio() {
   document.getElementById('year-title').textContent = yearView;
   document.getElementById('legend').innerHTML = Object.values(TIPOS).map(t => `<span><i style="--c:${t.color}"></i>${t.icon} ${t.label}</span>`).join('') + `<span><i style="--c:${ESC_COLOR}"></i>🏫 Vacaciones escolares</span><span><i style="--c:var(--coral)"></i>Festivo</span>`;
   const start = new Date(yearView, 0, 1), end = new Date(yearView, 11, 31);
-  const byDay = {}, festSet = new Set(festivosEntre(start, end).filter(f => f.oficial).map(f => f.fecha));
+  const byDay = {}, festSet = new Set(festivosEntre(start, end).map(f => f.fecha));
   occurrences(start, end).forEach(o => (byDay[iso(o.fecha)] ||= []).push(o));
   const escDay = {};
   escolarEntre(start, end).forEach(e => { for (let d = new Date(e.d); d <= e.h; d = addD(d, 1)) escDay[iso(d)] = e.titulo; });
@@ -798,7 +756,7 @@ function openDay(k) {
   document.getElementById('day-title').textContent = fechaLarga(d).replace(/^./, c => c.toUpperCase());
   document.getElementById('day-list').innerHTML = [
     ...escolarEntre(d, d).map(e => `<div class="day-ev" style="--c:${ESC_COLOR};cursor:default"><span class="e">${e.icon}</span><div><div class="ev-t">${esc(e.titulo)}</div><div class="ev-s">${rangoTexto(e)} · Calendario escolar</div></div></div>`),
-    ...fest.map(f => `<div class="day-ev" style="--c:${FEST_COLOR};cursor:default"><span class="e">${f.icon}</span><div><div class="ev-t">${esc(f.titulo)}</div><div class="ev-s">${f.oficial ? 'Festivo' : 'Día especial'}</div></div></div>`),
+    ...fest.map(f => `<div class="day-ev" style="--c:${FEST_COLOR};cursor:default"><span class="e">${f.icon}</span><div><div class="ev-t">${esc(f.titulo)}</div><div class="ev-s">${festTipo(f)}</div></div></div>`),
     ...occ.map(o => { const t = TIPOS[o.ev.tipo] || TIPOS.otro;
       return `<div class="day-ev" style="--c:${t.color}" onclick="closeOv('ov-day');openForm('${o.ev.id}')"><span class="e">${t.icon}</span><div style="min-width:0"><div class="ev-t">${esc(o.ev.titulo)}</div><div class="ev-s" style="white-space:normal">${esc(subtitulo(o)) || t.label}</div></div></div>`; })
   ].join('') || '<div class="empty" style="padding:14px">Nada apuntado este día.</div>';
@@ -877,7 +835,6 @@ document.addEventListener('keydown', e => {
 function openAjustes() {
   renderSesion();
   document.getElementById('aj-festivos').value = CFG.festivos;
-  document.getElementById('aj-popular').checked = CFG.populares;
   document.getElementById('ov-aj').classList.add('open');
 }
 function setCfg(k, v) { CFG[k] = v; persist(); render(); }
@@ -944,7 +901,7 @@ function importJSON(input) {
 // guardan a la vez, cada cambio se conserva. Cualquiera puede ver el calendario
 // (igual que la suscripción de Google), pero solo la familia con sesión de Google
 // puede añadir, cambiar o borrar — lo imponen las reglas de seguridad de Firestore.
-const APP_VERSION = '1.3';
+const APP_VERSION = '1.4';
 const COL_EVENTOS = 'calendario_eventos';
 const DOC_FAMILIA = 'calendario_familia/miembros';   // { emails: [...] } — lo gestiona el dueño
 const DUENO = 'emmanuel050216@gmail.com';
