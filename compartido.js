@@ -28,6 +28,8 @@
     { id: 'esc-2627-pasqua',     desde: '2027-03-22', hasta: '2027-04-04', icon: '🏫', titulo: 'Vacaciones escolares',           aviso: 7 },
     { id: 'esc-2627-pentecosta', desde: '2027-05-17', hasta: '2027-05-23', icon: '🏫', titulo: 'Vacaciones escolares',       aviso: 7 },
     { id: 'esc-2627-fi',         desde: '2027-07-02', hasta: '2027-07-02', icon: '🎓', titulo: 'Último día de curso (empiezan las vacaciones de verano)', aviso: 7 },
+    // Verano: hasta Meritxell (8/9); se vuelve a clase el 9/9/2027 (a confirmar con el PDF del curso 2027-2028)
+    { id: 'esc-2627-verano',     desde: '2027-07-03', hasta: '2027-09-08', icon: '🏫', titulo: 'Vacaciones escolares',          aviso: 7 },
   ];
   // Días no laborables: festivos nacionales + locales de Andorra la Vella
   // (lista de días inhábiles del Consell General). pais: 'AD' | 'ES' | 'no'
