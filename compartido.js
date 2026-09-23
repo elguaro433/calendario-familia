@@ -21,11 +21,11 @@
   // Los festivos (Immaculada, Constitució, Festa del Treball) ya salen en festivos().
   const ESCOLAR_COLOR = '#0ea5e9';
   const ESCOLAR = [
-    { id: 'esc-2627-totsants',   desde: '2026-10-26', hasta: '2026-11-01', icon: '🍂', titulo: 'Vacaciones de Todos los Santos', aviso: 7 },
-    { id: 'esc-2627-nadal',      desde: '2026-12-23', hasta: '2027-01-06', icon: '🎄', titulo: 'Vacaciones de Navidad',          aviso: 7 },
-    { id: 'esc-2627-carnaval',   desde: '2027-02-08', hasta: '2027-02-14', icon: '🎭', titulo: 'Vacaciones de Carnaval',         aviso: 7 },
-    { id: 'esc-2627-pasqua',     desde: '2027-03-22', hasta: '2027-04-04', icon: '🐣', titulo: 'Vacaciones de Pascua',           aviso: 7 },
-    { id: 'esc-2627-pentecosta', desde: '2027-05-17', hasta: '2027-05-23', icon: '🕊️', titulo: 'Vacaciones de Pentecostés',       aviso: 7 },
+    { id: 'esc-2627-totsants',   desde: '2026-10-26', hasta: '2026-11-01', icon: '🏫', titulo: 'Vacaciones escolares', aviso: 7 },
+    { id: 'esc-2627-nadal',      desde: '2026-12-23', hasta: '2027-01-06', icon: '🏫', titulo: 'Vacaciones escolares',          aviso: 7 },
+    { id: 'esc-2627-carnaval',   desde: '2027-02-08', hasta: '2027-02-14', icon: '🏫', titulo: 'Vacaciones escolares',         aviso: 7 },
+    { id: 'esc-2627-pasqua',     desde: '2027-03-22', hasta: '2027-04-04', icon: '🏫', titulo: 'Vacaciones escolares',           aviso: 7 },
+    { id: 'esc-2627-pentecosta', desde: '2027-05-17', hasta: '2027-05-23', icon: '🏫', titulo: 'Vacaciones escolares',       aviso: 7 },
     { id: 'esc-2627-fi',         desde: '2027-07-02', hasta: '2027-07-02', icon: '🎓', titulo: 'Último día de curso (empiezan las vacaciones de verano)', aviso: 7 },
   ];
   // Días no laborables: festivos nacionales + locales de Andorra la Vella
@@ -74,7 +74,8 @@
     add(new Date(y, 1, 14), 'Día del Amor y la Amistad', '❤️');
     add(new Date(y, 2, 8), 'Día de la Mujer (Venezuela y Andorra)', '💐');
     add(new Date(y, 2, 19), 'Día del Padre (Andorra)', '👨');
-    add(new Date(y, 2, 21), 'Día de las Flores Amarillas', '🌼');
+    add(new Date(y, 2, 21), 'Día de las Flores Amarillas (primavera)', '🌼');
+    add(new Date(y, 8, 21), 'Día de las Flores Amarillas', '🌼');
     add(domingo(y, 4, 1), 'Día de la Madre (Andorra)', '👩');
     add(domingo(y, 4, 2), 'Día de la Madre (Venezuela)', '👩');
     add(new Date(y, 4, 12), 'Día de la Enfermera (Venezuela y Andorra)', '👩‍⚕️');

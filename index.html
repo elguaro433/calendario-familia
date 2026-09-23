@@ -434,10 +434,10 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
 
 <div class="toast" id="toast"></div>
 
-<script src="compartido.js?v=1.9"></script>
+<script src="compartido.js?v=1.11"></script>
 <script>
 const TIPOS = CalComun.TIPOS; // en compartido.js
-const FEST_COLOR = '#94a3b8';
+const FEST_COLOR = '#dc2626';   // días festivos (no se trabaja)
 const MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
 const MES_C = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
 const DIAS = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
@@ -476,7 +476,9 @@ function festivos(y) {
   const key = y + CFG.festivos;
   return festCache[key] ||= CalComun.festivos(y, CFG.festivos);
 }
-const festTipo = f => f.celeb ? 'Celebración' : f.local ? 'No laborable en Andorra la Vella' : 'Festivo nacional';
+const festTipo = f => f.celeb ? 'Celebración' : f.titulo + (f.local ? ' · Andorra la Vella' : ' · Andorra');
+const festTitulo = f => f.celeb ? f.titulo : 'Día festivo';
+const festIcon = f => f.celeb ? f.icon : '🔴';
 const CELEB_COLOR = CalComun.CELEB_COLOR;
 const festColor = f => f.celeb ? CELEB_COLOR : FEST_COLOR;
 
@@ -536,7 +538,7 @@ function escRow(e) {
   const [txt, cls] = ahora ? ['Ahora', 'hoy'] : e.h < TODAY ? ['Pasado', ''] : cuando(e.d);
   return `<div class="ev-row" style="--c:${ESC_COLOR};cursor:default">
     <div class="date-badge"><div class="d">${e.d.getDate()}</div><div class="m">${MES_C[e.d.getMonth()]}</div></div>
-    <div class="ev-main"><div class="ev-t">${e.icon} ${esc(e.titulo)}</div><div class="ev-s">${rangoTexto(e)} · Calendario escolar</div></div>
+    <div class="ev-main"><div class="ev-t">${e.icon} ${esc(e.titulo)}</div><div class="ev-s">${rangoTexto(e)}</div></div>
     <span class="when ${cls}">${txt}</span></div>`;
 }
 
@@ -569,7 +571,7 @@ function evRow(o, showCuando = true) {
 function festRow(f) {
   return `<div class="ev-row" style="--c:${festColor(f)};cursor:default">
     <div class="date-badge"><div class="d">${f.d.getDate()}</div><div class="m">${MES_C[f.d.getMonth()]}</div></div>
-    <div class="ev-main"><div class="ev-t" ${f.celeb ? '' : 'style="font-weight:600;color:var(--muted)"'}>${f.icon} ${esc(f.titulo)}</div><div class="ev-s">${festTipo(f)}</div></div></div>`;
+    <div class="ev-main"><div class="ev-t">${festIcon(f)} ${esc(festTitulo(f))}</div><div class="ev-s">${esc(festTipo(f))}</div></div></div>`;
 }
 
 // ══ RENDER ══
@@ -588,7 +590,7 @@ function render() {
 }
 
 // Capas que se pueden ocultar (los eventos de la familia siempre se ven)
-const CAPAS = [['festivo', '🗓️ Festivos y no laborables'], ['celebraciones', '🎉 Celebraciones (Día de la Madre…)'], ['escolar', '🏫 Vacaciones escolares']];
+const CAPAS = [['festivo', '🔴 Días festivos'], ['celebraciones', '🎉 Celebraciones (Día de la Madre…)'], ['escolar', '🏫 Vacaciones escolares']];
 CFG.ocultos = CFG.ocultos.filter(k => CAPAS.some(c => c[0] === k));
 function renderFiltros() {
   document.getElementById('filtros').innerHTML = CAPAS.map(([k, label]) =>
@@ -642,7 +644,7 @@ function renderMes() {
     const cls = ['cell', d.getMonth() !== viewM && 'other', +d === +TODAY && 'today', (d.getDay() % 6 === 0) && 'weekend', fs.some(f => !f.celeb) && 'holiday'].filter(Boolean).join(' ');
     const items = [...es.map(e => `<span class="pill" style="--c:${ESC_COLOR}">${e.icon} ${esc(e.titulo)}</span>`),
                    ...evs.map(o => { const t = TIPOS[o.ev.tipo] || TIPOS.otro; return `<span class="pill" style="--c:${t.color}">${t.icon} ${esc(o.ev.titulo)}</span>`; }),
-                   ...fs.map(f => `<span class="pill ${f.celeb ? '' : 'fest'}" style="--c:${festColor(f)}">${f.icon} ${esc(f.titulo)}</span>`)];
+                   ...fs.map(f => `<span class="pill" style="--c:${festColor(f)}">${festIcon(f)} ${esc(festTitulo(f))}</span>`)];
     const dots = [...es.map(() => ESC_COLOR), ...evs.map(o => (TIPOS[o.ev.tipo] || TIPOS.otro).color), ...fs.map(festColor)].slice(0, 4).map(c => `<i style="--c:${c}"></i>`).join('');
     html += `<div class="${cls}" onclick="openDay('${k}')"><div class="dnum">${d.getDate()}</div>${items.slice(0, 3).join('')}${items.length > 3 ? `<div class="more">+${items.length - 3} más</div>` : ''}<div class="dots">${dots}</div></div>`;
   }
@@ -673,7 +675,7 @@ function renderProximos() {
 
 function renderAnio() {
   document.getElementById('year-title').textContent = yearView;
-  document.getElementById('legend').innerHTML = Object.values(TIPOS).map(t => `<span><i style="--c:${t.color}"></i>${t.icon} ${t.label}</span>`).join('') + `<span><i style="--c:${CELEB_COLOR}"></i>🎉 Celebraciones</span><span><i style="--c:${ESC_COLOR}"></i>🏫 Vacaciones escolares</span><span><i style="--c:var(--coral)"></i>Festivo</span>`;
+  document.getElementById('legend').innerHTML = Object.entries(TIPOS).filter(([k]) => EVENTS.some(e => e.tipo === k)).map(([, t]) => `<span><i style="--c:${t.color}"></i>${t.icon} ${t.label}</span>`).join('') + `<span><i style="--c:${CELEB_COLOR}"></i>🎉 Celebraciones</span><span><i style="--c:${ESC_COLOR}"></i>🏫 Vacaciones escolares</span><span><i style="--c:${FEST_COLOR}"></i>🔴 Día festivo</span>`;
   const start = new Date(yearView, 0, 1), end = new Date(yearView, 11, 31);
   const fAnio = festivosEntre(start, end);
   const byDay = {}, festSet = new Set(fAnio.filter(f => !f.celeb).map(f => f.fecha)), celebDay = Object.fromEntries(fAnio.filter(f => f.celeb).map(f => [f.fecha, f.titulo]));
@@ -686,9 +688,9 @@ function renderAnio() {
     let g = ['L','M','X','J','V','S','D'].map(x => `<span class="h">${x}</span>`).join('') + '<span class="h"></span>'.repeat(off);
     for (let d = 1; d <= daysIn(yearView, m); d++) {
       const dt = new Date(yearView, m, d), k = iso(dt), evs = byDay[k];
-      const color = evs ? (TIPOS[evs[0].ev.tipo] || TIPOS.otro).color : escDay[k] ? ESC_COLOR : celebDay[k] ? CELEB_COLOR : '';
-      const cls = [color && 'ev', !color && festSet.has(k) && 'fest', +dt === +TODAY && 'today'].filter(Boolean).join(' ');
-      const tip = [...(evs || []).map(o => o.ev.titulo), escDay[k], celebDay[k]].filter(Boolean).join(', ');
+      const color = evs ? (TIPOS[evs[0].ev.tipo] || TIPOS.otro).color : festSet.has(k) ? FEST_COLOR : escDay[k] ? ESC_COLOR : celebDay[k] ? CELEB_COLOR : '';
+      const cls = [color && 'ev', +dt === +TODAY && 'today'].filter(Boolean).join(' ');
+      const tip = [...(evs || []).map(o => o.ev.titulo), festSet.has(k) && 'Día festivo', escDay[k], celebDay[k]].filter(Boolean).join(', ');
       g += `<span class="${cls}" ${color ? `style="--c:${color}"` : ''} title="${esc(tip)}" onclick="openDay('${k}')">${d}</span>`;
     }
     html += `<div class="mini"><div class="mini-t" onclick="viewY=${yearView};viewM=${m};go('mes')">${MESES[m]}</div><div class="mini-g">${g}</div></div>`;
@@ -725,8 +727,8 @@ function openDay(k) {
   const occ = occurrences(d, d), fest = festivosEntre(d, d);
   document.getElementById('day-title').textContent = fechaLarga(d).replace(/^./, c => c.toUpperCase());
   document.getElementById('day-list').innerHTML = [
-    ...escolarEntre(d, d).map(e => `<div class="day-ev" style="--c:${ESC_COLOR};cursor:default"><span class="e">${e.icon}</span><div><div class="ev-t">${esc(e.titulo)}</div><div class="ev-s">${rangoTexto(e)} · Calendario escolar</div></div></div>`),
-    ...fest.map(f => `<div class="day-ev" style="--c:${festColor(f)};cursor:default"><span class="e">${f.icon}</span><div><div class="ev-t">${esc(f.titulo)}</div><div class="ev-s">${festTipo(f)}</div></div></div>`),
+    ...escolarEntre(d, d).map(e => `<div class="day-ev" style="--c:${ESC_COLOR};cursor:default"><span class="e">${e.icon}</span><div><div class="ev-t">${esc(e.titulo)}</div><div class="ev-s">${rangoTexto(e)}</div></div></div>`),
+    ...fest.map(f => `<div class="day-ev" style="--c:${festColor(f)};cursor:default"><span class="e">${festIcon(f)}</span><div><div class="ev-t">${esc(festTitulo(f))}</div><div class="ev-s">${festTipo(f)}</div></div></div>`),
     ...occ.map(o => { const t = TIPOS[o.ev.tipo] || TIPOS.otro;
       return `<div class="day-ev" style="--c:${t.color}" onclick="closeOv('ov-day');openForm('${o.ev.id}')"><span class="e">${t.icon}</span><div style="min-width:0"><div class="ev-t">${esc(o.ev.titulo)}</div><div class="ev-s" style="white-space:normal">${esc(subtitulo(o)) || t.label}</div></div></div>`; })
   ].join('') || '<div class="empty" style="padding:14px">Nada apuntado este día.</div>';
@@ -856,7 +858,7 @@ function importJSON(input) {
 // "eventos" (un mapa id → evento). Cada cambio solo toca SU evento (eventos.<id>), así que si
 // dos personas guardan a la vez se conservan los dos cambios. Sin inicio de sesión: igual que
 // la app de finanzas, la colección appdata es de acceso libre.
-const APP_VERSION = '1.9';
+const APP_VERSION = '1.11';
 const DOC_EVENTOS = 'appdata/calendario-eventos';
 let db = null;
 try {
