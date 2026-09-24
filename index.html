@@ -19,15 +19,24 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root {
-  /* Tema claro pastel (lavanda suave): sin blancos puros para no deslumbrar */
-  --bg: #ece6f3;
-  --surface: #f3eef8;
-  --card: #f4eff9;
-  --card2: #ebe3f2;
-  --border: rgba(76,56,110,.12);
-  --text: #2b2440;
-  --muted: #6b6282;
-  --hint: #9a91ad;
+  /* Estilo de la app (⚙️ Ajustes → Colores lo cambia): todo sale de estos 5 tonos.
+     --tint tiñe fondos y textos, --hdr1/--hdr2 la cabecera y --pink/--pink2 el acento (botones, hoy…) */
+  --tint: #7b5fae;
+  --hdr1: #5d4b80;
+  --hdr2: #7c67a3;
+  --pink: #f72585;
+  --pink2: #b5179e;
+
+  /* Tema claro pastel: sin blancos puros para no deslumbrar */
+  --bg: color-mix(in srgb, var(--tint) 15%, #fff);
+  --surface: color-mix(in srgb, var(--tint) 8%, #fff);
+  --card: color-mix(in srgb, var(--tint) 7%, #fff);
+  --card2: color-mix(in srgb, var(--tint) 15%, #fbfbfc);
+  --border: color-mix(in srgb, var(--hdr1) 14%, transparent);
+  --text: color-mix(in srgb, var(--hdr1) 35%, #16121f);
+  --muted: color-mix(in srgb, var(--tint) 35%, #666472);
+  --hint: color-mix(in srgb, var(--tint) 30%, #a19fa8);
+  --shadow: 0 1px 2px rgba(0,0,0,.04), 0 6px 18px color-mix(in srgb, var(--hdr1) 8%, transparent);
 
   --emerald: #00d68f;
   --emerald-dim: rgba(0,214,143,.12);
@@ -35,24 +44,24 @@
   --violet: #7b61ff;
   --amber: #ffaa00;
   --sky: #00b4d8;
-  --pink: #f72585;
-  --pink-dim: rgba(247,37,133,.1);
+  --pink-dim: color-mix(in srgb, var(--pink) 10%, transparent);
 
   --r: 16px;
   --r-sm: 10px;
 }
 [data-theme="dark"] {
-  --bg: #2b2d42;
-  --surface: #36384f;
-  --card: #36384f;
-  --card2: #45475f;
+  --bg: color-mix(in srgb, var(--tint) 14%, #232431);
+  --surface: color-mix(in srgb, var(--tint) 14%, #2f303f);
+  --card: color-mix(in srgb, var(--tint) 14%, #2f303f);
+  --card2: color-mix(in srgb, var(--tint) 16%, #3d3e50);
   --border: rgba(255,255,255,.08);
   --text: #e2e8f0;
   --muted: #94a3b8;
   --hint: #64748b;
+  --shadow: 0 1px 2px rgba(0,0,0,.2);
 }
-[data-theme="dark"] .hdr { background: linear-gradient(135deg, #3b3556 0%, #4a4368 100%); }
-[data-theme="dark"] .hero { background: linear-gradient(135deg, #3b0a2a 0%, #1e1b4b 100%); border-color: rgba(247,37,133,.3); }
+[data-theme="dark"] .hdr { background: linear-gradient(135deg, color-mix(in srgb, var(--hdr1) 60%, #1b1b26) 0%, color-mix(in srgb, var(--hdr2) 60%, #1b1b26) 100%); }
+[data-theme="dark"] .hero { background: linear-gradient(135deg, color-mix(in srgb, var(--pink) 22%, #15131f) 0%, color-mix(in srgb, var(--hdr1) 35%, #15131f) 100%); border-color: color-mix(in srgb, var(--pink) 30%, transparent); }
 [data-theme="dark"] input, [data-theme="dark"] select, [data-theme="dark"] textarea { color-scheme: dark; }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -68,12 +77,12 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
 .app { display: grid; grid-template-columns: 230px 1fr; grid-template-rows: 60px 1fr; min-height: 100vh; }
 .hdr {
   grid-column: 1/-1;
-  background: linear-gradient(135deg, #5d4b80 0%, #7c67a3 100%);
+  background: linear-gradient(135deg, var(--hdr1) 0%, var(--hdr2) 100%);
   display: flex; align-items: center; justify-content: space-between;
   padding: 0 24px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,.12);
 }
 .hdr-logo { font-size: 16px; font-weight: 700; letter-spacing: -.3px; color: #fff; }
-.hdr-logo em { color: #ffd0e7; font-style: normal; }
+.hdr-logo em { color: color-mix(in srgb, var(--pink) 22%, #fff); font-style: normal; }
 .hdr-actions { display: flex; align-items: center; gap: 8px; }
 .hdr-btn {
   background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.15);
@@ -91,7 +100,7 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
 }
 .nav-item:hover { background: var(--card2); color: var(--text); }
 .nav-item.active { background: linear-gradient(90deg, var(--pink-dim), transparent); color: var(--pink); border-left: 3px solid var(--pink); font-weight: 700; }
-.side-add { margin: 4px 0 14px; padding: 11px; border-radius: var(--r-sm); border: none; background: linear-gradient(135deg,#f72585,#b5179e); color: #fff; font-weight: 700; font-size: 13px; cursor: pointer; box-shadow: 0 6px 16px rgba(247,37,133,.3); }
+.side-add { margin: 4px 0 14px; padding: 11px; border-radius: var(--r-sm); border: none; background: linear-gradient(135deg,var(--pink),var(--pink2)); color: #fff; font-weight: 700; font-size: 13px; cursor: pointer; box-shadow: 0 6px 16px color-mix(in srgb, var(--pink) 30%, transparent); }
 .side-sec { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border); }
 .side-lbl { font-size: 10px; color: var(--hint); text-transform: uppercase; letter-spacing: .6px; margin: 0 4px 8px; font-weight: 700; }
 .filt { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 8px; cursor: pointer; font-size: 12.5px; color: var(--text); user-select: none; }
@@ -114,7 +123,7 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
 .metric-val { font-size: 17px; font-weight: 800; margin-top: 4px; line-height: 1.3; }
 .metric-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
 
-.avisos { background: linear-gradient(135deg, rgba(247,37,133,.1), rgba(123,97,255,.1)); border: 1px solid rgba(247,37,133,.25); border-radius: var(--r); padding: 12px 16px; margin-bottom: 18px; }
+.avisos { background: linear-gradient(135deg, color-mix(in srgb, var(--pink) 10%, transparent), color-mix(in srgb, var(--tint) 12%, transparent)); border: 1px solid color-mix(in srgb, var(--pink) 25%, transparent); border-radius: var(--r); padding: 12px 16px; margin-bottom: 18px; }
 .avisos-t { font-size: 12px; font-weight: 800; color: var(--pink); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; }
 .aviso { font-size: 13.5px; padding: 3px 0; cursor: pointer; }
 .aviso b { font-weight: 700; }
@@ -123,13 +132,13 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
 .cal-nav { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
 .cal-title { font-size: 22px; font-weight: 800; letter-spacing: -.4px; text-transform: capitalize; min-width: 200px; }
 .nbtn { height: 36px; min-width: 36px; padding: 0 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-weight: 700; cursor: pointer; font-size: 14px; }
-.nbtn:hover { border-color: var(--pink); color: var(--pink); }
+@media (hover: hover) { .nbtn:hover { border-color: var(--pink); color: var(--pink); } }
 .cal { background: var(--card); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; }
 .cal-head, .cal-grid { display: grid; grid-template-columns: repeat(7, minmax(0,1fr)); }
 .cal-head div { padding: 10px 8px; font-size: 11px; font-weight: 700; color: var(--hint); text-transform: uppercase; letter-spacing: .5px; text-align: center; border-bottom: 1px solid var(--border); }
 .cell { min-height: 112px; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 6px; cursor: pointer; position: relative; transition: background .1s; min-width: 0; }
 .cell:nth-child(7n) { border-right: none; }
-.cell:hover { background: var(--card2); }
+@media (hover: hover) { .cell:hover { background: var(--card2); } }
 .cell.other { background: var(--bg); opacity: .55; }
 .cell.weekend .dnum { color: var(--muted); }
 .dnum { font-size: 13px; font-weight: 700; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; border-radius: 50%; margin-bottom: 3px; }
@@ -147,7 +156,7 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
 .sc-title { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); }
 .ev-row { display: flex; align-items: center; gap: 12px; padding: 11px 16px; border-bottom: 1px solid var(--border); cursor: pointer; }
 .ev-row:last-child { border-bottom: none; }
-.ev-row:hover { background: var(--card2); }
+@media (hover: hover) { .ev-row:hover { background: var(--card2); } }
 .date-badge { width: 46px; flex-shrink: 0; text-align: center; border-radius: 10px; padding: 4px 0; background: color-mix(in srgb, var(--c) 13%, transparent); color: var(--c); }
 .date-badge .d { font-size: 18px; font-weight: 800; line-height: 1.1; }
 .date-badge .m { font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; }
@@ -204,7 +213,7 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
 .chk input { width: 18px; height: 18px; accent-color: var(--pink); }
 .btns { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
 .btn { flex: 1; padding: 12px 10px; border-radius: 10px; border: 1px solid var(--border); background: var(--card2); color: var(--text); font-weight: 700; font-size: 14px; cursor: pointer; }
-.btn.primary { background: linear-gradient(135deg,#f72585,#b5179e); color: #fff; border: none; }
+.btn.primary { background: linear-gradient(135deg,var(--pink),var(--pink2)); color: #fff; border: none; }
 .btn.danger { color: var(--coral); border-color: rgba(255,61,113,.4); background: transparent; flex: 0 0 auto; padding: 12px 16px; }
 .btn.small { flex: 0 0 auto; padding: 8px 14px; font-size: 13px; }
 .day-ev { display: flex; gap: 10px; align-items: center; padding: 10px 12px; border-radius: 12px; background: var(--card2); margin-bottom: 8px; cursor: pointer; border-left: 4px solid var(--c); }
@@ -218,6 +227,36 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
 
 .toast { position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%) translateY(20px); background: #1e293b; color: #fff; padding: 10px 18px; border-radius: 12px; font-size: 13.5px; font-weight: 600; opacity: 0; pointer-events: none; transition: all .2s; z-index: 400; box-shadow: 0 10px 30px rgba(0,0,0,.3); }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ── RETOQUES: profundidad, animaciones y colores ── */
+.metric, .cal, .sc, .mini { box-shadow: var(--shadow); }
+.ov.open { animation: fundido .18s ease-out; }
+.ov.open .sheet { animation: subir .24s cubic-bezier(.2,.8,.3,1); }
+@keyframes fundido { from { opacity: 0; } }
+@keyframes subir { from { opacity: 0; transform: translateY(16px) scale(.98); } }
+.btn:active, .nbtn:active, .side-add:active, .fab:active { transform: scale(.97); }
+.ev-row:active, .cell:active { background: var(--card2); }
+.temas { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 8px; }
+.tema { position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 2px; border-radius: 12px; border: 2px solid transparent; background: var(--card2); cursor: pointer; font-size: 11px; font-weight: 700; color: var(--muted); }
+.tema.sel { border-color: var(--pink); color: var(--text); }
+.tema .bola { width: 34px; height: 34px; border-radius: 50%; box-shadow: inset 0 0 0 3px rgba(255,255,255,.35); }
+.tema input[type=color] { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; border: none; }
+.colores { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 6px; margin-bottom: 10px; }
+.color-fila { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 10px; background: var(--card2); font-size: 13px; font-weight: 600; cursor: pointer; min-width: 0; }
+.color-fila span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.color-fila input[type=color] { flex-shrink: 0; width: 28px; height: 28px; padding: 0; border: none; border-radius: 50%; background: none; cursor: pointer; }
+.color-fila input[type=color]::-webkit-color-swatch-wrapper { padding: 0; }
+.color-fila input[type=color]::-webkit-color-swatch { border: 2px solid rgba(255,255,255,.6); border-radius: 50%; }
+.color-fila input[type=color]::-moz-color-swatch { border: 2px solid rgba(255,255,255,.6); border-radius: 50%; }
+.confeti { position: fixed; top: -12px; width: 8px; height: 12px; border-radius: 2px; z-index: 500; pointer-events: none; animation: caer linear forwards; }
+@keyframes caer { to { transform: translate(var(--dx), 105vh) rotate(var(--giro)); opacity: .9; } }
+@media (prefers-reduced-motion: reduce) { .ov.open, .ov.open .sheet { animation: none; } .confeti { display: none; } }
+
+/* Dentro de .fld las etiquetas son títulos en mayúsculas; las casillas y colores no */
+.fld .chk, .fld .color-fila, .fld .tema { text-transform: none; letter-spacing: 0; margin-bottom: 0; font-size: 13.5px; color: var(--text); display: flex; }
+.fld .chk { margin-bottom: 10px; font-weight: 600; }
+.fld .tema { font-size: 11px; color: var(--muted); }
+.fld .tema.sel { color: var(--text); }
 
 .tabbar, .fab, .hdr-more { display: none; }
 .footer { text-align: center; padding: 30px 20px 10px; color: var(--hint); font-size: 11px; border-top: 1px solid var(--border); margin-top: 30px; }
@@ -268,8 +307,8 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
   .fab {
     display: flex; position: fixed; right: 18px; bottom: calc(76px + env(safe-area-inset-bottom)); z-index: 210;
     width: 56px; height: 56px; border-radius: 50%; border: none;
-    background: linear-gradient(135deg,#f72585,#b5179e); color: #fff; font-size: 30px; font-weight: 700;
-    box-shadow: 0 8px 20px rgba(247,37,133,.4); cursor: pointer; align-items: center; justify-content: center;
+    background: linear-gradient(135deg,var(--pink),var(--pink2)); color: #fff; font-size: 30px; font-weight: 700;
+    box-shadow: 0 8px 20px color-mix(in srgb, var(--pink) 40%, transparent); cursor: pointer; align-items: center; justify-content: center;
   }
   .toast { bottom: calc(90px + env(safe-area-inset-bottom)); }
   .tipo { font-size: 9.5px; }
@@ -284,7 +323,7 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
       <span class="sync-status" id="sync-status">🔄 Conectando…</span>
       <button class="hdr-btn" onclick="openAjustes()">⚙️ Ajustes</button>
       <button class="hdr-btn" onclick="toggleTheme()" id="theme-btn">🌙</button>
-      <button class="hdr-btn hdr-more" onclick="openAjustes()">⋯</button>
+      <button class="hdr-btn hdr-more" onclick="openAjustes()" title="Ajustes">⚙️</button>
     </div>
   </header>
 
@@ -417,14 +456,12 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
   <div class="sheet">
     <div class="sheet-h"><h3>Ajustes</h3><button class="x" onclick="closeOv('ov-aj')">✕</button></div>
     <div class="sheet-b">
-      <div class="fld"><label>Qué mostrar en el calendario</label><div id="filtros"></div></div>
-      <div class="fld"><label>Días festivos</label>
-        <select id="aj-festivos" onchange="setCfg('festivos', this.value)">
-          <option value="AD">Andorra (con Andorra la Vella)</option>
-          <option value="ES">España</option>
-          <option value="no">No mostrar</option>
-        </select>
+      <div class="fld"><label>🎨 Estilo de la app</label><div class="temas" id="temas"></div></div>
+      <div class="fld"><label>Color de cada tipo de evento</label><div class="colores" id="colores"></div>
+        <button class="btn small" onclick="resetColores()">↺ Volver a los colores originales</button>
       </div>
+      <p class="hint" style="margin-top:0">Los colores se guardan en este teléfono u ordenador: cada uno puede tener los suyos.</p>
+      <div class="fld"><label>Qué mostrar en el calendario</label><div id="filtros"></div></div>
       <div class="btns" style="flex-direction:column">
         <button class="btn" onclick="exportICS()">📲 Descargar todos los eventos (.ics)</button>
         <button class="btn" onclick="toggleTheme()">🌙 Cambiar modo claro / oscuro</button>
@@ -441,10 +478,12 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
 
 <div class="toast" id="toast"></div>
 
-<script src="compartido.js?v=1.19"></script>
+<script src="compartido.js?v=1.20"></script>
 <script>
 const TIPOS = CalComun.TIPOS; // en compartido.js
-const FEST_COLOR = '#d64545';   // días festivos (no se trabaja)
+let FEST_COLOR = '#d64545';   // días festivos (no se trabaja)
+// Colores originales de cada tipo y capa (⚙️ Ajustes → Colores los puede cambiar en cada dispositivo)
+const COL_BASE = { ...Object.fromEntries(Object.entries(TIPOS).map(([k, t]) => [k, t.color])), escolar: CalComun.ESCOLAR_COLOR, festivo: FEST_COLOR };
 const MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
 const MES_C = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
 const DIAS = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
@@ -454,7 +493,7 @@ const LS_KEY = 'calendario_dg_data';
 // localStorage puede no estar disponible (incógnito, etc.): nunca romper la app por eso
 const store = { get: k => { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} } };
 let EVENTS = [];
-let CFG = { festivos: 'AD', ocultos: [] };
+let CFG = { festivos: 'AD', ocultos: [], tema: 'lavanda', propio: '', colores: {} };
 try {
   const s = JSON.parse(store.get(LS_KEY));
   if (s) { EVENTS = s.events || []; CFG = Object.assign(CFG, s.cfg || {}); }
@@ -486,7 +525,7 @@ function festivos(y) {
 const festTipo = f => f.celeb ? 'Celebración' : f.titulo + (f.local ? ' · Andorra la Vella' : ' · Andorra');
 const festTitulo = f => f.celeb ? f.titulo : 'Día festivo';
 const festIcon = f => f.celeb ? f.icon : '🔴';
-const CELEB_COLOR = CalComun.CELEB_COLOR;
+let CELEB_COLOR = CalComun.CELEB_COLOR;
 const festColor = f => f.celeb ? CELEB_COLOR : FEST_COLOR;
 
 // ══ OCURRENCIAS ══
@@ -530,7 +569,7 @@ function festivosEntre(start, end) {
 }
 
 // ══ CALENDARIO ESCOLAR ══ (periodos fijos de compartido.js; se ocultan con el filtro 'escolar')
-const ESC_COLOR = CalComun.ESCOLAR_COLOR;
+let ESC_COLOR = CalComun.ESCOLAR_COLOR;
 function escolarEntre(start, end) {
   if (CFG.ocultos.includes('escolar')) return [];
   return CalComun.ESCOLAR.map(e => ({ ...e, d: parse(e.desde), h: parse(e.hasta) })).filter(e => e.d <= end && e.h >= start);
@@ -660,6 +699,7 @@ function render() {
 // Capas que se pueden ocultar (los eventos de la familia siempre se ven)
 const CAPAS = [['festivo', '🔴 Días festivos'], ['celebraciones', '🎉 Celebraciones (Día de la Madre…)'], ['escolar', '🏫 Vacaciones escolares']];
 CFG.ocultos = CFG.ocultos.filter(k => CAPAS.some(c => c[0] === k));
+CFG.festivos = 'AD';   // siempre Andorra; para no verlos está la casilla «Días festivos»
 function renderFiltros() {
   document.getElementById('filtros').innerHTML = CAPAS.map(([k, label]) =>
     `<label class="chk"><input type="checkbox" ${CFG.ocultos.includes(k) ? '' : 'checked'} onchange="toggleFiltro('${k}')"> ${label}</label>`).join('');
@@ -682,15 +722,15 @@ function renderMes() {
   // Resumen
   const prox = occurrences(TODAY, addD(TODAY, 366), true);
   const hoy = prox.filter(o => diffDays(TODAY, o.fecha) === 0);
-  const semana = prox.filter(o => diffDays(TODAY, o.fecha) <= 7);
-  const cumple = prox.find(o => o.ev.tipo === 'cumple');
+  const semana = prox.filter(o => { const n = diffDays(TODAY, o.fecha); return n > 0 && n <= 7; });   // desde mañana
+  const cumple = prox.find(o => o.ev.tipo === 'cumple' && diffDays(TODAY, o.fecha) > 0);
   const card = (c, lbl, val, sub, onclick) => `<div class="metric" style="--c:${c}" onclick="${onclick}"><div class="metric-lbl">${lbl}</div><div class="metric-val">${val}</div><div class="metric-sub">${sub}</div></div>`;
-  document.getElementById('hero').innerHTML =
-    card('#f72585', 'Hoy · ' + TODAY.getDate() + ' ' + MES_C[TODAY.getMonth()],
+  document.getElementById('hero').innerHTML = (hoy.length ? '' :   // si hoy pasa algo ya está arriba, en «No te olvides»
+    card('var(--pink)', 'Hoy · ' + TODAY.getDate() + ' ' + MES_C[TODAY.getMonth()],
       hoy.length ? hoy.map(o => (TIPOS[o.ev.tipo] || TIPOS.otro).icon + ' ' + esc(o.ev.titulo)).join('<br>') : 'Nada especial',
-      hoy.some(o => ['cumple','aniversario','celebracion'].includes(o.ev.tipo)) ? '¡A celebrar! 🎉' : hoy.length ? 'No te olvides' : 'Un día tranquilo', `openDay('${iso(TODAY)}')`) +
-    card('#fb8500', 'Próximos 7 días', semana.length + (semana.length === 1 ? ' evento' : ' eventos'),
-      semana.slice(0, 2).map(o => esc(o.ev.titulo)).join(', ') || 'Semana libre', "go('proximos')") +
+      hoy.some(o => ['cumple','aniversario','celebracion'].includes(o.ev.tipo)) ? '¡A celebrar! 🎉' : hoy.length ? 'No te olvides' : 'Un día tranquilo', `openDay('${iso(TODAY)}')`)) +
+    card('#fb8500', 'Próximos 7 días', semana.length ? semana.length + (semana.length === 1 ? ' evento' : ' eventos') : 'Semana libre',
+      semana.slice(0, 2).map(o => esc(o.ev.titulo)).join(', ') || 'Nada en los próximos días', "go('proximos')") +
     card('#7b61ff', 'Próximo cumpleaños', cumple ? '🎂 ' + esc(cumple.ev.titulo) : 'Aún no hay ninguno',
       cumple ? fechaLarga(cumple.fecha) + ' · ' + cuando(cumple.fecha)[0].toLowerCase() + (cumple.edad != null ? ' · cumple ' + cumple.edad : '') : 'Añade el primero con el botón ＋', cumple ? "go('cumples')" : 'openForm()');
 
@@ -872,8 +912,7 @@ document.addEventListener('keydown', e => {
 
 // ══ AJUSTES ══
 function openAjustes() {
-  renderFiltros();
-  document.getElementById('aj-festivos').value = CFG.festivos;
+  renderTemas(); renderColores(); renderFiltros();
   document.getElementById('ov-aj').classList.add('open');
 }
 function setCfg(k, v) { CFG[k] = v; persist(); render(); }
@@ -881,6 +920,76 @@ function applyTheme() {
   const t = store.get('calendario_dg_tema') || 'light';
   document.documentElement.dataset.theme = t;
   document.getElementById('theme-btn').textContent = t === 'dark' ? '☀️' : '🌙';
+  applyEstilo(); applyColores();
+}
+
+// ══ COLORES ══
+// Estilos ya hechos: tinte de fondos, cabecera (2 tonos) y acento (2 tonos)
+const TEMAS = {
+  lavanda: { nombre: 'Lavanda', tint: '#7b5fae', hdr1: '#5d4b80', hdr2: '#7c67a3', acento: '#f72585', acento2: '#b5179e' },
+  rosa:    { nombre: 'Rosa',    tint: '#c26a93', hdr1: '#8f3d66', hdr2: '#bf5f8c', acento: '#e8467f', acento2: '#b8306b' },
+  vino:    { nombre: 'Vino',    tint: '#9a5563', hdr1: '#5e2533', hdr2: '#8a3a4c', acento: '#d6336c', acento2: '#a51d4f' },
+  durazno: { nombre: 'Durazno', tint: '#c8876a', hdr1: '#8c4a33', hdr2: '#c06a48', acento: '#ef6b3f', acento2: '#c64b28' },
+  menta:   { nombre: 'Menta',   tint: '#4c9a84', hdr1: '#28604f', hdr2: '#3f8a73', acento: '#12a57a', acento2: '#0c7a5a' },
+  oceano:  { nombre: 'Océano',  tint: '#4a82b0', hdr1: '#274f78', hdr2: '#3f7bab', acento: '#1d8be0', acento2: '#1463ad' },
+  grafito: { nombre: 'Grafito', tint: '#6e7585', hdr1: '#343945', hdr2: '#555c6c', acento: '#7064ff', acento2: '#4c43d1' },
+};
+const hex2rgb = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
+const mezcla = (a, b, p) => '#' + hex2rgb(a).map((v, i) => Math.round(v * (1 - p) + hex2rgb(b)[i] * p).toString(16).padStart(2, '0')).join('');  // p = cuánto de b
+const luz = h => { const [r, g, b] = hex2rgb(h); return (0.299 * r + 0.587 * g + 0.114 * b) / 255; };
+// «Tu color»: a partir de un solo color; cabecera y acento más oscuros para que el texto blanco se lea
+function temaDesde(c) {
+  const os = '#1a1726', claro = luz(c) > .6;
+  return { tint: c, hdr1: mezcla(c, os, .5), hdr2: mezcla(c, os, claro ? .4 : .2), acento: mezcla(c, '#000000', claro ? .35 : .08), acento2: mezcla(c, os, .4) };
+}
+function applyEstilo() {
+  const t = CFG.tema === 'propio' && CFG.propio ? temaDesde(CFG.propio) : TEMAS[CFG.tema] || TEMAS.lavanda;
+  const st = document.documentElement.style;
+  [['--tint', t.tint], ['--hdr1', t.hdr1], ['--hdr2', t.hdr2], ['--pink', t.acento], ['--pink2', t.acento2]].forEach(([k, v]) => st.setProperty(k, v));
+  // Barra de estado del móvil del mismo color que la cabecera
+  document.querySelector('meta[name=theme-color]').content = document.documentElement.dataset.theme === 'dark' ? mezcla(t.hdr1, '#1b1b26', .4) : t.hdr1;
+}
+const bolaCss = t => `linear-gradient(135deg,${t.hdr1},${t.hdr2} 55%,${t.acento})`;
+function renderTemas() {
+  document.getElementById('temas').innerHTML = Object.entries(TEMAS).map(([k, t]) =>
+    `<div class="tema ${CFG.tema === k ? 'sel' : ''}" onclick="setTema('${k}')"><span class="bola" style="background:${bolaCss(t)}"></span>${t.nombre}</div>`).join('') +
+    `<label class="tema ${CFG.tema === 'propio' ? 'sel' : ''}"><span class="bola" id="bola-propia" style="background:${CFG.propio ? bolaCss(temaDesde(CFG.propio)) : 'conic-gradient(#f72585,#ffaa00,#00d68f,#00b4d8,#7b61ff,#f72585)'}"></span>Tu color` +
+    `<input type="color" value="${CFG.propio || '#3fa7d6'}" oninput="setTemaPropio(this.value)" onchange="renderTemas()"></label>`;
+}
+function setTema(k) { CFG.tema = k; persist(); applyEstilo(); renderTemas(); }
+function setTemaPropio(c) {
+  CFG.tema = 'propio'; CFG.propio = c; persist(); applyEstilo();
+  document.getElementById('bola-propia').style.background = bolaCss(temaDesde(c));
+}
+// Color de cada tipo de evento y de las capas fijas («Celebración» pinta también las celebraciones fijas)
+const COLOR_FILAS = [['cumple'], ['aniversario'], ['recuerdo'], ['celebracion', '🎉 Celebraciones'], ['familiar'], ['recordatorio'],
+                     ['salud'], ['escuela'], ['otro'], ['escolar', '🏫 Vacaciones'], ['festivo', '🔴 Festivos']];
+const colorDe = k => (CFG.colores || {})[k] || COL_BASE[k];
+function applyColores() {
+  for (const k in TIPOS) TIPOS[k].color = colorDe(k);
+  CELEB_COLOR = colorDe('celebracion'); ESC_COLOR = colorDe('escolar'); FEST_COLOR = colorDe('festivo');
+}
+function renderColores() {
+  document.getElementById('colores').innerHTML = COLOR_FILAS.map(([k, label]) =>
+    `<label class="color-fila"><input type="color" value="${colorDe(k)}" oninput="setColor('${k}', this.value)"><span>${label || TIPOS[k].icon + ' ' + TIPOS[k].label}</span></label>`).join('');
+}
+function setColor(k, v) { CFG.colores = { ...CFG.colores, [k]: v }; persist(); applyColores(); render(); }
+function resetColores() { CFG.colores = {}; persist(); applyColores(); render(); renderColores(); toast('Colores originales'); }
+
+// ══ CONFETI ══ una vez al día en cada dispositivo, si hoy alguien cumple años o es un aniversario
+function festejar() {
+  if (festejar.hecho || store.get('calendario_dg_confeti') === iso(TODAY)) return;
+  if (!occurrences(TODAY, TODAY, true).some(o => ['cumple', 'aniversario'].includes(o.ev.tipo))) return;
+  festejar.hecho = true; store.set('calendario_dg_confeti', iso(TODAY));
+  const cols = [getComputedStyle(document.documentElement).getPropertyValue('--pink').trim(), '#ffaa00', '#00d68f', '#00b4d8', '#7b61ff', '#ff3d71'];
+  for (let i = 0; i < 70; i++) {
+    const c = document.createElement('i');
+    c.className = 'confeti';
+    c.style.cssText = `left:${Math.random() * 100}vw;background:${cols[i % cols.length]};--dx:${Math.round((Math.random() - .5) * 160)}px;` +
+      `--giro:${Math.round(Math.random() * 720 - 360)}deg;animation-duration:${(2 + Math.random() * 1.8).toFixed(2)}s;animation-delay:${(Math.random() * .6).toFixed(2)}s`;
+    document.body.appendChild(c);
+    setTimeout(() => c.remove(), 4500);
+  }
 }
 function toggleTheme() {
   store.set('calendario_dg_tema', document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
@@ -927,7 +1036,7 @@ function importJSON(input) {
 // "eventos" (un mapa id → evento). Cada cambio solo toca SU evento (eventos.<id>), así que si
 // dos personas guardan a la vez se conservan los dos cambios. Sin inicio de sesión: igual que
 // la app de finanzas, la colección appdata es de acceso libre.
-const APP_VERSION = '1.19';
+const APP_VERSION = '1.20';
 const DOC_EVENTOS = 'appdata/calendario-eventos';
 let db = null;
 try {
@@ -970,7 +1079,7 @@ function initCloud() {
   if (!db) { updateSyncStatus('error'); return; }
   docRef().onSnapshot({ includeMetadataChanges: true }, snap => {
     EVENTS = Object.values((snap.exists && snap.data().eventos) || {});
-    persist(); render();
+    persist(); render(); festejar();
     updateSyncStatus(snap.metadata.hasPendingWrites ? 'syncing' : snap.metadata.fromCache ? 'offline' : 'synced');
   }, err => { console.warn('Lectura:', err); updateSyncStatus('error'); });
 }
@@ -997,6 +1106,7 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden) chec
 applyTheme();
 initCloud();
 render();
+if (EVENTS.length) festejar();
 checkVersion();
 document.getElementById('app-version').textContent = 'v' + APP_VERSION;
 if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(e => console.warn('SW:', e));
