@@ -89,6 +89,43 @@
     return out;
   }
 
+  // Estaciones (equinoccios y solsticios, a la hora de Andorra) y cambios de hora de la UE
+  const EST_COLOR = '#7a9a45';
+  // Fórmulas de Meeus (Astronomical Algorithms, cap. 27): error de ~1 minuto entre los años 2000 y 3000
+  const MEEUS_C = [[2451623.80984, 365242.37404, 0.05169, -0.00411, -0.00057],    // marzo
+                   [2451716.56767, 365241.62603, 0.00325, 0.00888, -0.00030],     // junio
+                   [2451810.21715, 365242.01767, -0.11575, 0.00337, 0.00078],     // septiembre
+                   [2451900.05952, 365242.74049, -0.06223, -0.00823, 0.00032]];   // diciembre
+  const MEEUS_S = [[485, 324.96, 1934.136], [203, 337.23, 32964.467], [199, 342.08, 20.186], [182, 27.85, 445267.112],
+    [156, 73.14, 45036.886], [136, 171.52, 22518.443], [77, 222.54, 65928.934], [74, 296.72, 3034.906], [70, 243.58, 9037.513],
+    [58, 119.81, 33718.147], [52, 297.17, 150.678], [50, 21.02, 2281.226], [45, 247.54, 29929.562], [44, 325.15, 31555.956],
+    [29, 60.93, 4443.417], [18, 155.12, 67555.328], [17, 288.79, 4562.452], [16, 198.04, 62894.029], [14, 199.76, 31436.921],
+    [12, 95.39, 14577.848], [12, 287.11, 31931.756], [12, 320.81, 34777.259], [9, 227.73, 1222.114], [8, 15.45, 16859.074]];
+  function momentoEstacion(y, i) {           // i: 0 primavera, 1 verano, 2 otoño, 3 invierno → instante (Date)
+    const Y = (y - 2000) / 1000, c = MEEUS_C[i], rad = Math.PI / 180;
+    const jde0 = c[0] + c[1] * Y + c[2] * Y ** 2 + c[3] * Y ** 3 + c[4] * Y ** 4;
+    const T = (jde0 - 2451545) / 36525, W = (35999.373 * T - 2.47) * rad;
+    const S = MEEUS_S.reduce((s, [a, b, k]) => s + a * Math.cos((b + k * T) * rad), 0);
+    const jde = jde0 + 0.00001 * S / (1 + 0.0334 * Math.cos(W) + 0.0007 * Math.cos(2 * W));
+    return new Date((jde - 2440587.5) * 86400000 - 69000);   // tiempo dinámico → UTC (ΔT ≈ 69 s)
+  }
+  const horaAndorra = new Intl.DateTimeFormat('en-CA', { timeZone: ZONA, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
+  const ultimoDomingo = (y, mes) => { const d = new Date(y, mes + 1, 0); d.setDate(d.getDate() - d.getDay()); return d; };
+  function estaciones(y) {
+    const out = [];
+    [['🌸', 'Empieza la primavera', 'Equinoccio'], ['☀️', 'Empieza el verano', 'Solsticio', 'el día más largo del año'],
+     ['🍂', 'Empieza el otoño', 'Equinoccio'], ['❄️', 'Empieza el invierno', 'Solsticio', 'la noche más larga del año']]
+      .forEach(([icon, titulo, que, extra], i) => {
+        const p = Object.fromEntries(horaAndorra.formatToParts(momentoEstacion(y, i).getTime() + 30000).map(x => [x.type, x.value]));
+        out.push({ fecha: `${p.year}-${p.month}-${p.day}`, titulo, icon, estacion: true, aviso: 0,
+                   nota: `${que}, a las ${p.hour}:${p.minute} h` + (extra ? ' · ' + extra : '') });
+      });
+    const add = (d, titulo, nota) => out.push({ fecha: d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()), titulo, icon: '⏰', estacion: true, aviso: 3, nota });
+    add(ultimoDomingo(y, 2), 'Cambio de hora (+1 hora)', 'La madrugada del domingo, a las 2:00 serán las 3:00: se duerme una hora menos');
+    add(ultimoDomingo(y, 9), 'Cambio de hora (−1 hora)', 'La madrugada del domingo, a las 3:00 volverán a ser las 2:00: se duerme una hora más');
+    return out.sort((a, b) => a.fecha.localeCompare(b.fecha));
+  }
+
   const RRULE = { anual: 'YEARLY', mensual: 'MONTHLY', semanal: 'WEEKLY' };
 
   const pad = n => String(n).padStart(2, '0');
@@ -169,5 +206,5 @@
     return L.map(fold).join('\r\n') + '\r\n';
   }
 
-  return { TIPOS, ESCOLAR, ESCOLAR_COLOR, CELEB_COLOR, festivos, celebraciones, buildICS };
+  return { TIPOS, ESCOLAR, ESCOLAR_COLOR, CELEB_COLOR, EST_COLOR, festivos, celebraciones, estaciones, buildICS };
 });
