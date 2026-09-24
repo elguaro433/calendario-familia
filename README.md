@@ -31,7 +31,7 @@ Calendario familiar de cumpleaños, aniversarios, celebraciones, recordatorios, 
 - **Felicitar por WhatsApp**: botón verde en cumpleaños y en el aniversario de boda. Abre `wa.me` con un mensaje cariñoso según el parentesco (campo «¿De quién?»: Hijo, Esposa, Padre de Emmanuel, Suegra, Hermana/o, Sobrino/a, Prima/o, Tía, Cuñada… o genérico). Se edita en `mensajeWA()` de `index.html`.
 
 ### Colores
-Cumpleaños `#d9528b` · Aniversario `#7c5cc4` · Celebraciones `#e27a45` · Vacaciones escolares `#3fa7d6` · Día festivo `#d64545` · En memoria `#9c8fb8`. Tema claro lavanda por defecto; oscuro suave con 🌙.
+Cumpleaños `#d9528b` · Aniversario `#7c5cc4` · Celebraciones `#e27a45` · Vacaciones escolares `#3fa7d6` · Día festivo `#9b2226` (granate, distinto del rosa de los cumpleaños) · Estaciones `#7a9a45` · En memoria `#9c8fb8`. Tema claro lavanda por defecto; oscuro suave con 🌙.
 
 En ⚙️ Ajustes → «Estilo de la app» cada dispositivo elige un estilo (Lavanda, Rosa, Vino, Durazno, Menta, Océano, Grafito o «Tu color») y puede cambiar el color de cada tipo de evento. Se guarda en ese teléfono u ordenador (`TEMAS`, `applyEstilo()` y `applyColores()` en `index.html`); todos los colores de la app salen de las variables `--tint`, `--hdr1`, `--hdr2`, `--pink` y `--pink2`.
 

@@ -143,7 +143,8 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
 .cell.weekend .dnum { color: var(--muted); }
 .dnum { font-size: 13px; font-weight: 700; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; border-radius: 50%; margin-bottom: 3px; }
 .cell.today .dnum { background: var(--pink); color: #fff; }
-.cell.holiday .dnum { color: var(--coral); }
+.cell.holiday .dnum { color: var(--fest); }
+[data-theme="dark"] .cell.holiday .dnum { color: color-mix(in srgb, var(--fest) 50%, #fff); }
 .pill { display: block; font-size: 11px; font-weight: 600; padding: 2px 6px; border-radius: 6px; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; background: color-mix(in srgb, var(--c) 15%, transparent); color: var(--c); border-left: 3px solid var(--c); }
 .pill.fest { background: transparent; border-left-style: dotted; color: var(--muted); font-weight: 500; }
 .more { font-size: 10.5px; color: var(--muted); font-weight: 700; padding-left: 4px; }
@@ -184,7 +185,7 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
 .mini-g span { font-size: 10.5px; text-align: center; padding: 3px 0; border-radius: 6px; cursor: pointer; position: relative; }
 .mini-g span.h { color: var(--hint); font-weight: 700; font-size: 9px; cursor: default; }
 .mini-g span.ev { font-weight: 800; color: #fff; background: var(--c); border-radius: 8px; box-shadow: 0 1px 3px color-mix(in srgb, var(--c) 35%, transparent); }
-.mini-g span.fest { color: var(--coral); font-weight: 700; }
+.mini-g span.fest { color: var(--fest); font-weight: 700; }
 .mini-g span.today { outline: 2px solid var(--pink); }
 .legend { display: flex; flex-wrap: wrap; gap: 8px 14px; margin-bottom: 16px; font-size: 12px; color: var(--muted); }
 .legend span { display: flex; align-items: center; gap: 5px; }
@@ -478,10 +479,10 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
 
 <div class="toast" id="toast"></div>
 
-<script src="compartido.js?v=1.21"></script>
+<script src="compartido.js?v=1.22"></script>
 <script>
 const TIPOS = CalComun.TIPOS; // en compartido.js
-let FEST_COLOR = '#d64545';   // días festivos (no se trabaja)
+let FEST_COLOR = '#9b2226';   // días festivos (no se trabaja): granate, para no confundirlo con el rosa de los cumpleaños
 // Colores originales de cada tipo y capa (⚙️ Ajustes → Colores los puede cambiar en cada dispositivo)
 const COL_BASE = { ...Object.fromEntries(Object.entries(TIPOS).map(([k, t]) => [k, t.color])), escolar: CalComun.ESCOLAR_COLOR, festivo: FEST_COLOR, estaciones: CalComun.EST_COLOR };
 const MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
@@ -970,6 +971,7 @@ const colorDe = k => (CFG.colores || {})[k] || COL_BASE[k];
 function applyColores() {
   for (const k in TIPOS) TIPOS[k].color = colorDe(k);
   CELEB_COLOR = colorDe('celebracion'); ESC_COLOR = colorDe('escolar'); FEST_COLOR = colorDe('festivo'); EST_COLOR = colorDe('estaciones');
+  document.documentElement.style.setProperty('--fest', FEST_COLOR);
 }
 function renderColores() {
   document.getElementById('colores').innerHTML = COLOR_FILAS.map(([k, label]) =>
@@ -1038,7 +1040,7 @@ function importJSON(input) {
 // "eventos" (un mapa id → evento). Cada cambio solo toca SU evento (eventos.<id>), así que si
 // dos personas guardan a la vez se conservan los dos cambios. Sin inicio de sesión: igual que
 // la app de finanzas, la colección appdata es de acceso libre.
-const APP_VERSION = '1.21';
+const APP_VERSION = '1.22';
 const DOC_EVENTOS = 'appdata/calendario-eventos';
 let db = null;
 try {
