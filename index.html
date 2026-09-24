@@ -441,7 +441,7 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
 
 <div class="toast" id="toast"></div>
 
-<script src="compartido.js?v=1.18"></script>
+<script src="compartido.js?v=1.19"></script>
 <script>
 const TIPOS = CalComun.TIPOS; // en compartido.js
 const FEST_COLOR = '#d64545';   // días festivos (no se trabaja)
@@ -577,27 +577,50 @@ function edadProxima(ev) {
   const o = occurrences(TODAY, addD(TODAY, 366), true).find(x => x.ev.id === ev.id);
   return o ? o.edad : null;
 }
+// Nombre con el que se saluda: «Ricardo Paez» → «Ricardo», «Tía Bety» → «Bety»;
+// «Juan Carlos» y «Emmanuel Alejandro» se quedan enteros (segundo nombre, no apellido).
+const SEGUNDO_NOMBRE = /^(alejandr[ao]|antoni[ao]|carlos|daniel|david|eduardo|enrique|francisc[ao]|jes[uú]s|jos[eé]|javier|luis|manuel|miguel|[aá]ngel|pablo|rafael|ram[oó]n|andr[eé]s|mar[ií]a|isabel|carmen|elena|fernanda|gabriela|valentina|victoria|luc[ií]a|sof[ií]a|paola|andrea)$/i;
+function nombreSaludo(titulo) {
+  const w = titulo.trim().replace(/^(t[ií][ao]|abuel[ao]|prim[ao])\s+/i, '').split(/\s+/);
+  return w.length > 1 && SEGUNDO_NOMBRE.test(w[1]) ? w[0] + ' ' + w[1] : w[0];
+}
+// Lo escribe Emmanuel desde su WhatsApp: sin firmas (WhatsApp ya dice quién lo manda),
+// saludo en la primera línea y el parentesco decide el tono. Las reglas van de la más
+// concreta a la más general y miran el principio de «¿De quién?» («Esposa», no «Esposa de Luis»).
 function mensajeWA(ev, edad) {
-  const n = ev.titulo, p = (ev.persona || '').toLowerCase(), firma = 'Con mucho cariño, la familia Díaz González 💕';
+  const n = nombreSaludo(ev.titulo), p = (ev.persona || '').toLowerCase().trim();
+  const a = /^(amiga|prima|t[ií]a|cuñada|sobrina|hermana|hija)\b/.test(p) ? 'a' : 'o';
+  const nino = edad != null && edad < 13;
+  const anitos = edad == null ? '' : nino ? `¡${edad} añitos! ` : `¡${edad} años! `;
+  const redondo = edad != null && edad >= 20 && edad % 10 === 0 ? `¡Felices ${edad}! ` : '';
   if (ev.tipo === 'aniversario')
-    return `¡Feliz aniversario, mi amor! 💍❤️${edad ? ' ¡Ya son ' + edad + ' años juntos!' : ''} Gracias por cada día a mi lado, por tu paciencia y por la familia tan bonita que hemos formado. Te amo con todo mi corazón 😘`;
+    return `¡Feliz aniversario, mi amor! 💍❤️\n\n${edad ? `¡Ya son ${edad} años juntos! ` : ''}Gracias por cada día a mi lado, por tu paciencia y por la familia tan bonita que hemos formado. Te amo con todo mi corazón 😘`;
   if (/^hijo( menor| mayor)?$/.test(p))   // solo mis hijos (no «Hijo de Xavier»)
-    return `¡Feliz cumpleaños, mi campeón ${n}! 🎂🎈${edad ? ' ¡' + edad + ' añitos ya!' : ''} Papá y mamá te amamos con todo el corazón. Que hoy tengas un día lleno de juegos, risas y sorpresas. ¡Eres nuestro orgullo y nuestra alegría! 💙🎉`;
-  if (/^esposa/.test(p))
-    return `¡Feliz cumpleaños, mi amor! 🎂❤️ Gracias por llenar nuestra casa de amor y alegría. Que hoy sea un día tan bonito como tú. Los niños y yo te amamos muchísimo 😘💐`;
-  if (/padre de emmanuel/.test(p))
-    return `¡Feliz cumpleaños, papá! 🎂❤️ Gracias por todo tu amor y tus enseñanzas. Te queremos muchísimo y te llevamos siempre en el corazón. Tus nietos te mandan besitos y abrazos gigantes 🤗 ${firma}`;
-  if (/suegra/.test(p))
-    return `¡Feliz cumpleaños, querida suegra ${n}! 🎂🌸 Que Dios te bendiga con mucha salud, amor y alegría. Gracias por tanto cariño; te queremos mucho. Muchos besitos de tus nietos 🤗 ${firma}`;
-  if (/^herman[ao]/.test(p)) {
-    const h = /^hermana/.test(p) ? 'hermanita' : 'hermano';
-    return `¡Feliz cumpleaños, ${h} ${n}! 🎂🥳 Te llevo siempre en el corazón. Que la vida te regale mucha salud, amor y felicidad. ¡Te quiero mucho! Un abrazo enorme de tus sobrinos y de toda la familia 🤗💕`;
-  }
-  if (/sobrin|hij[ao] de mi prim/.test(p) || (edad != null && edad < 18))
-    return `¡Feliz cumpleaños, ${n}! 🎂🎈${edad != null && edad < 18 ? ' ¡' + edad + ' añitos!' : ''} Que tengas un día precioso lleno de alegría, sorpresas y mucho amor. Tus tíos y primos te queremos muchísimo 🤗 ${firma}`;
-  if (/prim[ao]|t[ií]a|cuñad/.test(p))
-    return `¡Feliz cumpleaños, querid${/prima|tía|tia|cuñada/.test(p) ? 'a' : 'o'} ${n}! 🎂🥳 Que la vida te regale mucha salud, amor y alegría, junto a los que más te quieren. ¡Te queremos mucho! Un abrazo enorme 🤗 ${firma}`;
-  return `¡Feliz cumpleaños, ${n}! 🎂🥳 Hoy es tu día y te mereces lo mejor del mundo. Que Dios te bendiga con mucha salud, amor y alegría. ¡Un abrazo muy fuerte! 🤗 ${firma}`;
+    return `¡Feliz cumpleaños, mi campeón ${n}! 🎂🎈\n\n${anitos}Papá y mamá te amamos con todo el corazón. Que hoy tengas un día lleno de juegos, risas y sorpresas. ¡Eres nuestro orgullo y nuestra alegría! 💙🎉`;
+  if (/^(mi )?esposa$/.test(p))
+    return `¡Feliz cumpleaños, mi amor! 🎂❤️\n\nGracias por llenar nuestra casa de amor y alegría. Que hoy sea un día tan bonito como tú. Los niños y yo te amamos muchísimo 😘💐`;
+  if (/^padre de emmanuel/.test(p))
+    return `¡Feliz cumpleaños, papá! 🎂❤️\n\n${redondo}Gracias por todo tu amor y por todo lo que me has enseñado. Te quiero muchísimo y te llevo siempre en el corazón. Elibel y tus nietos te mandan besitos y abrazos gigantes 🤗`;
+  if (/^suegra/.test(p))
+    return `¡Feliz cumpleaños, querida suegra! 🎂🌸\n\n${redondo}Que Dios te bendiga con mucha salud, amor y alegría. Gracias por tanto cariño; te queremos mucho. Tus nietos te mandan muchos besitos 🤗`;
+  if (/^herman[ao](?! de)/.test(p))
+    return `¡Feliz cumpleaños, ${a === 'a' ? 'hermanita' : 'hermano'}! 🎂🥳\n\n${redondo}Te llevo siempre en el corazón. Que la vida te regale mucha salud, amor y felicidad. ¡Te quiero mucho! Elibel y tus sobrinos te mandan un abrazo enorme 🤗💕`;
+  if (/^sobrin|^hij[ao] de mi prim/.test(p))
+    return `¡Feliz cumpleaños, ${n}! 🎂🎈\n\n${nino ? anitos : ''}Que tengas un día precioso, lleno de alegría, sorpresas y mucho amor. Tus tíos Emmanuel y Elibel y tus primos te queremos muchísimo 🤗`;
+  if (/^t[ií][ao]\b/.test(p))
+    return `¡Feliz cumpleaños, ${a === 'a' ? 'tía' : 'tío'} ${n}! 🎂🌸\n\n${redondo}Que Dios te bendiga con mucha salud, amor y alegría. Gracias por tanto cariño; te queremos mucho. Elibel, los niños y yo te mandamos un abrazo enorme 🤗`;
+  if (/^prim[ao]\b/.test(p))
+    return `¡Feliz cumpleaños, prim${a} querid${a}! 🎂🥳\n\n${redondo}Que la vida te regale mucha salud, amor y alegría junto a los que más quieres. ¡Un abrazo enorme de parte de toda la familia! 🤗`;
+  if (/^cuñad[ao]\b/.test(p))
+    return `¡Feliz cumpleaños, cuñad${a}! 🎂🥳\n\n${redondo}Que tengas un día muy bonito junto a los que más te quieren. Te deseamos mucha salud, amor y alegría. ¡Un abrazo enorme de parte de todos nosotros! 🤗`;
+  const amigoDe = (ev.persona || '').match(/^amig[ao] de (.+)$/i);   // amigo de uno de los niños
+  if (amigoDe)
+    return `¡Feliz cumpleaños, ${n}! 🎂🎈\n\n${nino ? anitos : ''}${amigoDe[1]} te manda un abrazo gigante y te desea un día lleno de juegos, risas y regalos. ¡Que lo pases genial! 🥳`;
+  if (/^amig[ao]$/.test(p))
+    return `¡Feliz cumpleaños, ${n}! 🎉\n\n${redondo}Que pases un día genial junto a los tuyos. Te deseo mucha salud, éxitos y alegría en este nuevo año. ¡Un abrazo fuerte, amig${a}! 🤗`;
+  if (nino || /^hij[ao] de/.test(p))   // hijos de amigos o niños con la edad puesta
+    return `¡Feliz cumpleaños, ${n}! 🎂🎈\n\n${nino ? anitos : ''}Que tengas un día precioso, lleno de alegría y sorpresas. ¡Un abrazo muy fuerte de parte de Emmanuel, Elibel y los niños! 🤗`;
+  return `¡Feliz cumpleaños, ${n}! 🎂🥳\n\n${redondo}Hoy es tu día y te mereces lo mejor. Que Dios te bendiga con mucha salud, amor y alegría. ¡Un abrazo muy fuerte de parte de toda la familia! 🤗`;
 }
 function felicitar(id) {
   const ev = EVENTS.find(e => e.id === id);
@@ -904,7 +927,7 @@ function importJSON(input) {
 // "eventos" (un mapa id → evento). Cada cambio solo toca SU evento (eventos.<id>), así que si
 // dos personas guardan a la vez se conservan los dos cambios. Sin inicio de sesión: igual que
 // la app de finanzas, la colección appdata es de acceso libre.
-const APP_VERSION = '1.18';
+const APP_VERSION = '1.19';
 const DOC_EVENTOS = 'appdata/calendario-eventos';
 let db = null;
 try {
