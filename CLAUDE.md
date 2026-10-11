@@ -22,6 +22,8 @@ Lee primero `README.md` (arquitectura, datos, colores, tareas habituales).
 - v1.27 (11/10/2026): mensaje propio por persona (`mensaje`, no va en la copia pública) y lavado de cara: sin pestaña «Año» (3 pestañas), iconos SVG en cabecera/barra/Ajustes (sin emojis «July 17»), «en N días» en la 2.ª línea (nombres enteros), botón de WhatsApp verde lleno solo si es en ≤7 días (si no, `.wa.discreto`), franja «Hoy/Próximo» solo si no hay nada en «No te olvides», mini iconos en el mes y vacaciones como franja (`.cell.esc`), punto de sincronización solo si hay problema, festivos legibles en oscuro, crédito una sola vez.
 - v1.26: días de Elibel (ver README). El bloque «Avisos en este móvil» (Web Push) está oculto con `hidden`: el usuario no quiere poner el secreto `VAPID_PRIVATE`; los avisos le llegan por el calendario suscrito.
 
+- v1.33: casilla «Solo en mi app» (`privado`) en cada evento: no sale en la app de Elibel (filtro en `occurrences`). Marcados: Ricardo Paez, Jorge Tigua.
+
 ## Pendiente (11/10/2026, v1.25, 44 fechas)
 - Secreto `VAPID_PRIVATE`: el usuario decidió no ponerlo (11/10). El robot de avisos solo lista; el bloque de Ajustes está oculto.
 - Avisos y calendario suscrito sin probar en iPhone real. El robot de avisos funciona (ejecución manual del 11/10: «0 avisos para 0 móviles»).
