@@ -39,5 +39,10 @@ const campos = f => Object.fromEntries(Object.entries(f).map(([k, v]) => [k, val
   // Mismo formato que "Descargar copia de seguridad" → se puede restaurar desde la app
   fs.mkdirSync(path.join(RAIZ, 'backup'), { recursive: true });
   fs.writeFileSync(path.join(RAIZ, 'backup', 'eventos.json'), JSON.stringify(copia, null, 2) + '\n');
-  console.log('Copia guardada:', events.length, 'eventos');
+
+  // Calendario de suscripción (webcal://…/calendario.ics) para el Calendario del iPhone.
+  // DTSTAMP fijo por semana: el archivo solo cambia cuando cambian los eventos (o cada lunes).
+  const { buildICS } = require(path.join(RAIZ, 'compartido.js'));
+  fs.writeFileSync(path.join(RAIZ, 'calendario.ics'), buildICS(events, { stamp: copia.semana.replace(/-/g, '') + 'T000000Z' }));
+  console.log('Copia guardada:', events.length, 'eventos (y calendario.ics)');
 })().catch(e => { console.error(e); process.exit(1); });

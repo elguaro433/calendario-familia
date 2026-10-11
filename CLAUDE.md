@@ -13,6 +13,8 @@ Lee primero `README.md` (arquitectura, datos, colores, tareas habituales).
 - Firestore REST devuelve los campos en orden aleatorio: el diff de `backup/eventos.json` sale grande aunque apenas cambie nada.
 - Colores: todo sale de `--tint`, `--hdr1`, `--hdr2`, `--pink`, `--pink2` (estilo) y `COL_BASE` (tipos); el usuario los elige en Ajustes y se guardan por dispositivo.
 
+- v1.25 (11/10/2026): avisos al móvil (Web Push, robot `avisos.js`, secreto `VAPID_PRIVATE`) y calendario suscrito (`calendario.ics`). Ver README. Sin probar aún en iPhone real.
+
 ## Pendiente (al cerrar el 24/09/2026, v1.22, 42 fechas)
 - Parentesco de **Aida, Maita y Victor Aponte** (`persona` vacío → mensaje de WhatsApp genérico).
 - Año de nacimiento de Samuel, Magdaliyi, Elida, Thiago, Sofía, Antonella, Eliette y Rusbeilyn. El usuario los pasa en fotos de documentos: usar solo la fecha de nacimiento.

@@ -31,3 +31,21 @@ self.addEventListener('fetch', e => {
     }
   })());
 });
+
+// Avisos al móvil: los manda cada mañana el robot (scripts/avisos.js) a quien los activó en Ajustes
+self.addEventListener('push', e => {
+  let a = {};
+  try { a = e.data ? e.data.json() : {}; } catch (err) { a = { title: e.data && e.data.text() }; }
+  e.waitUntil(self.registration.showNotification(a.title || 'Calendario Familia', {
+    body: a.body || '', tag: a.tag, icon: 'icon-192.png', badge: 'icon-192.png', data: { url: a.url || './' }
+  }));
+});
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  const url = (e.notification.data && e.notification.data.url) || './';
+  e.waitUntil((async () => {
+    const abiertas = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+    for (const c of abiertas) { await c.focus(); if ('navigate' in c) return c.navigate(url); return; }
+    return self.clients.openWindow(url);
+  })());
+});
