@@ -9,6 +9,8 @@
 <meta name="theme-color" content="#5d4b80">
 <meta name="description" content="Calendario de celebraciones Familia Díaz González">
 <link rel="manifest" href="manifest.json">
+<script>/* App de Elibel (elibel.html → ?yo=elibel): su manifiesto y su título */
+try { if (/[?&]yo=elibel\b/.test(location.search) || localStorage.getItem('calendario_yo') === 'elibel') { document.querySelector('link[rel=manifest]').href = 'manifest-elibel.json'; document.title = 'Calendario de Elibel'; } } catch (e) {}</script>
 <link rel="apple-touch-icon" href="icon-180.png?v=3">
 <meta name="apple-mobile-web-app-title" content="Familia DG">
 <link rel="icon" type="image/png" sizes="32x32" href="icon-32.png?v=3">
@@ -283,6 +285,18 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
 [data-theme="dark"] .cell.holiday .dnum { color: color-mix(in srgb, var(--fest) 35%, #fff); }
 .footer { padding-bottom: 24px; }
 .hint a { color: var(--pink); font-weight: 700; }
+.aj-quien { background: var(--card2); border-radius: 12px; padding: 10px 14px; font-size: 13.5px; line-height: 1.5; margin-bottom: 14px; color: var(--muted); }
+.aj-quien b { color: var(--text); }
+.seg { display: flex; gap: 4px; background: var(--card2); border-radius: 12px; padding: 4px; }
+.seg button { flex: 1; border: none; background: transparent; padding: 9px 4px; border-radius: 9px; font-family: inherit; font-weight: 700; font-size: 13.5px; color: var(--muted); cursor: pointer; }
+.seg button.sel { background: var(--surface); color: var(--text); box-shadow: var(--shadow); }
+.aj-det { margin-bottom: 14px; }
+.aj-det summary { cursor: pointer; list-style: none; font-size: 11.5px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; padding: 10px 14px; background: var(--card2); border-radius: 12px; display: flex; justify-content: space-between; }
+.aj-det summary::-webkit-details-marker { display: none; }
+.aj-det summary::after { content: '›'; font-size: 16px; line-height: 1; transition: transform .2s; }
+.aj-det[open] summary::after { transform: rotate(90deg); }
+.aj-det[open] summary { margin-bottom: 10px; }
+.btn.aj-ancho { width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; }
 .hdr-more .ico { width: 22px; height: 22px; }
 .footer { text-align: center; padding: 30px 20px 10px; color: var(--hint); font-size: 11px; border-top: 1px solid var(--border); margin-top: 30px; }
 
@@ -472,12 +486,22 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
   <div class="sheet">
     <div class="sheet-h"><h3>Ajustes</h3><button class="x" onclick="closeOv('ov-aj')">✕</button></div>
     <div class="sheet-b">
-      <div class="fld"><label>🎨 Estilo de la app</label><div class="temas" id="temas"></div></div>
-      <div class="fld"><label>Color de cada tipo de evento</label><div class="colores" id="colores"></div>
-        <button class="btn small" onclick="resetColores()">↺ Volver a los colores originales</button>
+      <div class="aj-quien" id="aj-quien"></div>
+      <div class="fld"><label>Apariencia</label>
+        <div class="seg" id="seg-tema">
+          <button type="button" data-t="light" onclick="setApariencia('light')">☀️ Claro</button>
+          <button type="button" data-t="dark" onclick="setApariencia('dark')">🌙 Oscuro</button>
+          <button type="button" data-t="auto" onclick="setApariencia('auto')">Automático</button>
+        </div>
       </div>
-      <p class="hint" style="margin-top:0">Los colores se guardan en este teléfono u ordenador: cada uno puede tener los suyos.</p>
+      <div class="fld"><label>🎨 Estilo de la app</label><div class="temas" id="temas"></div></div>
       <div class="fld"><label>Qué mostrar en el calendario</label><div id="filtros"></div></div>
+      <details class="aj-det">
+        <summary>Colores de cada tipo de evento</summary>
+        <div class="colores" id="colores"></div>
+        <button class="btn small" onclick="resetColores()">↺ Volver a los colores originales</button>
+        <p class="hint" style="margin:8px 0 0">Los colores se guardan en este teléfono: cada uno puede tener los suyos.</p>
+      </details>
       <!-- Avisos Web Push: ocultos mientras no haya secreto VAPID_PRIVATE en GitHub (el usuario decidió no ponerlo). Quitar «hidden» para activarlos. -->
       <div class="fld" hidden><label>🔔 Avisos en este móvil</label>
         <p class="hint" id="avisos-estado" style="margin:0 0 8px"></p>
@@ -486,14 +510,19 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
           <button class="btn" id="avisos-probar" onclick="probarAviso()" hidden>Probar</button>
         </div>
       </div>
-      <div class="btns" style="flex-direction:column">
-        <button class="btn" onclick="suscribirCalendario()">📅 Ver los eventos en el Calendario del iPhone</button>
-        <button class="btn" onclick="toggleTheme()">🌙 Cambiar modo claro / oscuro</button>
-        <button class="btn" onclick="exportJSON()">💾 Descargar copia de seguridad</button>
-        <button class="btn" onclick="document.getElementById('imp-file').click()">📂 Restaurar copia de seguridad</button>
+      <div class="fld" id="aj-iphone"><label>En el iPhone</label>
+        <button class="btn aj-ancho" id="btn-suscribir" onclick="suscribirCalendario()"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3.5 10h17M8 3v4M16 3v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="8.5" cy="14.5" r="1.2" fill="currentColor"/><circle cx="12" cy="14.5" r="1.2" fill="currentColor"/><circle cx="15.5" cy="14.5" r="1.2" fill="currentColor"/></svg> Ver los cumpleaños en el Calendario del iPhone</button>
+        <p class="hint" style="margin:6px 0 10px">Se actualiza una vez al día y te avisa con las alarmas del iPhone, aunque no abras la app.</p>
+        <button class="btn aj-ancho" id="btn-enlace-elibel" onclick="enviarEnlaceElibel()">💌 Enviar a Elibel su calendario</button>
+      </div>
+      <div class="fld"><label>Copias de seguridad</label>
+        <p class="hint" style="margin:0 0 8px">Cada día se guarda una copia automática de las fechas (sin teléfonos ni mensajes). Esta descarga lo guarda todo.</p>
+        <div class="btns" style="margin-top:0">
+          <button class="btn" onclick="exportJSON()">💾 Descargar</button>
+          <button class="btn" onclick="document.getElementById('imp-file').click()">📂 Restaurar</button>
+        </div>
         <input type="file" id="imp-file" accept=".json" hidden onchange="importJSON(this)">
       </div>
-      <p class="hint" style="margin-top:14px">«Ver en el Calendario del iPhone» lo añade como calendario suscrito: se actualiza solo una vez al día y avisa con las alarmas del iPhone.</p>
     </div>
   </div>
 </div>
@@ -502,7 +531,7 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
 
 <div class="toast" id="toast"></div>
 
-<script src="compartido.js?v=1.28"></script>
+<script src="compartido.js?v=1.30"></script>
 <script>
 const TIPOS = CalComun.TIPOS; // en compartido.js
 let FEST_COLOR = '#9b2226';   // días festivos (no se trabaja): granate, para no confundirlo con el rosa de los cumpleaños
@@ -633,7 +662,17 @@ function subtitulo(o) {
 }
 // ══ FELICITAR POR WHATSAPP ══
 // Abre WhatsApp con el mensaje ya escrito; solo hay que elegir a quién enviarlo.
-const puedeFelicitar = ev => ev && ev.id !== 'imp-cumple-papa' && (ev.tipo === 'cumple' || (ev.tipo === 'aniversario' && /boda|casad|llegada de elibel/i.test(ev.titulo)));
+// ══ QUIÉN USA LA APP ══ Cada uno instala desde su enlace (Elibel: elibel.html → ?yo=elibel) y queda fijado en ese móvil.
+// Los cumpleaños son los mismos para los dos; cambian la voz de los mensajes y a quién se felicita en los días de pareja.
+const YO = (() => { try { const q = new URLSearchParams(location.search).get('yo'); if (q === 'elibel' || q === 'emmanuel') localStorage.setItem('calendario_yo', q); return localStorage.getItem('calendario_yo') || 'emmanuel'; } catch (e) { return 'emmanuel'; } })();
+const ES_ELIBEL = YO === 'elibel', PAREJA = ES_ELIBEL ? 'Emmanuel' : 'Elibel';
+const esElibel = ev => /^(mi )?esposa$/i.test((ev.persona || '').trim());   // su cumpleaños
+const esEmmanuel = ev => ev.id === 'imp-cumple-papa';                          // el de él («¿De quién?» = Papá)
+const puedeFelicitar = ev => {
+  if (!ev) return false;
+  if (ES_ELIBEL) return !esElibel(ev) && (ev.tipo === 'cumple' || (ev.tipo === 'aniversario' && /boda|casad|llegada de emmanuel/i.test(ev.titulo)));
+  return !esEmmanuel(ev) && (ev.tipo === 'cumple' || (ev.tipo === 'aniversario' && /boda|casad|llegada de elibel/i.test(ev.titulo)));
+};
 function edadProxima(ev) {
   if (!ev.anioConocido) return null;
   const o = occurrences(TODAY, addD(TODAY, 366), true).find(x => x.ev.id === ev.id);
@@ -686,17 +725,41 @@ function mensajeWA(ev, edad) {
     return `¡Feliz cumpleaños, ${n}! 🎂🎈\n\n${nino ? anitos : ''}Que tengas un día precioso, lleno de alegría y sorpresas. ¡Un abrazo muy fuerte de parte de Emmanuel, Elibel y los niños! 🤗`;
   return `¡Feliz cumpleaños, ${n}! 🎂🥳\n\n${redondo}Hoy es tu día y te mereces lo mejor. Que Dios te bendiga con mucha salud, amor y alegría. ¡Un abrazo muy fuerte de parte de toda la familia! 🤗`;
 }
+// Con la voz de Elibel (su app). Lo que se dice igual desde los dos lados (hijos, sobrinos, niños) reutiliza mensajeWA.
+function mensajeWAElibel(ev, edad) {
+  const n = nombreSaludo(ev.titulo), p = (ev.persona || '').toLowerCase().trim();
+  const a = /^(amiga|prima|t[ií]a|cuñada|sobrina|hermana|hija)\b/.test(p) ? 'a' : 'o';
+  const redondo = edad != null && edad >= 20 && edad % 10 === 0 ? `¡Felices ${edad}! ` : '';
+  if (ev.tipo === 'aniversario' && /llegada/i.test(ev.titulo))
+    return `Mi amor, ${edad ? `hoy hace ${edad} ${edad === 1 ? 'año' : 'años'}` : 'hoy es el aniversario de'} que llegaste a Andorra 🇦🇩❤️\n\nGracias por ser tan valiente y por abrirnos el camino a los niños y a mí. Todo lo que tenemos aquí empezó ese día. Te amo 😘`;
+  if (ev.tipo === 'aniversario')
+    return `¡Feliz aniversario, mi amor! 💍❤️\n\n${edad ? `¡Ya son ${edad} años juntos! ` : ''}Gracias por cada día a mi lado, por tu amor y por la familia tan bonita que hemos formado. Te amo con todo mi corazón 😘`;
+  if (esEmmanuel(ev) || /^pap[aá]$/.test(p))
+    return `¡Feliz cumpleaños, mi amor! 🎂❤️\n\n${redondo}Gracias por ser el mejor esposo y el mejor papá del mundo. Que hoy sea un día tan especial como tú. Los niños y yo te amamos muchísimo 😘🎉`;
+  if (/^padre de emmanuel/.test(p))
+    return `¡Feliz cumpleaños, querido suegro! 🎂❤️\n\n${redondo}Que Dios te bendiga con mucha salud, amor y alegría. Gracias por tanto cariño. Emmanuel, tus nietos y yo te mandamos besitos y abrazos gigantes 🤗`;
+  if (/^suegra/.test(p))   // en el lado de Emmanuel, «Suegra (madre de Elibel)»: para ella es su mamá
+    return `¡Feliz cumpleaños, mamá! 🎂❤️\n\n${redondo}Gracias por todo tu amor y por todo lo que me has enseñado. Te quiero muchísimo y te llevo siempre en el corazón. Emmanuel y tus nietos te mandan besitos y abrazos gigantes 🤗`;
+  if (/^herman[ao](?! de)/.test(p))   // hermanos de Emmanuel = cuñados de Elibel
+    return `¡Feliz cumpleaños, cuñad${a}! 🎂🥳\n\n${redondo}Que la vida te regale mucha salud, amor y felicidad. ¡Un abrazo enorme de parte de Emmanuel, los niños y mío! 🤗💕`;
+  if (/^hijo( menor| mayor)?$|^sobrin|^hij[ao] de|^amig[ao] de /.test(p) || (edad != null && edad < 13))
+    return mensajeWA(ev, edad);
+  return `¡Feliz cumpleaños, ${n}! 🎂🥳\n\n${redondo}Que Dios te bendiga con mucha salud, amor y alegría en este nuevo año. ¡Un abrazo muy fuerte de parte de Emmanuel, los niños y mío! 🤗`;
+}
+const mensajeAuto = (ev, edad) => ES_ELIBEL ? mensajeWAElibel(ev, edad) : mensajeWA(ev, edad);
 function felicitar(id) {
   const ev = EVENTS.find(e => e.id === id);
   if (!puedeFelicitar(ev)) return;
   // Con número: abre el chat de esa persona. Sin número: WhatsApp pregunta a quién enviarlo.
-  const tel = ev.telefono || (ev.tipo === 'aniversario' ? telElibel() : '');
+  // Los aniversarios (boda, llegada a Andorra) van siempre a la pareja de quien usa la app
+  const tel = ev.tipo === 'aniversario' ? telPareja() : ev.telefono || '';
   window.open('https://wa.me/' + waNumero(tel) + '?text=' + encodeURIComponent(mensajeFinal(ev)), '_blank');
 }
 // Mensaje propio de la persona (campo «Mensaje para felicitar») o, si está vacío, el automático
 function mensajeFinal(ev) {
   const edad = edadProxima(ev);
-  if (!(ev.mensaje || '').trim()) return mensajeWA(ev, edad);
+  // El «mensaje propio» lo escribe Emmanuel: en la app de Elibel siempre va el automático con su voz
+  if (ES_ELIBEL || !(ev.mensaje || '').trim()) return mensajeAuto(ev, edad);
   return ev.mensaje.replace(/\{nombre\}/gi, nombreSaludo(ev.titulo)).replace(/\{edad\}/gi, edad != null ? edad : '');
 }
 // Rellena el campo con el mensaje automático para retocarlo
@@ -705,11 +768,17 @@ function partirDelAutomatico() {
   const ev = { ...(EVENTS.find(e => e.id === editId) || {}), tipo: selTipo, titulo,
     fecha: document.getElementById('f-fecha').value || iso(TODAY), repite: document.getElementById('f-repite').value,
     anioConocido: document.getElementById('f-anio').checked, persona: document.getElementById('f-persona').value.trim() };
-  document.getElementById('f-msg').value = mensajeWA(ev, edadProxima(ev));
+  document.getElementById('f-msg').value = mensajeAuto(ev, edadProxima(ev));
 }
 // ══ DÍAS DE ELIBEL ══ Celebraciones que unen a Emmanuel con su esposa (Elibel del Carmen, enfermera):
 // botón verde con un mensaje solo para ella, a su WhatsApp (el número de su cumpleaños, «¿De quién?» = Esposa).
-const telElibel = () => (EVENTS.find(e => /^(mi )?esposa$/i.test((e.persona || '').trim()) && e.telefono) || {}).telefono || '';
+const telElibel = () => (EVENTS.find(e => esElibel(e) && e.telefono) || {}).telefono || '';
+const telPareja = () => ES_ELIBEL ? (EVENTS.find(esEmmanuel) || {}).telefono || '' : telElibel();
+// En la app de Elibel: días para felicitar a Emmanuel
+const MENSAJES_EMMANUEL = {
+  amor: `¡Feliz Día del Amor y la Amistad, mi amor! ❤️🌹\n\nGracias por ser mi compañero, mi mejor amigo y el amor de mi vida. Cada día a tu lado es un regalo. Te amo con todo mi corazón 😘`,
+  padre: `¡Feliz Día del Padre, mi amor! 💙👨‍👦‍👦\n\nGracias por ser el mejor papá que Emmanuel Alejandro y Emiliano podrían tener. Tu esfuerzo, tu cariño y tu paciencia son el pilar de nuestra familia. Los niños y yo te amamos muchísimo ❤️`,
+};
 const MENSAJES_ELIBEL = {
   amor: `¡Feliz Día del Amor y la Amistad, mi amor! ❤️🌹\n\nGracias por ser mi compañera, mi mejor amiga y el amor de mi vida. Cada día a tu lado es un regalo. Te amo con todo mi corazón 😘`,
   mujer: `¡Feliz Día de la Mujer, mi amor! 💐\n\nEres una mujer fuerte, luchadora y con un corazón enorme: esposa, mamá y enfermera de las que dejan huella. Gracias por todo lo que das cada día. Te admiro y te amo muchísimo ❤️`,
@@ -718,10 +787,12 @@ const MENSAJES_ELIBEL = {
   enfermera: `¡Feliz Día de la Enfermera, mi amor! 👩‍⚕️💙\n\nGracias por cuidar a tantas personas con tanta vocación, cariño y entrega. Estoy muy orgulloso de ti. Hoy te toca a ti que te cuiden y te mimen 😘`,
   carmen: `¡Feliz día de tu santo, Elibel del Carmen! 🌸🙏\n\nQue la Virgen del Carmen te cubra con su manto, te bendiga y te proteja siempre a ti y a nuestra familia. Te amo, mi amor ❤️`,
 };
+const MENSAJES_PAREJA = ES_ELIBEL ? MENSAJES_EMMANUEL : MENSAJES_ELIBEL;
+const claveDe = f => (ES_ELIBEL ? f.emmanuel : f.elibel) || '';
 function felicitarElibel(clave) {
-  window.open('https://wa.me/' + waNumero(telElibel()) + '?text=' + encodeURIComponent(MENSAJES_ELIBEL[clave]), '_blank');
+  window.open('https://wa.me/' + waNumero(telPareja()) + '?text=' + encodeURIComponent(MENSAJES_PAREJA[clave]), '_blank');
 }
-const botonElibel = f => f.elibel && MENSAJES_ELIBEL[f.elibel] ? `<button class="wa${f.d && diffDays(TODAY, f.d) >= 0 && diffDays(TODAY, f.d) <= 7 ? '' : ' discreto'}" title="Felicitar a Elibel por WhatsApp" onclick="event.stopPropagation();felicitarElibel('${f.elibel}')">${WA_SVG}</button>` : '';
+const botonElibel = f => MENSAJES_PAREJA[claveDe(f)] ? `<button class="wa${f.d && diffDays(TODAY, f.d) >= 0 && diffDays(TODAY, f.d) <= 7 ? '' : ' discreto'}" title="Felicitar a ${PAREJA} por WhatsApp" onclick="event.stopPropagation();felicitarElibel('${claveDe(f)}')">${WA_SVG}</button>` : '';
 // Número para wa.me: solo dígitos y con prefijo de país. Sin prefijo se adivina por la forma:
 // 04xx… → Venezuela (58), 6 cifras → Andorra (376), 9 cifras que empiezan por 6 o 7 → España (34).
 // Devuelve '' si no parece un número válido.
@@ -810,11 +881,11 @@ function renderMes() {
   const av = occurrences(TODAY, lejos).filter(o => diffDays(TODAY, o.fecha) <= (o.ev.aviso ?? 0));
   const avEsc = escolarEntre(TODAY, lejos).filter(e => e.d >= TODAY && diffDays(TODAY, e.d) <= e.aviso);
   const avEst = festivosEntre(TODAY, addD(TODAY, 7)).filter(f => f.estacion && diffDays(TODAY, f.d) <= f.aviso);
-  const avElibel = festivosEntre(TODAY, addD(TODAY, 3)).filter(f => f.elibel);
+  const avElibel = festivosEntre(TODAY, addD(TODAY, 3)).filter(f => MENSAJES_PAREJA[claveDe(f)]);
   document.getElementById('avisos').innerHTML = av.length + avEsc.length + avEst.length + avElibel.length ? `<div class="avisos"><div class="avisos-t">🔔 No te olvides</div>${av.map(o => {
     const t = TIPOS[o.ev.tipo] || TIPOS.otro, [txt] = cuando(o.fecha);
     return `<div class="aviso" onclick="openForm('${o.ev.id}')">${t.icon} <b>${esc(o.ev.titulo)}</b> — ${txt.toLowerCase()}${o.edad != null && o.ev.tipo === 'cumple' ? ' (cumple ' + o.edad + ')' : ''}${botonWA(o.ev)}</div>`;
-  }).join('')}${avEsc.map(e => `<div class="aviso" onclick="openDay('${e.desde}')">${e.icon} <b>${esc(e.titulo)}</b> — ${cuando(e.d)[0].toLowerCase()}</div>`).join('')}${avElibel.map(f => `<div class="aviso" onclick="openDay('${f.fecha}')">${festIcon(f)} <b>${esc(festTitulo(f))}</b> — ${cuando(f.d)[0].toLowerCase()} · felicita a Elibel${botonElibel(f)}</div>`).join('')}${avEst.map(f => `<div class="aviso" onclick="openDay('${f.fecha}')">${f.icon} <b>${esc(f.titulo)}</b> — ${cuando(f.d)[0].toLowerCase()}</div>`).join('')}</div>` : '';
+  }).join('')}${avEsc.map(e => `<div class="aviso" onclick="openDay('${e.desde}')">${e.icon} <b>${esc(e.titulo)}</b> — ${cuando(e.d)[0].toLowerCase()}</div>`).join('')}${avElibel.map(f => `<div class="aviso" onclick="openDay('${f.fecha}')">${festIcon(f)} <b>${esc(festTitulo(f))}</b> — ${cuando(f.d)[0].toLowerCase()} · felicita a ${PAREJA}${botonElibel(f)}</div>`).join('')}${avEst.map(f => `<div class="aviso" onclick="openDay('${f.fecha}')">${f.icon} <b>${esc(f.titulo)}</b> — ${cuando(f.d)[0].toLowerCase()}</div>`).join('')}</div>` : '';
 
   // Resumen
   const prox = occurrences(TODAY, addD(TODAY, 366), true);
@@ -919,7 +990,7 @@ function renderTipos() {
   const anual = ['cumple', 'aniversario', 'recuerdo'].includes(selTipo);
   document.getElementById('f-anio-wrap').style.display = anual ? '' : 'none';
   document.getElementById('f-tel-wrap').style.display = ['cumple', 'aniversario'].includes(selTipo) ? '' : 'none';
-  document.getElementById('f-msg-wrap').style.display = ['cumple', 'aniversario'].includes(selTipo) ? '' : 'none';
+  document.getElementById('f-msg-wrap').style.display = !ES_ELIBEL && ['cumple', 'aniversario'].includes(selTipo) ? '' : 'none';
   document.getElementById('f-anio-txt').textContent = selTipo === 'cumple' ? 'Sé el año de nacimiento (para mostrar la edad que cumple)' : selTipo === 'recuerdo' ? 'Sé el año (para contar los años que han pasado)' : 'Sé el año en que empezó (para contar los años)';
   document.getElementById('f-titulo').placeholder = { cumple: 'Ej: Emiliano', aniversario: 'Ej: Aniversario de boda', celebracion: 'Ej: Comunión de la prima', familiar: 'Ej: Comida en casa de los abuelos', recordatorio: 'Ej: Renovar el pasaporte', salud: 'Ej: Pediatra de Emiliano', escuela: 'Ej: Reunión de padres', recuerdo: 'Ej: Mamá Eunice', otro: 'Ej: …' }[selTipo];
   document.getElementById('f-titulo-lbl').textContent = selTipo === 'cumple' ? '¿Quién cumple años?' : 'Título';
@@ -966,7 +1037,7 @@ function saveEvent() {
     persona: document.getElementById('f-persona').value.trim(),
     notas: document.getElementById('f-notas').value.trim(),
     telefono: ['cumple', 'aniversario'].includes(selTipo) ? document.getElementById('f-tel').value.trim() : '',
-    mensaje: ['cumple', 'aniversario'].includes(selTipo) ? document.getElementById('f-msg').value.trim() : '',
+    mensaje: ES_ELIBEL ? (EVENTS.find(e => e.id === editId) || {}).mensaje || '' : ['cumple', 'aniversario'].includes(selTipo) ? document.getElementById('f-msg').value.trim() : '',
   };
   cloudSet(data);
   closeOv('ov-form');
@@ -986,12 +1057,32 @@ document.addEventListener('keydown', e => {
 
 // ══ AJUSTES ══
 function openAjustes() {
-  renderTemas(); renderColores(); renderFiltros(); pintarAvisos();
+  renderTemas(); renderColores(); renderFiltros(); pintarAvisos(); pintarAjustes();
   document.getElementById('ov-aj').classList.add('open');
 }
 function setCfg(k, v) { CFG[k] = v; persist(); render(); }
+// Resumen de arriba y estado de los botones de Ajustes
+function pintarAjustes() {
+  const cumples = EVENTS.filter(e => e.tipo === 'cumple'), conTel = cumples.filter(e => waNumero(e.telefono)).length;
+  document.getElementById('aj-quien').innerHTML = `Esta app es de <b>${ES_ELIBEL ? 'Elibel' : 'Emmanuel'}</b><br>${EVENTS.length} fechas · ${cumples.length} cumpleaños · ${conTel} con WhatsApp`;
+  const pref = store.get('calendario_dg_tema') || 'light';
+  document.querySelectorAll('#seg-tema button').forEach(b => b.classList.toggle('sel', b.dataset.t === pref));
+  document.getElementById('btn-suscribir').hidden = ES_ELIBEL;   // el calendario suscrito lleva los avisos de Emmanuel
+  document.getElementById('btn-enlace-elibel').hidden = ES_ELIBEL;
+  document.getElementById('aj-iphone').hidden = ES_ELIBEL;
+}
+function setApariencia(t) { store.set('calendario_dg_tema', t); applyTheme(); pintarAjustes(); }
+// Enviar a Elibel el enlace de su app por WhatsApp (a su número si está en su cumpleaños)
+function enviarEnlaceElibel() {
+  const url = location.origin + location.pathname.replace(/[^/]*$/, '') + 'elibel.html';
+  const txt = `Mi amor, aquí tienes tu calendario de la familia 💜📅\n\nÁbrelo en Safari, toca Compartir ⬆️ y «Añadir a pantalla de inicio». Tiene todos los cumpleaños y un botón para felicitar a cada uno por WhatsApp:\n${url}`;
+  window.open('https://wa.me/' + waNumero(telElibel()) + '?text=' + encodeURIComponent(txt), '_blank');
+}
+// Automático = como el iPhone (claro de día / oscuro de noche si está así configurado)
+matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', () => { if ((store.get('calendario_dg_tema') || 'light') === 'auto') applyTheme(); });
 function applyTheme() {
-  const t = store.get('calendario_dg_tema') || 'light';
+  const pref = store.get('calendario_dg_tema') || 'light';
+  const t = pref === 'auto' ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : pref;
   document.documentElement.dataset.theme = t;
   document.getElementById('theme-btn').textContent = t === 'dark' ? '☀️' : '🌙';
   applyEstilo(); applyColores();
@@ -1106,7 +1197,7 @@ function importJSON(input) {
 // "eventos" (un mapa id → evento). Cada cambio solo toca SU evento (eventos.<id>), así que si
 // dos personas guardan a la vez se conservan los dos cambios. Sin inicio de sesión: igual que
 // la app de finanzas, la colección appdata es de acceso libre.
-const APP_VERSION = '1.28';
+const APP_VERSION = '1.30';
 const DOC_EVENTOS = 'appdata/calendario-eventos';
 let db = null;
 try {
@@ -1253,6 +1344,7 @@ render();
 if (EVENTS.length) { festejar(); abrirDesdeAviso(); }
 checkVersion();
 document.getElementById('app-version').textContent = 'v' + APP_VERSION;
+if (ES_ELIBEL) document.querySelector('.hdr-logo em').textContent = 'de Elibel';   // su app: su nombre arriba
 if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(e => console.warn('SW:', e));
 </script>
 </body>
