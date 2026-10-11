@@ -25,9 +25,9 @@ const campos = f => Object.fromEntries(Object.entries(f).map(([k, v]) => [k, val
   // Si falla la lectura, no tocar nada: la copia anterior sigue siendo válida
   if (!res.ok) throw new Error('Error leyendo Firebase: ' + res.status + ' ' + await res.text());
   const doc = await res.json();
-  // Sin los números de WhatsApp: este repositorio es público y la copia se ve en GitHub
+  // Sin los números de WhatsApp ni los mensajes propios: este repositorio es público y la copia se ve en GitHub
   const events = Object.values(campos(doc.fields || {}).eventos || {})
-    .map(({ telefono, ...resto }) => resto)
+    .map(({ telefono, mensaje, ...resto }) => resto)
     .sort((a, b) => String(a.id).localeCompare(String(b.id)));
 
   // "semana" cambia cada lunes: así hay al menos un commit semanal y GitHub no desactiva
