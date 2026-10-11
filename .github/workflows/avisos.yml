@@ -1,0 +1,26 @@
+name: Avisos al móvil
+
+on:
+  schedule:
+    - cron: '3 7 * * *'   # cada día a las 7:03 UTC (9:03 en Andorra en verano, 8:03 en invierno)
+  workflow_dispatch:       # botón "Run workflow" para lanzarlo a mano
+
+permissions:
+  contents: read
+
+concurrency:
+  group: avisos
+  cancel-in-progress: false
+
+jobs:
+  avisos:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+      - run: npm install --no-save web-push@3.6.7
+      - run: node scripts/avisos.js
+        env:
+          VAPID_PRIVATE: ${{ secrets.VAPID_PRIVATE }}

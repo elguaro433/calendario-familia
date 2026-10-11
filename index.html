@@ -464,14 +464,21 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
       </div>
       <p class="hint" style="margin-top:0">Los colores se guardan en este teléfono u ordenador: cada uno puede tener los suyos.</p>
       <div class="fld"><label>Qué mostrar en el calendario</label><div id="filtros"></div></div>
+      <div class="fld"><label>🔔 Avisos en este móvil</label>
+        <p class="hint" id="avisos-estado" style="margin:0 0 8px"></p>
+        <div class="btns" style="margin-top:0">
+          <button class="btn primary" id="avisos-btn" onclick="activarAvisos()">Activar avisos</button>
+          <button class="btn" id="avisos-probar" onclick="probarAviso()" hidden>Probar</button>
+        </div>
+      </div>
       <div class="btns" style="flex-direction:column">
-        <button class="btn" onclick="exportICS()">📲 Descargar todos los eventos (.ics)</button>
+        <button class="btn" onclick="suscribirCalendario()">📅 Ver los eventos en el Calendario del iPhone</button>
         <button class="btn" onclick="toggleTheme()">🌙 Cambiar modo claro / oscuro</button>
         <button class="btn" onclick="exportJSON()">💾 Descargar copia de seguridad</button>
         <button class="btn" onclick="document.getElementById('imp-file').click()">📂 Restaurar copia de seguridad</button>
         <input type="file" id="imp-file" accept=".json" hidden onchange="importJSON(this)">
       </div>
-      <p class="hint" style="margin-top:14px">“Descargar todos los eventos” crea un archivo que puedes abrir en el móvil para copiar los eventos a su calendario.</p>
+      <p class="hint" style="margin-top:14px">«Ver en el Calendario del iPhone» lo añade como calendario suscrito: se actualiza solo una vez al día y avisa con las alarmas del iPhone.</p>
     </div>
   </div>
 </div>
@@ -480,7 +487,7 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
 
 <div class="toast" id="toast"></div>
 
-<script src="compartido.js?v=1.24"></script>
+<script src="compartido.js?v=1.25"></script>
 <script>
 const TIPOS = CalComun.TIPOS; // en compartido.js
 let FEST_COLOR = '#9b2226';   // días festivos (no se trabaja): granate, para no confundirlo con el rosa de los cumpleaños
@@ -959,7 +966,7 @@ document.addEventListener('keydown', e => {
 
 // ══ AJUSTES ══
 function openAjustes() {
-  renderTemas(); renderColores(); renderFiltros();
+  renderTemas(); renderColores(); renderFiltros(); pintarAvisos();
   document.getElementById('ov-aj').classList.add('open');
 }
 function setCfg(k, v) { CFG[k] = v; persist(); render(); }
@@ -1054,11 +1061,6 @@ function download(name, text, type) {
 }
 
 // ══ EXPORTAR / IMPORTAR ══
-function exportICS() {
-  if (!EVENTS.length) { toast('Aún no hay eventos que exportar'); return; }
-  download('calendario-familia-diaz-gonzalez.ics', CalComun.buildICS(EVENTS), 'text/calendar');
-  toast('Archivo descargado — ábrelo en tu móvil 📲');
-}
 function exportJSON() {
   download('calendario-backup-' + iso(new Date()) + '.json', JSON.stringify({ events: EVENTS, cfg: CFG }, null, 2), 'application/json');
 }
@@ -1084,7 +1086,7 @@ function importJSON(input) {
 // "eventos" (un mapa id → evento). Cada cambio solo toca SU evento (eventos.<id>), así que si
 // dos personas guardan a la vez se conservan los dos cambios. Sin inicio de sesión: igual que
 // la app de finanzas, la colección appdata es de acceso libre.
-const APP_VERSION = '1.24';
+const APP_VERSION = '1.25';
 const DOC_EVENTOS = 'appdata/calendario-eventos';
 let db = null;
 try {
@@ -1127,9 +1129,18 @@ function initCloud() {
   if (!db) { updateSyncStatus('error'); return; }
   docRef().onSnapshot({ includeMetadataChanges: true }, snap => {
     EVENTS = Object.values((snap.exists && snap.data().eventos) || {});
-    persist(); render(); festejar();
+    persist(); render(); festejar(); abrirDesdeAviso();
     updateSyncStatus(snap.metadata.hasPendingWrites ? 'syncing' : snap.metadata.fromCache ? 'offline' : 'synced');
   }, err => { console.warn('Lectura:', err); updateSyncStatus('error'); });
+}
+
+// Al tocar un aviso se abre la app con ?evento=<id>: mostrar ese evento (con su botón de felicitar)
+let eventoPedido = new URLSearchParams(location.search).get('evento');
+function abrirDesdeAviso() {
+  if (!eventoPedido || !EVENTS.some(e => e.id === eventoPedido)) return;
+  const id = eventoPedido; eventoPedido = null;
+  history.replaceState(null, '', location.pathname);
+  openForm(id);
 }
 
 function updateSyncStatus(s) {
@@ -1137,6 +1148,70 @@ function updateSyncStatus(s) {
   const st = { synced: ['☁️ Sincronizado', 'var(--emerald)'], offline: ['📴 Sin conexión (se guarda al volver)', 'var(--amber)'],
                error: ['⚠️ Error de conexión', 'var(--coral)'], syncing: ['🔄 Sincronizando…', 'var(--sky)'] }[s];
   el.textContent = st[0]; el.style.color = st[1];
+}
+
+// ══ AVISOS AL MÓVIL (Web Push) ══
+// El móvil se apunta en appdata/calendario-avisos (campo subs) y el robot (scripts/avisos.js)
+// le manda cada mañana lo que toca. En iPhone solo funciona con la app abierta desde el icono.
+const VAPID_PUBLIC = 'BBG1E9azGZnY5FuFTCoHGk2AtWIObIpHKhutZrkKXlq6mSVq3l_BjW40u08bd2sa0vW0A7F7X-ulhEgl6TqbFlQ';
+const avisosRef = () => db.doc('appdata/calendario-avisos');
+const puedeAvisar = () => 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+const idAviso = endpoint => { let h = 5381; for (const c of endpoint) h = (h * 33 + c.charCodeAt(0)) >>> 0; return 'm' + h.toString(36); };
+const claveBytes = b64 => { const s = atob((b64 + '='.repeat((4 - b64.length % 4) % 4)).replace(/-/g, '+').replace(/_/g, '/')); return Uint8Array.from(s, c => c.charCodeAt(0)); };
+async function miSuscripcion() {
+  if (!puedeAvisar()) return null;
+  const reg = await navigator.serviceWorker.getRegistration();
+  return reg ? reg.pushManager.getSubscription() : null;
+}
+async function pintarAvisos() {
+  const est = document.getElementById('avisos-estado'), btn = document.getElementById('avisos-btn'), probar = document.getElementById('avisos-probar');
+  if (!puedeAvisar()) {
+    est.textContent = /iPhone|iPad/.test(navigator.userAgent)
+      ? 'Para recibir avisos, abre el calendario desde su icono de la pantalla de inicio (no desde Safari).'
+      : 'Este navegador no permite avisos.';
+    btn.hidden = true; probar.hidden = true; return;
+  }
+  const sub = await miSuscripcion().catch(() => null);
+  btn.hidden = false;
+  if (sub && Notification.permission === 'granted') {
+    est.textContent = '✓ Activados. Cada mañana te llega lo que toca: el día antes, el mismo día y los días que pusiste en «Avisarme».';
+    btn.textContent = 'Desactivar'; btn.className = 'btn'; btn.onclick = desactivarAvisos; probar.hidden = false;
+  } else {
+    est.textContent = Notification.permission === 'denied'
+      ? 'Los avisos están bloqueados. Actívalos en Ajustes del iPhone → Notificaciones → Familia DG.'
+      : 'Recibe cada mañana los cumpleaños y eventos que tocan, aunque no abras la app.';
+    btn.textContent = 'Activar avisos'; btn.className = 'btn primary'; btn.onclick = activarAvisos; probar.hidden = true;
+  }
+}
+async function activarAvisos() {
+  try {
+    if (await Notification.requestPermission() !== 'granted') { toast('Sin permiso no puedo avisarte'); return pintarAvisos(); }
+    const reg = await navigator.serviceWorker.ready;
+    const sub = (await reg.pushManager.getSubscription()) || await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: claveBytes(VAPID_PUBLIC) });
+    const j = sub.toJSON();
+    await avisosRef().set({ subs: { [idAviso(j.endpoint)]: { endpoint: j.endpoint, keys: j.keys, desde: iso(TODAY), movil: navigator.userAgent.slice(0, 120) } } }, { merge: true });
+    toast('Avisos activados ✓');
+  } catch (e) { console.warn('Avisos:', e); toast('No se pudieron activar los avisos: ' + (e.message || e)); }
+  pintarAvisos();
+}
+async function desactivarAvisos() {
+  try {
+    const sub = await miSuscripcion();
+    if (sub) {
+      await avisosRef().update({ ['subs.' + idAviso(sub.endpoint)]: firebase.firestore.FieldValue.delete() }).catch(() => {});
+      await sub.unsubscribe();
+    }
+    toast('Avisos desactivados en este móvil');
+  } catch (e) { toast('No se pudo: ' + (e.message || e)); }
+  pintarAvisos();
+}
+async function probarAviso() {
+  const reg = await navigator.serviceWorker.ready;
+  reg.showNotification('🔔 Así te llegarán los avisos', { body: 'Por ejemplo: «🎂 Mañana cumple Elibel»', icon: 'icon-192.png', tag: 'prueba' });
+}
+// Calendario suscrito: el robot publica calendario.ics cada día
+function suscribirCalendario() {
+  location.href = 'webcal://' + location.host + location.pathname.replace(/[^/]*$/, '') + 'calendario.ics';
 }
 
 // ══ VERSIÓN NUEVA ══
@@ -1154,7 +1229,7 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden) chec
 applyTheme();
 initCloud();
 render();
-if (EVENTS.length) festejar();
+if (EVENTS.length) { festejar(); abrirDesdeAviso(); }
 checkVersion();
 document.getElementById('app-version').textContent = 'v' + APP_VERSION;
 if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(e => console.warn('SW:', e));

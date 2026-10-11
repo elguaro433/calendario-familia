@@ -18,6 +18,8 @@ Calendario familiar de cumpleaños, aniversarios, celebraciones, recordatorios, 
 | `compartido.js` | GitHub Pages | Tipos de evento, festivos, celebraciones, vacaciones escolares y el `.ics` descargable |
 | `sw.js` | GitHub Pages | Permite abrir la app sin internet; con internet siempre carga la versión nueva |
 | `scripts/copia-seguridad.js` + `.github/workflows/copia-seguridad.yml` | GitHub Actions | Robot: cada día guarda `backup/eventos.json` (sin los números de WhatsApp: el repositorio es público) |
+| `scripts/avisos.js` + `.github/workflows/avisos.yml` | GitHub Actions | Robot: cada día a las 7:03 UTC manda los avisos al móvil (Web Push) |
+| `calendario.ics` | GitHub Pages | Calendario de suscripción (lo regenera el robot de copias) |
 | `firestore.rules` | Consola de Firebase | Copia de las reglas de seguridad publicadas |
 
 ### Qué muestra el calendario
@@ -44,6 +46,12 @@ Las capas de festivos, celebraciones y vacaciones se pueden ocultar en ⚙️ Aj
 - El resto de `appdata/...` es de la **app de finanzas**; el calendario no lo toca.
 - Sin inicio de sesión: la colección `appdata` es de acceso libre (igual que la app de finanzas). Quien tenga el enlace puede ver y cambiar el calendario.
 - Las colecciones `calendario_eventos` y `calendario_familia` de `firestore.rules` son de una versión anterior (con Google) y ya no se usan.
+
+### Avisos al móvil y Calendario del iPhone
+
+- **Avisos (Web Push):** en ⚙️ Ajustes → «Activar avisos» (en iPhone, con la app abierta desde el icono). El móvil se apunta en `appdata/calendario-avisos` (campo `subs`). El robot `avisos.js` manda cada mañana lo que toca: el mismo día, el día antes y los días de «Avisarme». Al tocar el aviso se abre la app con `?evento=<id>` (se abre ese evento, con el botón de felicitar). Los móviles que ya no aceptan avisos se borran solos.
+- Clave pública VAPID en `index.html` y `scripts/avisos.js`; la privada es el secreto **`VAPID_PRIVATE`** de GitHub (Settings → Secrets and variables → Actions). Sin él, el robot solo lista lo que mandaría.
+- **Calendario suscrito:** Ajustes → «Ver los eventos en el Calendario del iPhone» abre `webcal://…/calendario.ics`. Sin teléfonos. Es público como `backup/eventos.json`.
 
 ## Tareas habituales
 
