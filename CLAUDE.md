@@ -18,6 +18,6 @@ Lee primero `README.md` (arquitectura, datos, colores, tareas habituales).
 ## Pendiente (11/10/2026, v1.25, 44 fechas)
 - **Secreto `VAPID_PRIVATE`** en GitHub: sin él el robot de avisos no envía nada (solo lista). Lo pone el usuario.
 - Avisos y calendario suscrito sin probar en iPhone real. El robot de avisos funciona (ejecución manual del 11/10: «0 avisos para 0 móviles»).
-- WhatsApp: 29 de 38 cumpleaños con número (más los 2 aniversarios de boda con el de Elibel). Sin número: Samuel (hermano), Eilin, Elida, Maita, Ecleidis, Antonella, Eliette, Sofía, Mathias, Joaquín. Los niños sin WhatsApp llevan el de su padre o madre (Pol → Jhon, Joan y Nuria → Xavier, Thiago → Magdaliyi).
+- WhatsApp: 27 de 38 cumpleaños con número (más los 2 aniversarios de boda con el de Elibel). Sin número: Samuel (hermano), Eilin, Elida, Maita, Ecleidis, Antonella, Eliette, Sofía, Mathias, Joaquín (y Emmanuel Diaz, que es él). Los niños sin WhatsApp llevan el de su padre o madre (Pol → Jhon, Joan y Nuria → Xavier, Thiago → Magdaliyi).
 - Año de nacimiento: falta en 23 cumpleaños. El usuario los pasa en fotos de documentos: usar solo la fecha de nacimiento.
 - Ideas: proteger la escritura en Firestore (hoy cualquiera con el enlace puede cambiar); preparar la versión para la App Store como en Mi Música (separar lo personal, festivos por país, inglés, avisos y Contactos nativos).
