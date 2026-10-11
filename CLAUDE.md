@@ -15,8 +15,10 @@ Lee primero `README.md` (arquitectura, datos, colores, tareas habituales).
 
 - v1.25 (11/10/2026): avisos al móvil (Web Push, robot `avisos.js`, secreto `VAPID_PRIVATE`) y calendario suscrito (`calendario.ics`). Ver README. Sin probar aún en iPhone real.
 
+- v1.26: días de Elibel (ver README). El bloque «Avisos en este móvil» (Web Push) está oculto con `hidden`: el usuario no quiere poner el secreto `VAPID_PRIVATE`; los avisos le llegan por el calendario suscrito.
+
 ## Pendiente (11/10/2026, v1.25, 44 fechas)
-- **Secreto `VAPID_PRIVATE`** en GitHub: sin él el robot de avisos no envía nada (solo lista). Lo pone el usuario.
+- Secreto `VAPID_PRIVATE`: el usuario decidió no ponerlo (11/10). El robot de avisos solo lista; el bloque de Ajustes está oculto.
 - Avisos y calendario suscrito sin probar en iPhone real. El robot de avisos funciona (ejecución manual del 11/10: «0 avisos para 0 móviles»).
 - WhatsApp: 27 de 38 cumpleaños con número (más los 2 aniversarios de boda con el de Elibel). Sin número: Samuel (hermano), Eilin, Elida, Maita, Ecleidis, Antonella, Eliette, Sofía, Mathias, Joaquín (y Emmanuel Diaz, que es él). Los niños sin WhatsApp llevan el de su padre o madre (Pol → Jhon, Joan y Nuria → Xavier, Thiago → Magdaliyi).
 - Año de nacimiento: falta en 23 cumpleaños. El usuario los pasa en fotos de documentos: usar solo la fecha de nacimiento.
