@@ -1,6 +1,6 @@
 // Service worker: "red primero". Con internet siempre carga la versión publicada
 // (así no se queda una versión vieja en el móvil); sin internet usa la última copia guardada.
-const CACHE = 'calendario-dg-2';
+const CACHE = 'calendario-dg-3';
 const BASICOS = ['./', './index.html', './manifest.json', './icon-180.png', './icon-192.png', './icon-512.png'];
 const HOSTS = [self.location.origin, 'https://www.gstatic.com', 'https://fonts.googleapis.com', 'https://fonts.gstatic.com'];
 

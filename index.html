@@ -9,10 +9,10 @@
 <meta name="theme-color" content="#5d4b80">
 <meta name="description" content="Calendario de celebraciones Familia Díaz González">
 <link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="icon-180.png?v=2">
+<link rel="apple-touch-icon" href="icon-180.png?v=3">
 <meta name="apple-mobile-web-app-title" content="Familia DG">
-<link rel="icon" type="image/png" sizes="32x32" href="icon-32.png?v=2">
-<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=2">
+<link rel="icon" type="image/png" sizes="32x32" href="icon-32.png?v=3">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=3">
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 <title>Calendario Díaz González</title>
@@ -502,7 +502,7 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
 
 <div class="toast" id="toast"></div>
 
-<script src="compartido.js?v=1.27"></script>
+<script src="compartido.js?v=1.28"></script>
 <script>
 const TIPOS = CalComun.TIPOS; // en compartido.js
 let FEST_COLOR = '#9b2226';   // días festivos (no se trabaja): granate, para no confundirlo con el rosa de los cumpleaños
@@ -1106,7 +1106,7 @@ function importJSON(input) {
 // "eventos" (un mapa id → evento). Cada cambio solo toca SU evento (eventos.<id>), así que si
 // dos personas guardan a la vez se conservan los dos cambios. Sin inicio de sesión: igual que
 // la app de finanzas, la colección appdata es de acceso libre.
-const APP_VERSION = '1.27';
+const APP_VERSION = '1.28';
 const DOC_EVENTOS = 'appdata/calendario-eventos';
 let db = null;
 try {
