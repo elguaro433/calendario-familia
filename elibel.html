@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Calendario de Elibel</title>
+<!-- Enlace de Elibel: una app instalada en el iPhone solo tiene un icono y un punto de entrada.
+     Instalando desde aquí, su app queda fijada como «Elibel» (mensajes con su voz y días para felicitar a Emmanuel).
+     El calendario es el mismo para los dos. -->
+<link rel="manifest" href="manifest-elibel.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Familia DG">
+<meta name="theme-color" content="#5d4b80">
+<link rel="apple-touch-icon" href="icon-180.png?v=3">
+<link rel="icon" type="image/png" sizes="32x32" href="icon-32.png?v=3">
+<script>
+  try { localStorage.setItem('calendario_yo', 'elibel'); } catch (e) {}
+  // Abierta desde el icono: directa al calendario
+  if (navigator.standalone || matchMedia('(display-mode: standalone)').matches) location.replace('index.html?yo=elibel');
+</script>
+<style>
+  body { margin: 0; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
+         padding: 24px; box-sizing: border-box; text-align: center; background: #ece6f3; color: #2a2238;
+         font-family: system-ui, -apple-system, sans-serif; }
+  img { width: 132px; height: 132px; border-radius: 30px; box-shadow: 0 10px 30px rgba(93,75,128,.3); }
+  h1 { margin: 6px 0 0; font-size: 24px; }
+  p { margin: 0; max-width: 32ch; line-height: 1.5; color: #5d4b80; }
+  ol { text-align: left; margin: 4px 0; padding-left: 22px; line-height: 1.8; color: #2a2238; }
+  a { margin-top: 8px; display: inline-block; padding: 12px 22px; border-radius: 14px; color: #fff; text-decoration: none; font-weight: 700;
+      background: linear-gradient(135deg, #f72585, #b5179e); }
+</style>
+</head>
+<body>
+  <img src="icon-512.png?v=3" alt="">
+  <h1>Calendario de Elibel</h1>
+  <p>Los cumpleaños y celebraciones de la familia, con tus mensajes para felicitar a cada uno.</p>
+  <ol>
+    <li>Toca <b>Compartir</b> (el cuadrado con la flecha ↑)</li>
+    <li>Elige <b>Añadir a pantalla de inicio</b></li>
+    <li>Ábrelo siempre desde ese icono</li>
+  </ol>
+  <a href="index.html?yo=elibel">Abrir el calendario</a>
+</body>
+</html>

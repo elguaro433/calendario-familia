@@ -74,17 +74,18 @@
   }
   function celebraciones(y) {
     const out = [];
-    // elibel: días para felicitar a Elibel (mensaje en MENSAJES_ELIBEL de index.html)
-    const add = (d, titulo, icon, elibel) => out.push({ fecha: d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()), titulo, icon, celeb: true, elibel });
-    add(new Date(y, 1, 14), 'Día del Amor y la Amistad', '❤️', 'amor');
+    // elibel: días en que Emmanuel felicita a Elibel (MENSAJES_ELIBEL de index.html);
+    // emmanuel: días en que Elibel felicita a Emmanuel, en su app (MENSAJES_EMMANUEL)
+    const add = (d, titulo, icon, elibel, emmanuel) => out.push({ fecha: d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()), titulo, icon, celeb: true, elibel, emmanuel });
+    add(new Date(y, 1, 14), 'Día del Amor y la Amistad', '❤️', 'amor', 'amor');
     add(new Date(y, 2, 8), 'Día de la Mujer (Venezuela y Andorra)', '💐', 'mujer');
-    add(new Date(y, 2, 19), 'Día del Padre (Andorra)', '👨');
+    add(new Date(y, 2, 19), 'Día del Padre (Andorra)', '👨', undefined, 'padre');
     add(new Date(y, 2, 21), 'Día de las Flores Amarillas (primavera)', '🌼', 'flores');
     add(new Date(y, 8, 21), 'Día de las Flores Amarillas', '🌼', 'flores');
     add(domingo(y, 4, 1), 'Día de la Madre (Andorra)', '👩', 'madre');
     add(domingo(y, 4, 2), 'Día de la Madre (Venezuela)', '👩', 'madre');
     add(new Date(y, 4, 12), 'Día de la Enfermera (Venezuela y Andorra)', '👩‍⚕️', 'enfermera');
-    add(domingo(y, 5, 3), 'Día del Padre (Venezuela)', '👨');
+    add(domingo(y, 5, 3), 'Día del Padre (Venezuela)', '👨', undefined, 'padre');
     add(new Date(y, 6, 16), 'Virgen del Carmen (felicitar a Elibel del Carmen)', '🌸', 'carmen');
     add(domingo(y, 6, 3), 'Día del Niño (Venezuela)', '🧒');
     return out;
