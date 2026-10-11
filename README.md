@@ -17,7 +17,7 @@ Calendario familiar de cumpleaños, aniversarios, celebraciones, recordatorios, 
 | `index.html` | GitHub Pages | La app completa (pantallas, formularios, sincronización) |
 | `compartido.js` | GitHub Pages | Tipos de evento, festivos, celebraciones, vacaciones escolares y el `.ics` descargable |
 | `sw.js` | GitHub Pages | Permite abrir la app sin internet; con internet siempre carga la versión nueva |
-| `scripts/copia-seguridad.js` + `.github/workflows/copia-seguridad.yml` | GitHub Actions | Robot: cada día guarda `backup/eventos.json` |
+| `scripts/copia-seguridad.js` + `.github/workflows/copia-seguridad.yml` | GitHub Actions | Robot: cada día guarda `backup/eventos.json` (sin los números de WhatsApp: el repositorio es público) |
 | `firestore.rules` | Consola de Firebase | Copia de las reglas de seguridad publicadas |
 
 ### Qué muestra el calendario
