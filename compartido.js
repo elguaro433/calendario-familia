@@ -74,17 +74,18 @@
   }
   function celebraciones(y) {
     const out = [];
-    const add = (d, titulo, icon) => out.push({ fecha: d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()), titulo, icon, celeb: true });
-    add(new Date(y, 1, 14), 'Día del Amor y la Amistad', '❤️');
-    add(new Date(y, 2, 8), 'Día de la Mujer (Venezuela y Andorra)', '💐');
+    // elibel: días para felicitar a Elibel (mensaje en MENSAJES_ELIBEL de index.html)
+    const add = (d, titulo, icon, elibel) => out.push({ fecha: d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()), titulo, icon, celeb: true, elibel });
+    add(new Date(y, 1, 14), 'Día del Amor y la Amistad', '❤️', 'amor');
+    add(new Date(y, 2, 8), 'Día de la Mujer (Venezuela y Andorra)', '💐', 'mujer');
     add(new Date(y, 2, 19), 'Día del Padre (Andorra)', '👨');
-    add(new Date(y, 2, 21), 'Día de las Flores Amarillas (primavera)', '🌼');
-    add(new Date(y, 8, 21), 'Día de las Flores Amarillas', '🌼');
-    add(domingo(y, 4, 1), 'Día de la Madre (Andorra)', '👩');
-    add(domingo(y, 4, 2), 'Día de la Madre (Venezuela)', '👩');
-    add(new Date(y, 4, 12), 'Día de la Enfermera (Venezuela y Andorra)', '👩‍⚕️');
+    add(new Date(y, 2, 21), 'Día de las Flores Amarillas (primavera)', '🌼', 'flores');
+    add(new Date(y, 8, 21), 'Día de las Flores Amarillas', '🌼', 'flores');
+    add(domingo(y, 4, 1), 'Día de la Madre (Andorra)', '👩', 'madre');
+    add(domingo(y, 4, 2), 'Día de la Madre (Venezuela)', '👩', 'madre');
+    add(new Date(y, 4, 12), 'Día de la Enfermera (Venezuela y Andorra)', '👩‍⚕️', 'enfermera');
     add(domingo(y, 5, 3), 'Día del Padre (Venezuela)', '👨');
-    add(new Date(y, 6, 16), 'Virgen del Carmen (felicitar a Elibel del Carmen)', '🌸');
+    add(new Date(y, 6, 16), 'Virgen del Carmen (felicitar a Elibel del Carmen)', '🌸', 'carmen');
     add(domingo(y, 6, 3), 'Día del Niño (Venezuela)', '🧒');
     return out;
   }
@@ -193,6 +194,17 @@
         'DTSTART;VALUE=DATE:' + ymd(d), 'DTEND;VALUE=DATE:' + ymd(fin),
         'SUMMARY:' + icsEsc(f.icon + ' ' + f.titulo + (f.local ? ' (Andorra la Vella)' : '')),
         'CATEGORIES:' + (f.local ? 'No laborable Andorra la Vella' : 'Festivo nacional'), 'TRANSP:TRANSPARENT', 'END:VEVENT');
+    }
+    // Días de Elibel: con alarma a las 9:00 para acordarse de felicitarla
+    if (opts.elibel !== false) for (const y of [y0, y0 + 1]) for (const c of celebraciones(y)) {
+      if (!c.elibel) continue;
+      const d = parse(c.fecha), fin = new Date(d); fin.setDate(fin.getDate() + 1);
+      L.push('BEGIN:VEVENT', 'UID:elibel-' + c.fecha + '@calendario-diaz-gonzalez', 'DTSTAMP:' + stamp,
+        'DTSTART;VALUE=DATE:' + ymd(d), 'DTEND;VALUE=DATE:' + ymd(fin),
+        'SUMMARY:' + icsEsc(c.icon + ' ' + c.titulo.replace(/ \(felicitar.*\)$/, '') + ' — felicitar a Elibel'),
+        'CATEGORIES:Celebración', 'TRANSP:TRANSPARENT',
+        'BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:' + icsEsc('Felicitar a Elibel'), 'TRIGGER:PT9H', 'END:VALARM',
+        'END:VEVENT');
     }
     if (opts.escolar !== false) for (const e of ESCOLAR) {
       const fin = parse(e.hasta); fin.setDate(fin.getDate() + 1);
