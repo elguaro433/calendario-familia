@@ -2,8 +2,27 @@
 
 Calendario familiar de cumpleaños, aniversarios, celebraciones, recordatorios, festivos y vacaciones escolares.
 
-- **App:** https://elguaro433.github.io/calendario-familia/ (sin clave: se abre y listo)
+- **App de Emmanuel:** https://elguaro433.github.io/calendario-familia/ (sin clave: se abre y listo)
+- **App de Elibel:** https://elguaro433.github.io/calendario-familia/elibel.html
 - **Propietario:** Emmanuel Díaz (`emmanuel050216@gmail.com`)
+
+## Dos calendarios, dos perfiles
+
+Los cumpleaños y eventos son **los mismos para los dos** (un solo calendario en la nube: lo que uno añade lo ve el otro).
+Lo que cambia es **de quién es la app**: cada uno instala la suya desde su enlace y queda fijada en su iPhone.
+
+| | 📱 App de Emmanuel | 📱 App de Elibel |
+|---|---|---|
+| Se instala desde | `/calendario-familia/` | `/calendario-familia/elibel.html` |
+| Arriba pone | Calendario Díaz González | Calendario **de Elibel** |
+| Los mensajes de WhatsApp | con la voz de Emmanuel («querida suegra», «hermano»…) | con la voz de Elibel («mamá», «cuñado», «hermanita»…) |
+| Felicita a su pareja | a Elibel: Amor y Amistad, Día de la Mujer, Flores Amarillas, Día de la Madre (AD y VE), Día de la Enfermera, Virgen del Carmen, aniversarios, su llegada a Andorra | a Emmanuel: Amor y Amistad, Día del Padre (AD y VE), Día del Hombre, su cumpleaños, aniversarios, su llegada a Andorra |
+| Calendario del iPhone (Ajustes) | `calendario.ics` | `calendario-elibel.ics` |
+| «Mensaje propio» y «Solo en mi app» | sí | no (son de Emmanuel) |
+| Eventos marcados «Solo en mi app» | los ve | no le salen |
+
+Se le manda a Elibel su enlace desde la app de Emmanuel: ⚙️ Ajustes → «💌 Enviar a Elibel su calendario».
+Técnicamente: `elibel.html` guarda `calendario_yo = 'elibel'` y abre `index.html?yo=elibel` (con `manifest-elibel.json`); el código decide con `ES_ELIBEL`.
 
 ## Cómo funciona
 
@@ -20,6 +39,8 @@ Calendario familiar de cumpleaños, aniversarios, celebraciones, recordatorios, 
 | `scripts/copia-seguridad.js` + `.github/workflows/copia-seguridad.yml` | GitHub Actions | Robot: cada día guarda `backup/eventos.json` (sin los números de WhatsApp: el repositorio es público) |
 | `scripts/avisos.js` + `.github/workflows/avisos.yml` | GitHub Actions | Robot: cada día a las 7:03 UTC manda los avisos al móvil (Web Push) |
 | `calendario.ics` | GitHub Pages | Calendario de suscripción (lo regenera el robot de copias) |
+| `calendario-elibel.ics` | GitHub Pages | El de Elibel: sin los eventos «Solo en mi app» y con sus días para felicitar a Emmanuel |
+| `elibel.html` + `manifest-elibel.json` | GitHub Pages | Instalación de la app de Elibel |
 | `firestore.rules` | Consola de Firebase | Copia de las reglas de seguridad publicadas |
 
 ### Qué muestra el calendario
