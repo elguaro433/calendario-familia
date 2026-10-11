@@ -431,6 +431,7 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
         </div>
       </div>
       <div class="fld"><label>¿De quién? / Familia (opcional)</label><input id="f-persona" type="text" list="personas" placeholder="Ej: Emiliano, Familia Díaz, Abuelos…" autocomplete="off"><datalist id="personas"></datalist></div>
+      <div class="fld" id="f-tel-wrap"><label>WhatsApp (opcional)</label><div style="display:flex;gap:8px"><input id="f-tel" type="tel" inputmode="tel" placeholder="Ej: +58 412 123 4567" autocomplete="off" oninput="pintarTel()" style="flex:1;min-width:0"><button type="button" class="btn" id="f-tel-btn" onclick="traerTel()" style="flex:none"></button></div><p class="hint" id="f-tel-hint" style="margin:6px 0 0"></p></div>
       <div class="fld"><label>Notas (opcional)</label><textarea id="f-notas" placeholder="Ideas de regalo, lugar, qué llevar…"></textarea></div>
       <div class="btns">
         <button class="btn wa-btn" id="f-wa" onclick="felicitar(editId)" style="flex-basis:100%"><svg class="wa-ico" viewBox="0 0 32 32" aria-hidden="true"><path fill="currentColor" d="M16 3C8.8 3 3 8.7 3 15.8c0 2.5.7 4.9 2 6.9L3.2 29l6.5-1.7c1.9 1 4.1 1.6 6.3 1.6 7.2 0 13-5.7 13-12.8S23.2 3 16 3zm0 23.5c-2 0-3.9-.5-5.6-1.5l-.4-.2-3.9 1 1-3.7-.3-.4c-1.1-1.7-1.7-3.8-1.7-5.9C5.1 9.9 10 5.2 16 5.2s10.9 4.7 10.9 10.6S22 26.5 16 26.5z"/><path fill="currentColor" d="M22 19.1c-.3-.2-1.9-.9-2.2-1-.3-.1-.5-.2-.7.2-.2.3-.8 1-1 1.2-.2.2-.4.2-.7.1-.3-.2-1.4-.5-2.6-1.6-1-.9-1.6-1.9-1.8-2.2-.2-.3 0-.5.1-.7l.5-.6c.2-.2.2-.4.3-.6.1-.2 0-.4 0-.6l-1-2.4c-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4-.3.3-1.2 1.1-1.2 2.7s1.2 3.2 1.4 3.4c.2.2 2.4 3.6 5.8 5 .8.3 1.4.5 1.9.7.8.3 1.5.2 2.1.1.6-.1 1.9-.8 2.2-1.5.3-.7.3-1.4.2-1.5-.1-.2-.3-.3-.6-.4z"/></svg>Felicitar por WhatsApp</button>
@@ -479,7 +480,7 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
 
 <div class="toast" id="toast"></div>
 
-<script src="compartido.js?v=1.22"></script>
+<script src="compartido.js?v=1.24"></script>
 <script>
 const TIPOS = CalComun.TIPOS; // en compartido.js
 let FEST_COLOR = '#9b2226';   // días festivos (no se trabaja): granate, para no confundirlo con el rosa de los cumpleaños
@@ -666,7 +667,46 @@ function mensajeWA(ev, edad) {
 function felicitar(id) {
   const ev = EVENTS.find(e => e.id === id);
   if (!puedeFelicitar(ev)) return;
-  window.open('https://wa.me/?text=' + encodeURIComponent(mensajeWA(ev, edadProxima(ev))), '_blank');
+  // Con número: abre el chat de esa persona. Sin número: WhatsApp pregunta a quién enviarlo.
+  window.open('https://wa.me/' + waNumero(ev.telefono) + '?text=' + encodeURIComponent(mensajeWA(ev, edadProxima(ev))), '_blank');
+}
+// Número para wa.me: solo dígitos y con prefijo de país. Sin prefijo se adivina por la forma:
+// 04xx… → Venezuela (58), 6 cifras → Andorra (376), 9 cifras que empiezan por 6 o 7 → España (34).
+// Devuelve '' si no parece un número válido.
+function waNumero(t) {
+  const s = String(t || '').replace(/[^\d+]/g, '');   // fuera espacios, guiones y marcas invisibles de Contactos
+  let d = s.replace(/\D/g, '');
+  if (s.startsWith('00')) d = d.slice(2);
+  if (s.startsWith('+') || s.startsWith('00')) return d.length >= 8 ? d : '';
+  if (/^04\d{9}$/.test(d)) return '58' + d.slice(1);
+  if (/^4\d{9}$/.test(d)) return '58' + d;
+  if (/^[3-9]\d{5}$/.test(d)) return '376' + d;
+  if (/^[67]\d{8}$/.test(d)) return '34' + d;
+  return d.length >= 10 ? d : '';
+}
+// Botón junto al número: elegir de Contactos donde el navegador lo permite (Android);
+// en iPhone, pegar el número copiado desde Contactos (mantener pulsado el número → Copiar).
+const hayContactos = 'contacts' in navigator && 'select' in navigator.contacts;
+async function traerTel() {
+  const campo = document.getElementById('f-tel');
+  try {
+    if (hayContactos) {
+      const [c] = await navigator.contacts.select(['tel'], { multiple: false });
+      if (c && c.tel && c.tel.length) campo.value = c.tel[0];
+    } else {
+      const t = (await navigator.clipboard.readText()).replace(/[\u200e\u200f\u202a-\u202e]/g, '').trim();
+      if (t.replace(/\D/g, '').length >= 6) campo.value = t;
+      else toast('No hay un número copiado. En Contactos, mantén pulsado el número → Copiar');
+    }
+  } catch (e) { toast('No se pudo traer el número: escríbelo a mano'); }
+  pintarTel();
+}
+function pintarTel() {
+  document.getElementById('f-tel-btn').textContent = hayContactos ? '👤 Contactos' : '📋 Pegar';
+  const t = document.getElementById('f-tel').value.trim(), n = waNumero(t);
+  document.getElementById('f-tel-hint').textContent = !t
+    ? 'Con su número, el botón verde abre su chat directamente.'
+    : n ? '✓ Se abrirá el chat de +' + n : 'Revisa el número: ponlo con el prefijo del país, por ejemplo +58 o +376.';
 }
 const botonWA = ev => puedeFelicitar(ev) ? `<button class="wa" title="Felicitar por WhatsApp" onclick="event.stopPropagation();felicitar('${ev.id}')"><svg class="wa-ico" viewBox="0 0 32 32" aria-hidden="true"><path fill="currentColor" d="M16 3C8.8 3 3 8.7 3 15.8c0 2.5.7 4.9 2 6.9L3.2 29l6.5-1.7c1.9 1 4.1 1.6 6.3 1.6 7.2 0 13-5.7 13-12.8S23.2 3 16 3zm0 23.5c-2 0-3.9-.5-5.6-1.5l-.4-.2-3.9 1 1-3.7-.3-.4c-1.1-1.7-1.7-3.8-1.7-5.9C5.1 9.9 10 5.2 16 5.2s10.9 4.7 10.9 10.6S22 26.5 16 26.5z"/><path fill="currentColor" d="M22 19.1c-.3-.2-1.9-.9-2.2-1-.3-.1-.5-.2-.7.2-.2.3-.8 1-1 1.2-.2.2-.4.2-.7.1-.3-.2-1.4-.5-2.6-1.6-1-.9-1.6-1.9-1.8-2.2-.2-.3 0-.5.1-.7l.5-.6c.2-.2.2-.4.3-.6.1-.2 0-.4 0-.6l-1-2.4c-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4-.3.3-1.2 1.1-1.2 2.7s1.2 3.2 1.4 3.4c.2.2 2.4 3.6 5.8 5 .8.3 1.4.5 1.9.7.8.3 1.5.2 2.1.1.6-.1 1.9-.8 2.2-1.5.3-.7.3-1.4.2-1.5-.1-.2-.3-.3-.6-.4z"/></svg></button>` : '';
 
@@ -854,6 +894,7 @@ function renderTipos() {
     `<div class="tipo ${k === selTipo ? 'sel' : ''}" style="--c:${t.color}" onclick="pickTipo('${k}')"><span class="e">${t.icon}</span>${t.label}</div>`).join('');
   const anual = ['cumple', 'aniversario', 'recuerdo'].includes(selTipo);
   document.getElementById('f-anio-wrap').style.display = anual ? '' : 'none';
+  document.getElementById('f-tel-wrap').style.display = ['cumple', 'aniversario'].includes(selTipo) ? '' : 'none';
   document.getElementById('f-anio-txt').textContent = selTipo === 'cumple' ? 'Sé el año de nacimiento (para mostrar la edad que cumple)' : selTipo === 'recuerdo' ? 'Sé el año (para contar los años que han pasado)' : 'Sé el año en que empezó (para contar los años)';
   document.getElementById('f-titulo').placeholder = { cumple: 'Ej: Emiliano', aniversario: 'Ej: Aniversario de boda', celebracion: 'Ej: Comunión de la prima', familiar: 'Ej: Comida en casa de los abuelos', recordatorio: 'Ej: Renovar el pasaporte', salud: 'Ej: Pediatra de Emiliano', escuela: 'Ej: Reunión de padres', recuerdo: 'Ej: Mamá Eunice', otro: 'Ej: …' }[selTipo];
   document.getElementById('f-titulo-lbl').textContent = selTipo === 'cumple' ? '¿Quién cumple años?' : 'Título';
@@ -877,6 +918,8 @@ function openForm(id, fecha, tipo) {
   document.getElementById('f-aviso').value = ev ? (ev.aviso ?? 0) : t.aviso;
   document.getElementById('f-persona').value = ev?.persona || '';
   document.getElementById('f-notas').value = ev?.notas || '';
+  document.getElementById('f-tel').value = ev?.telefono || '';
+  pintarTel();
   document.getElementById('f-del').style.display = ev ? '' : 'none';
   document.getElementById('f-wa').style.display = puedeFelicitar(ev) ? '' : 'none';
   renderTipos();
@@ -896,6 +939,7 @@ function saveEvent() {
     anioConocido: ['cumple', 'aniversario', 'recuerdo'].includes(selTipo) && document.getElementById('f-anio').checked,
     persona: document.getElementById('f-persona').value.trim(),
     notas: document.getElementById('f-notas').value.trim(),
+    telefono: ['cumple', 'aniversario'].includes(selTipo) ? document.getElementById('f-tel').value.trim() : '',
   };
   cloudSet(data);
   closeOv('ov-form');
@@ -1040,7 +1084,7 @@ function importJSON(input) {
 // "eventos" (un mapa id → evento). Cada cambio solo toca SU evento (eventos.<id>), así que si
 // dos personas guardan a la vez se conservan los dos cambios. Sin inicio de sesión: igual que
 // la app de finanzas, la colección appdata es de acceso libre.
-const APP_VERSION = '1.22';
+const APP_VERSION = '1.24';
 const DOC_EVENTOS = 'appdata/calendario-eventos';
 let db = null;
 try {

@@ -17,7 +17,7 @@ Calendario familiar de cumpleaños, aniversarios, celebraciones, recordatorios, 
 | `index.html` | GitHub Pages | La app completa (pantallas, formularios, sincronización) |
 | `compartido.js` | GitHub Pages | Tipos de evento, festivos, celebraciones, vacaciones escolares y el `.ics` descargable |
 | `sw.js` | GitHub Pages | Permite abrir la app sin internet; con internet siempre carga la versión nueva |
-| `scripts/copia-seguridad.js` + `.github/workflows/copia-seguridad.yml` | GitHub Actions | Robot: cada día guarda `backup/eventos.json` |
+| `scripts/copia-seguridad.js` + `.github/workflows/copia-seguridad.yml` | GitHub Actions | Robot: cada día guarda `backup/eventos.json` (sin los números de WhatsApp: el repositorio es público) |
 | `firestore.rules` | Consola de Firebase | Copia de las reglas de seguridad publicadas |
 
 ### Qué muestra el calendario
@@ -39,7 +39,7 @@ Las capas de festivos, celebraciones y vacaciones se pueden ocultar en ⚙️ Aj
 
 ### Datos en Firebase (proyecto `familia-diaz-gonzalez`)
 
-- `appdata/calendario-eventos` → campo `eventos`: mapa `id → evento`. Campos del evento: `id, tipo, titulo, fecha (AAAA-MM-DD), hora, repite (no|anual|mensual|semanal), aviso (días), anioConocido, persona, notas`.
+- `appdata/calendario-eventos` → campo `eventos`: mapa `id → evento`. Campos del evento: `id, tipo, titulo, fecha (AAAA-MM-DD), hora, repite (no|anual|mensual|semanal), aviso (días), anioConocido, persona, notas, telefono`. `telefono` (opcional, cumpleaños y aniversarios) hace que el botón de WhatsApp abra el chat de esa persona; sin prefijo se adivina el país en `waNumero()` (04xx → +58, 6 cifras → +376, 6xx/7xx de 9 cifras → +34).
 - Cada cambio actualiza solo su evento (`eventos.<id>`), así que dos personas pueden guardar a la vez sin pisarse.
 - El resto de `appdata/...` es de la **app de finanzas**; el calendario no lo toca.
 - Sin inicio de sesión: la colección `appdata` es de acceso libre (igual que la app de finanzas). Quien tenga el enlace puede ver y cambiar el calendario.

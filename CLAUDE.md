@@ -16,4 +16,5 @@ Lee primero `README.md` (arquitectura, datos, colores, tareas habituales).
 ## Pendiente (al cerrar el 24/09/2026, v1.22, 42 fechas)
 - Parentesco de **Aida, Maita y Victor Aponte** (`persona` vacío → mensaje de WhatsApp genérico).
 - Año de nacimiento de Samuel, Magdaliyi, Elida, Thiago, Sofía, Antonella, Eliette y Rusbeilyn. El usuario los pasa en fotos de documentos: usar solo la fecha de nacimiento.
-- Ideas ya propuestas y sin hacer: campo «Teléfono» para abrir el chat de WhatsApp directo; correo diario con los avisos desde el robot (el usuario tendría que poner la clave de correo él mismo).
+- Hecho en v1.23–1.24 (11/10/2026): campo «WhatsApp» en el evento (`telefono`) → el botón verde abre el chat de esa persona. Botón «📋 Pegar» (iPhone: copiar el número en Contactos) o «👤 Contactos» donde existe la Contact Picker API (Android; en iOS solo con un flag experimental de Safari). Faltan los números: los pone él en la app.
+- Ideas ya propuestas y sin hacer: correo diario con los avisos desde el robot (el usuario tendría que poner la clave de correo él mismo).
