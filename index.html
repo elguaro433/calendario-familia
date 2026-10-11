@@ -260,6 +260,30 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
 .fld .tema.sel { color: var(--text); }
 
 .tabbar, .fab, .hdr-more { display: none; }
+/* ── Lavado de cara v1.27 ── */
+.ico { width: 1.15em; height: 1.15em; vertical-align: -0.2em; flex-shrink: 0; }
+.hdr-logo { display: flex; align-items: center; gap: 7px; }
+.hdr-logo .ico { color: color-mix(in srgb, var(--pink) 25%, #fff); }
+.sync-status[hidden] { display: none !important; }
+.ev-t { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.3; }
+.ev-s { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; margin-top: 2px; }
+.ev-s .when { display: inline-block; font-size: 11px; padding: 1px 8px; margin-right: 6px; vertical-align: 1px; }
+.wa.discreto { width: 30px; height: 30px; background: transparent; color: #25d366; box-shadow: inset 0 0 0 1.5px color-mix(in srgb, #25d366 55%, transparent); }
+.franja { display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: center; background: var(--card); border: 1px solid var(--border); border-radius: var(--r); padding: 10px 14px; margin-bottom: 14px; font-size: 13.5px; color: var(--muted); box-shadow: var(--shadow); }
+.franja span { cursor: pointer; }
+.franja b { color: var(--text); }
+.franja-prox { color: var(--text); }
+.hero { display: block !important; margin: 0 !important; padding: 0 !important; overflow: visible !important; }
+.cell.esc { background: color-mix(in srgb, var(--esc) 12%, transparent); }
+.cell.today.esc { background: color-mix(in srgb, var(--esc) 12%, transparent); }
+.dots { align-items: center; }
+.dots b { font-size: 11px; line-height: 1; font-weight: 400; }
+.dots small { font-size: 9px; font-weight: 800; color: var(--muted); }
+[data-theme="dark"] .date-badge { color: color-mix(in srgb, var(--c) 55%, #fff); background: color-mix(in srgb, var(--c) 22%, transparent); }
+[data-theme="dark"] .cell.holiday .dnum { color: color-mix(in srgb, var(--fest) 35%, #fff); }
+.footer { padding-bottom: 24px; }
+.hint a { color: var(--pink); font-weight: 700; }
+.hdr-more .ico { width: 22px; height: 22px; }
 .footer { text-align: center; padding: 30px 20px 10px; color: var(--hint); font-size: 11px; border-top: 1px solid var(--border); margin-top: 30px; }
 
 /* ── MÓVIL ── */
@@ -273,7 +297,7 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
   .hdr-btn { display: none; }
   .hdr-more { display: flex; font-size: 18px; padding: 4px 10px; }
   .sync-status { font-size: 0; width: 9px; height: 9px; border-radius: 50%; background: currentColor; box-shadow: 0 0 6px currentColor; }
-  .content { padding: 14px 16px 24px; }
+  .content { padding: 14px 16px 96px; }
   /* Resumen en una fila que se desliza, para que el calendario quede a la vista */
   .hero { display: flex; overflow-x: auto; gap: 8px; margin: 0 -16px 14px; padding: 0 16px 4px; scroll-padding: 0 16px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
   .hero::-webkit-scrollbar { display: none; }
@@ -302,9 +326,9 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
   }
   .tab-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; background: transparent; border: none; color: var(--muted); font-size: 11px; font-weight: 600; padding: 4px 0; cursor: pointer; -webkit-tap-highlight-color: transparent; }
   .tab-ico { font-size: 22px; }
-  .tab-ico { font-size: 20px; line-height: 1; filter: grayscale(1); opacity: .7; }
+  .tab-ico { font-size: 22px; line-height: 1; display: flex; }
   .tab-item.active { color: var(--pink); }
-  .tab-item.active .tab-ico { filter: none; opacity: 1; }
+  .tab-item.active .tab-ico { color: var(--pink); }
   .fab {
     display: flex; position: fixed; right: 18px; bottom: calc(76px + env(safe-area-inset-bottom)); z-index: 210;
     width: 56px; height: 56px; border-radius: 50%; border: none;
@@ -319,21 +343,20 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
 <body>
 <div class="app">
   <header class="hdr">
-    <div class="hdr-logo">📅 Calendario <em>Díaz González</em></div>
+    <div class="hdr-logo"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3.5 10h17M8 3v4M16 3v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="8.5" cy="14.5" r="1.2" fill="currentColor"/><circle cx="12" cy="14.5" r="1.2" fill="currentColor"/><circle cx="15.5" cy="14.5" r="1.2" fill="currentColor"/></svg> Calendario <em>Díaz González</em></div>
     <div class="hdr-actions">
       <span class="sync-status" id="sync-status">🔄 Conectando…</span>
-      <button class="hdr-btn" onclick="openAjustes()">⚙️ Ajustes</button>
+      <button class="hdr-btn" onclick="openAjustes()"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg> Ajustes</button>
       <button class="hdr-btn" onclick="toggleTheme()" id="theme-btn">🌙</button>
-      <button class="hdr-btn hdr-more" onclick="openAjustes()" title="Ajustes">⚙️</button>
+      <button class="hdr-btn hdr-more" onclick="openAjustes()" title="Ajustes" aria-label="Ajustes"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></button>
     </div>
   </header>
 
   <nav class="side">
     <button class="side-add" onclick="openForm()">＋ Nuevo evento</button>
-    <button class="nav-item active" data-page="mes" onclick="go('mes')">🗓️ Mes</button>
-    <button class="nav-item" data-page="proximos" onclick="go('proximos')">⏳ Próximos</button>
-    <button class="nav-item" data-page="anio" onclick="go('anio')">📆 Año completo</button>
-    <button class="nav-item" data-page="cumples" onclick="go('cumples')">🎂 Cumpleaños</button>
+    <button class="nav-item active" data-page="mes" onclick="go('mes')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3.5 10h17M8 3v4M16 3v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="8.5" cy="14.5" r="1.2" fill="currentColor"/><circle cx="12" cy="14.5" r="1.2" fill="currentColor"/><circle cx="15.5" cy="14.5" r="1.2" fill="currentColor"/></svg> Mes</button>
+    <button class="nav-item" data-page="proximos" onclick="go('proximos')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 7.5V12l3 2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> Próximos</button>
+    <button class="nav-item" data-page="cumples" onclick="go('cumples')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20.5h16M5 20.5v-6.5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v6.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M5 16c1.2 1 2.3 1 3.5 0s2.3-1 3.5 0 2.3 1 3.5 0 2.3-1 3.5 0M9 12V9.5M15 12V9.5M12 12V8.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M12 4.2c.9.9.9 2 0 2.6-.9-.6-.9-1.7 0-2.6z" fill="currentColor"/></svg> Cumpleaños</button>
   </nav>
 
   <main class="content">
@@ -364,16 +387,6 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
       <div id="prox-list"></div>
     </section>
 
-    <!-- AÑO -->
-    <section class="page" id="page-anio">
-      <div class="cal-nav">
-        <button class="nbtn" onclick="moveYear(-1)">‹</button>
-        <div class="cal-title" id="year-title"></div>
-        <button class="nbtn" onclick="moveYear(1)">›</button>
-      </div>
-      <div class="legend" id="legend"></div>
-      <div class="year-grid" id="year-grid"></div>
-    </section>
 
     <!-- CUMPLEAÑOS -->
     <section class="page" id="page-cumples">
@@ -383,18 +396,17 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
     </section>
 
     <div class="footer">
-      <div style="font-weight:600;margin-bottom:4px;">Propiedad Familia Díaz González</div>
-      <div>Creado por Emmanuel Díaz</div>
+      <div style="font-weight:600;margin-bottom:2px;">🍀 Familia Díaz González</div>
+      <div>Creador: Emmanuel Díaz</div>
       <div style="margin-top:6px;font-size:10px;opacity:.6;"><span id="app-version"></span> — 2026</div>
     </div>
   </main>
 </div>
 
 <nav class="tabbar">
-  <button class="tab-item active" data-page="mes" onclick="go('mes')"><span class="tab-ico">🗓️</span>Mes</button>
-  <button class="tab-item" data-page="proximos" onclick="go('proximos')"><span class="tab-ico">⏳</span>Próximos</button>
-  <button class="tab-item" data-page="anio" onclick="go('anio')"><span class="tab-ico">📆</span>Año</button>
-  <button class="tab-item" data-page="cumples" onclick="go('cumples')"><span class="tab-ico">🎂</span>Cumples</button>
+  <button class="tab-item active" data-page="mes" onclick="go('mes')"><span class="tab-ico"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3.5 10h17M8 3v4M16 3v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="8.5" cy="14.5" r="1.2" fill="currentColor"/><circle cx="12" cy="14.5" r="1.2" fill="currentColor"/><circle cx="15.5" cy="14.5" r="1.2" fill="currentColor"/></svg></span>Mes</button>
+  <button class="tab-item" data-page="proximos" onclick="go('proximos')"><span class="tab-ico"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 7.5V12l3 2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Próximos</button>
+  <button class="tab-item" data-page="cumples" onclick="go('cumples')"><span class="tab-ico"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20.5h16M5 20.5v-6.5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v6.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M5 16c1.2 1 2.3 1 3.5 0s2.3-1 3.5 0 2.3 1 3.5 0 2.3-1 3.5 0M9 12V9.5M15 12V9.5M12 12V8.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M12 4.2c.9.9.9 2 0 2.6-.9-.6-.9-1.7 0-2.6z" fill="currentColor"/></svg></span>Cumples</button>
 </nav>
 <button class="fab" onclick="openForm()" aria-label="Nuevo evento">＋</button>
 
@@ -432,6 +444,8 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
       </div>
       <div class="fld"><label>¿De quién? / Familia (opcional)</label><input id="f-persona" type="text" list="personas" placeholder="Ej: Emiliano, Familia Díaz, Abuelos…" autocomplete="off"><datalist id="personas"></datalist></div>
       <div class="fld" id="f-tel-wrap"><label>WhatsApp (opcional)</label><div style="display:flex;gap:8px"><input id="f-tel" type="tel" inputmode="tel" placeholder="Ej: +58 412 123 4567" autocomplete="off" oninput="pintarTel()" style="flex:1;min-width:0"><button type="button" class="btn" id="f-tel-btn" onclick="traerTel()" style="flex:none"></button></div><p class="hint" id="f-tel-hint" style="margin:6px 0 0"></p></div>
+      <div class="fld" id="f-msg-wrap"><label>Mensaje para felicitar (opcional)</label><textarea id="f-msg" rows="4" placeholder="Vacío = se envía el mensaje automático"></textarea>
+        <p class="hint" style="margin:6px 0 0">Escribe aquí tu propio mensaje (una broma, un trato especial…). <b>{nombre}</b> y <b>{edad}</b> se cambian solos. <a href="#" onclick="event.preventDefault();partirDelAutomatico()">Partir del automático</a></p></div>
       <div class="fld"><label>Notas (opcional)</label><textarea id="f-notas" placeholder="Ideas de regalo, lugar, qué llevar…"></textarea></div>
       <div class="btns">
         <button class="btn wa-btn" id="f-wa" onclick="felicitar(editId)" style="flex-basis:100%"><svg class="wa-ico" viewBox="0 0 32 32" aria-hidden="true"><path fill="currentColor" d="M16 3C8.8 3 3 8.7 3 15.8c0 2.5.7 4.9 2 6.9L3.2 29l6.5-1.7c1.9 1 4.1 1.6 6.3 1.6 7.2 0 13-5.7 13-12.8S23.2 3 16 3zm0 23.5c-2 0-3.9-.5-5.6-1.5l-.4-.2-3.9 1 1-3.7-.3-.4c-1.1-1.7-1.7-3.8-1.7-5.9C5.1 9.9 10 5.2 16 5.2s10.9 4.7 10.9 10.6S22 26.5 16 26.5z"/><path fill="currentColor" d="M22 19.1c-.3-.2-1.9-.9-2.2-1-.3-.1-.5-.2-.7.2-.2.3-.8 1-1 1.2-.2.2-.4.2-.7.1-.3-.2-1.4-.5-2.6-1.6-1-.9-1.6-1.9-1.8-2.2-.2-.3 0-.5.1-.7l.5-.6c.2-.2.2-.4.3-.6.1-.2 0-.4 0-.6l-1-2.4c-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4-.3.3-1.2 1.1-1.2 2.7s1.2 3.2 1.4 3.4c.2.2 2.4 3.6 5.8 5 .8.3 1.4.5 1.9.7.8.3 1.5.2 2.1.1.6-.1 1.9-.8 2.2-1.5.3-.7.3-1.4.2-1.5-.1-.2-.3-.3-.6-.4z"/></svg>Felicitar por WhatsApp</button>
@@ -488,7 +502,7 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
 
 <div class="toast" id="toast"></div>
 
-<script src="compartido.js?v=1.26"></script>
+<script src="compartido.js?v=1.27"></script>
 <script>
 const TIPOS = CalComun.TIPOS; // en compartido.js
 let FEST_COLOR = '#9b2226';   // días festivos (no se trabaja): granate, para no confundirlo con el rosa de los cumpleaños
@@ -511,7 +525,6 @@ try {
 
 const TODAY = new Date(); TODAY.setHours(0,0,0,0);
 let viewY = TODAY.getFullYear(), viewM = TODAY.getMonth();
-let yearView = TODAY.getFullYear();
 let page = 'mes';
 let editId = null, selTipo = 'cumple';
 
@@ -595,8 +608,7 @@ function escRow(e) {
   const [txt, cls] = ahora ? ['Ahora', 'hoy'] : e.h < TODAY ? ['Pasado', ''] : cuando(e.d);
   return `<div class="ev-row" style="--c:${ESC_COLOR};cursor:default">
     <div class="date-badge"><div class="d">${e.d.getDate()}</div><div class="m">${MES_C[e.d.getMonth()]}</div></div>
-    <div class="ev-main"><div class="ev-t">${e.icon} ${esc(e.titulo)}</div><div class="ev-s">${rangoTexto(e)}</div></div>
-    <span class="when ${cls}">${txt}</span></div>`;
+    <div class="ev-main"><div class="ev-t">${e.icon} ${esc(e.titulo)}</div><div class="ev-s"><span class="when ${cls}">${txt}</span>${rangoTexto(e)}</div></div></div>`;
 }
 
 // ══ TEXTOS ══
@@ -679,7 +691,21 @@ function felicitar(id) {
   if (!puedeFelicitar(ev)) return;
   // Con número: abre el chat de esa persona. Sin número: WhatsApp pregunta a quién enviarlo.
   const tel = ev.telefono || (ev.tipo === 'aniversario' ? telElibel() : '');
-  window.open('https://wa.me/' + waNumero(tel) + '?text=' + encodeURIComponent(mensajeWA(ev, edadProxima(ev))), '_blank');
+  window.open('https://wa.me/' + waNumero(tel) + '?text=' + encodeURIComponent(mensajeFinal(ev)), '_blank');
+}
+// Mensaje propio de la persona (campo «Mensaje para felicitar») o, si está vacío, el automático
+function mensajeFinal(ev) {
+  const edad = edadProxima(ev);
+  if (!(ev.mensaje || '').trim()) return mensajeWA(ev, edad);
+  return ev.mensaje.replace(/\{nombre\}/gi, nombreSaludo(ev.titulo)).replace(/\{edad\}/gi, edad != null ? edad : '');
+}
+// Rellena el campo con el mensaje automático para retocarlo
+function partirDelAutomatico() {
+  const titulo = document.getElementById('f-titulo').value.trim() || 'Nombre';
+  const ev = { ...(EVENTS.find(e => e.id === editId) || {}), tipo: selTipo, titulo,
+    fecha: document.getElementById('f-fecha').value || iso(TODAY), repite: document.getElementById('f-repite').value,
+    anioConocido: document.getElementById('f-anio').checked, persona: document.getElementById('f-persona').value.trim() };
+  document.getElementById('f-msg').value = mensajeWA(ev, edadProxima(ev));
 }
 // ══ DÍAS DE ELIBEL ══ Celebraciones que unen a Emmanuel con su esposa (Elibel del Carmen, enfermera):
 // botón verde con un mensaje solo para ella, a su WhatsApp (el número de su cumpleaños, «¿De quién?» = Esposa).
@@ -695,7 +721,7 @@ const MENSAJES_ELIBEL = {
 function felicitarElibel(clave) {
   window.open('https://wa.me/' + waNumero(telElibel()) + '?text=' + encodeURIComponent(MENSAJES_ELIBEL[clave]), '_blank');
 }
-const botonElibel = f => f.elibel && MENSAJES_ELIBEL[f.elibel] ? `<button class="wa" title="Felicitar a Elibel por WhatsApp" onclick="event.stopPropagation();felicitarElibel('${f.elibel}')">${WA_SVG}</button>` : '';
+const botonElibel = f => f.elibel && MENSAJES_ELIBEL[f.elibel] ? `<button class="wa${f.d && diffDays(TODAY, f.d) >= 0 && diffDays(TODAY, f.d) <= 7 ? '' : ' discreto'}" title="Felicitar a Elibel por WhatsApp" onclick="event.stopPropagation();felicitarElibel('${f.elibel}')">${WA_SVG}</button>` : '';
 // Número para wa.me: solo dígitos y con prefijo de país. Sin prefijo se adivina por la forma:
 // 04xx… → Venezuela (58), 6 cifras → Andorra (376), 9 cifras que empiezan por 6 o 7 → España (34).
 // Devuelve '' si no parece un número válido.
@@ -735,14 +761,15 @@ function pintarTel() {
     : n ? '✓ Se abrirá el chat de +' + n : 'Revisa el número: ponlo con el prefijo del país, por ejemplo +58 o +376.';
 }
 const WA_SVG = `<svg class="wa-ico" viewBox="0 0 32 32" aria-hidden="true"><path fill="currentColor" d="M16 3C8.8 3 3 8.7 3 15.8c0 2.5.7 4.9 2 6.9L3.2 29l6.5-1.7c1.9 1 4.1 1.6 6.3 1.6 7.2 0 13-5.7 13-12.8S23.2 3 16 3zm0 23.5c-2 0-3.9-.5-5.6-1.5l-.4-.2-3.9 1 1-3.7-.3-.4c-1.1-1.7-1.7-3.8-1.7-5.9C5.1 9.9 10 5.2 16 5.2s10.9 4.7 10.9 10.6S22 26.5 16 26.5z"/><path fill="currentColor" d="M22 19.1c-.3-.2-1.9-.9-2.2-1-.3-.1-.5-.2-.7.2-.2.3-.8 1-1 1.2-.2.2-.4.2-.7.1-.3-.2-1.4-.5-2.6-1.6-1-.9-1.6-1.9-1.8-2.2-.2-.3 0-.5.1-.7l.5-.6c.2-.2.2-.4.3-.6.1-.2 0-.4 0-.6l-1-2.4c-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4-.3.3-1.2 1.1-1.2 2.7s1.2 3.2 1.4 3.4c.2.2 2.4 3.6 5.8 5 .8.3 1.4.5 1.9.7.8.3 1.5.2 2.1.1.6-.1 1.9-.8 2.2-1.5.3-.7.3-1.4.2-1.5-.1-.2-.3-.3-.6-.4z"/></svg>`;
-const botonWA = ev => puedeFelicitar(ev) ? `<button class="wa" title="Felicitar por WhatsApp" onclick="event.stopPropagation();felicitar('${ev.id}')">${WA_SVG}</button>` : '';
+// grande = verde lleno (cumple en los próximos 7 días); si no, discreto para no llenar la lista de verde
+const botonWA = (ev, grande = true) => puedeFelicitar(ev) ? `<button class="wa${grande ? '' : ' discreto'}" title="Felicitar por WhatsApp" onclick="event.stopPropagation();felicitar('${ev.id}')">${WA_SVG}</button>` : '';
 
 function evRow(o, showCuando = true) {
-  const t = TIPOS[o.ev.tipo] || TIPOS.otro, [txt, cls] = cuando(o.fecha);
+  const t = TIPOS[o.ev.tipo] || TIPOS.otro, [txt, cls] = cuando(o.fecha), n = diffDays(TODAY, o.fecha);
   return `<div class="ev-row" style="--c:${t.color}" onclick="openForm('${o.ev.id}')">
     <div class="date-badge"><div class="d">${o.fecha.getDate()}</div><div class="m">${MES_C[o.fecha.getMonth()]}</div></div>
-    <div class="ev-main"><div class="ev-t">${t.icon} ${esc(o.ev.titulo)}</div><div class="ev-s">${esc(subtitulo(o)) || t.label}</div></div>
-    ${showCuando ? `<span class="when ${cls}">${txt}</span>` : ''}${botonWA(o.ev)}</div>`;
+    <div class="ev-main"><div class="ev-t">${t.icon} ${esc(o.ev.titulo)}</div><div class="ev-s">${showCuando ? `<span class="when ${cls}">${txt}</span>` : ''}${esc(subtitulo(o)) || t.label}</div></div>
+    ${botonWA(o.ev, n >= 0 && n <= 7)}</div>`;
 }
 function festRow(f) {
   return `<div class="ev-row" style="--c:${festColor(f)};cursor:default">
@@ -755,7 +782,6 @@ function render() {
   try {
     if (page === 'mes') renderMes();
     if (page === 'proximos') renderProximos();
-    if (page === 'anio') renderAnio();
     if (page === 'cumples') renderCumples();
   } catch (e) {
     // Casi siempre es una versión a medio descargar: recargar lo arregla
@@ -793,17 +819,10 @@ function renderMes() {
   // Resumen
   const prox = occurrences(TODAY, addD(TODAY, 366), true);
   const hoy = prox.filter(o => diffDays(TODAY, o.fecha) === 0);
-  const semana = prox.filter(o => { const n = diffDays(TODAY, o.fecha); return n > 0 && n <= 7; });   // desde mañana
-  const cumple = prox.find(o => o.ev.tipo === 'cumple' && diffDays(TODAY, o.fecha) > 0);
-  const card = (c, lbl, val, sub, onclick) => `<div class="metric" style="--c:${c}" onclick="${onclick}"><div class="metric-lbl">${lbl}</div><div class="metric-val">${val}</div><div class="metric-sub">${sub}</div></div>`;
-  document.getElementById('hero').innerHTML = (hoy.length ? '' :   // si hoy pasa algo ya está arriba, en «No te olvides»
-    card('var(--pink)', 'Hoy · ' + TODAY.getDate() + ' ' + MES_C[TODAY.getMonth()],
-      hoy.length ? hoy.map(o => (TIPOS[o.ev.tipo] || TIPOS.otro).icon + ' ' + esc(o.ev.titulo)).join('<br>') : 'Nada especial',
-      hoy.some(o => ['cumple','aniversario','celebracion'].includes(o.ev.tipo)) ? '¡A celebrar! 🎉' : hoy.length ? 'No te olvides' : 'Un día tranquilo', `openDay('${iso(TODAY)}')`)) +
-    card('#fb8500', 'Próximos 7 días', semana.length ? semana.length + (semana.length === 1 ? ' evento' : ' eventos') : 'Semana libre',
-      semana.slice(0, 2).map(o => esc(o.ev.titulo)).join(', ') || 'Nada en los próximos días', "go('proximos')") +
-    card('#7b61ff', 'Próximo cumpleaños', cumple ? '🎂 ' + esc(cumple.ev.titulo) : 'Aún no hay ninguno',
-      cumple ? fechaLarga(cumple.fecha) + ' · ' + cuando(cumple.fecha)[0].toLowerCase() + (cumple.edad != null ? ' · cumple ' + cumple.edad : '') : 'Añade el primero con el botón ＋', cumple ? "go('cumples')" : 'openForm()');
+  const proxEv = prox.find(o => diffDays(TODAY, o.fecha) > 0);
+  document.getElementById('hero').innerHTML = hoy.length || av.length || avElibel.length ? '' :   // si hay algo en «No te olvides», no se repite aquí
+    `<div class="franja"><span class="franja-hoy" onclick="openDay('${iso(TODAY)}')">Hoy, ${TODAY.getDate()} ${MES_C[TODAY.getMonth()]}: nada especial</span>` +
+    (proxEv ? `<span class="franja-prox" onclick="openForm('${proxEv.ev.id}')">Próximo: ${(TIPOS[proxEv.ev.tipo] || TIPOS.otro).icon} <b>${esc(proxEv.ev.titulo)}</b> ${cuando(proxEv.fecha)[0].toLowerCase()}</span>` : '') + `</div>`;
 
   // Cuadrícula
   document.getElementById('cal-title').textContent = MESES[viewM] + ' ' + viewY;
@@ -820,12 +839,14 @@ function renderMes() {
   for (let i = 0; i < 42; i++) {
     const d = addD(start, i), k = iso(d), evs = byDay[k] || [], fs = festDay[k] || [], es = escDay[k] || [];
     if (i === 35 && d.getMonth() !== viewM) break; // no pintar 6ª fila vacía
-    const cls = ['cell', d.getMonth() !== viewM && 'other', +d === +TODAY && 'today', (d.getDay() % 6 === 0) && 'weekend', fs.some(esFestivo) && 'holiday'].filter(Boolean).join(' ');
+    const cls = ['cell', d.getMonth() !== viewM && 'other', +d === +TODAY && 'today', (d.getDay() % 6 === 0) && 'weekend', fs.some(esFestivo) && 'holiday', es.length && 'esc'].filter(Boolean).join(' ');
     const items = [...es.map(e => `<span class="pill" style="--c:${ESC_COLOR}">${e.icon} ${esc(e.titulo)}</span>`),
                    ...evs.map(o => { const t = TIPOS[o.ev.tipo] || TIPOS.otro; return `<span class="pill" style="--c:${t.color}">${t.icon} ${esc(o.ev.titulo)}</span>`; }),
                    ...fs.map(f => `<span class="pill" style="--c:${festColor(f)}">${festIcon(f)} ${esc(festTitulo(f))}</span>`)];
-    const dots = [...es.map(() => ESC_COLOR), ...evs.map(o => (TIPOS[o.ev.tipo] || TIPOS.otro).color), ...fs.map(festColor)].slice(0, 4).map(c => `<i style="--c:${c}"></i>`).join('');
-    html += `<div class="${cls}" onclick="openDay('${k}')"><div class="dnum">${d.getDate()}</div>${items.slice(0, 3).join('')}${items.length > 3 ? `<div class="more">+${items.length - 3} más</div>` : ''}<div class="dots">${dots}</div></div>`;
+    // En el móvil: mini iconos (🎂, 💍, 🌸…) en vez de puntitos; los festivos ya van en rojo y las vacaciones como franja
+    const marcas = [...evs.map(o => (TIPOS[o.ev.tipo] || TIPOS.otro).icon), ...fs.filter(f => !esFestivo(f)).map(festIcon)];
+    const dots = marcas.slice(0, 2).map(m => `<b>${m}</b>`).join('') + (marcas.length > 2 ? `<small>+${marcas.length - 2}</small>` : '');
+    html += `<div class="${cls}"${es.length ? ` style="--esc:${ESC_COLOR}"` : ''} onclick="openDay('${k}')"><div class="dnum">${d.getDate()}</div>${items.slice(0, 3).join('')}${items.length > 3 ? `<div class="more">+${items.length - 3} más</div>` : ''}<div class="dots">${dots}</div></div>`;
   }
   document.getElementById('cal-grid').innerHTML = html;
 
@@ -852,30 +873,6 @@ function renderProximos() {
       return `<div class="sc"><div class="sc-hdr"><div class="sc-title">${MESES[m]} ${y}</div><div class="sc-title">${hs.length}</div></div>${hs.join('')}</div>`; }).join('');
 }
 
-function renderAnio() {
-  document.getElementById('year-title').textContent = yearView;
-  document.getElementById('legend').innerHTML = Object.entries(TIPOS).filter(([k]) => EVENTS.some(e => e.tipo === k)).map(([, t]) => `<span><i style="--c:${t.color}"></i>${t.icon} ${t.label}</span>`).join('') + `<span><i style="--c:${CELEB_COLOR}"></i>🎉 Celebraciones</span><span><i style="--c:${ESC_COLOR}"></i>🏫 Vacaciones escolares</span><span><i style="--c:${EST_COLOR}"></i>🌗 Estaciones y cambio de hora</span><span><i style="--c:${FEST_COLOR}"></i>🔴 Día festivo</span>`;
-  const start = new Date(yearView, 0, 1), end = new Date(yearView, 11, 31);
-  const fAnio = festivosEntre(start, end);
-  const byDay = {}, festSet = new Set(fAnio.filter(esFestivo).map(f => f.fecha)), celebDay = Object.fromEntries(fAnio.filter(f => !esFestivo(f)).map(f => [f.fecha, f]));
-  occurrences(start, end).forEach(o => (byDay[iso(o.fecha)] ||= []).push(o));
-  const escDay = {};
-  escolarEntre(start, end).forEach(e => { for (let d = new Date(e.d); d <= e.h; d = addD(d, 1)) escDay[iso(d)] = e.titulo; });
-  let html = '';
-  for (let m = 0; m < 12; m++) {
-    const off = (new Date(yearView, m, 1).getDay() + 6) % 7;
-    let g = ['L','M','X','J','V','S','D'].map(x => `<span class="h">${x}</span>`).join('') + '<span class="h"></span>'.repeat(off);
-    for (let d = 1; d <= daysIn(yearView, m); d++) {
-      const dt = new Date(yearView, m, d), k = iso(dt), evs = byDay[k];
-      const color = evs ? (TIPOS[evs[0].ev.tipo] || TIPOS.otro).color : festSet.has(k) ? FEST_COLOR : escDay[k] ? ESC_COLOR : celebDay[k] ? festColor(celebDay[k]) : '';
-      const cls = [color && 'ev', +dt === +TODAY && 'today'].filter(Boolean).join(' ');
-      const tip = [...(evs || []).map(o => o.ev.titulo), festSet.has(k) && 'Día festivo', escDay[k], celebDay[k] && celebDay[k].titulo].filter(Boolean).join(', ');
-      g += `<span class="${cls}" ${color ? `style="--c:${color}"` : ''} title="${esc(tip)}" onclick="openDay('${k}')">${d}</span>`;
-    }
-    html += `<div class="mini"><div class="mini-t" onclick="viewY=${yearView};viewM=${m};go('mes')">${MESES[m]}</div><div class="mini-g">${g}</div></div>`;
-  }
-  document.getElementById('year-grid').innerHTML = html;
-}
 
 function renderCumples() {
   const occ = occurrences(TODAY, addD(TODAY, 366), true).filter(o => o.ev.repite === 'anual' && ['cumple', 'aniversario', 'recuerdo'].includes(o.ev.tipo));
@@ -892,7 +889,6 @@ function go(p) {
   render(); window.scrollTo(0, 0);
 }
 function moveMonth(n) { viewM += n; if (viewM < 0) { viewM = 11; viewY--; } if (viewM > 11) { viewM = 0; viewY++; } renderMes(); }
-function moveYear(n) { yearView += n; renderAnio(); }
 function goToday() { viewY = TODAY.getFullYear(); viewM = TODAY.getMonth(); renderMes(); }
 // Deslizar en el calendario para cambiar de mes (móvil)
 (() => { let x0 = null; const g = () => document.getElementById('cal-grid');
@@ -923,6 +919,7 @@ function renderTipos() {
   const anual = ['cumple', 'aniversario', 'recuerdo'].includes(selTipo);
   document.getElementById('f-anio-wrap').style.display = anual ? '' : 'none';
   document.getElementById('f-tel-wrap').style.display = ['cumple', 'aniversario'].includes(selTipo) ? '' : 'none';
+  document.getElementById('f-msg-wrap').style.display = ['cumple', 'aniversario'].includes(selTipo) ? '' : 'none';
   document.getElementById('f-anio-txt').textContent = selTipo === 'cumple' ? 'Sé el año de nacimiento (para mostrar la edad que cumple)' : selTipo === 'recuerdo' ? 'Sé el año (para contar los años que han pasado)' : 'Sé el año en que empezó (para contar los años)';
   document.getElementById('f-titulo').placeholder = { cumple: 'Ej: Emiliano', aniversario: 'Ej: Aniversario de boda', celebracion: 'Ej: Comunión de la prima', familiar: 'Ej: Comida en casa de los abuelos', recordatorio: 'Ej: Renovar el pasaporte', salud: 'Ej: Pediatra de Emiliano', escuela: 'Ej: Reunión de padres', recuerdo: 'Ej: Mamá Eunice', otro: 'Ej: …' }[selTipo];
   document.getElementById('f-titulo-lbl').textContent = selTipo === 'cumple' ? '¿Quién cumple años?' : 'Título';
@@ -947,6 +944,7 @@ function openForm(id, fecha, tipo) {
   document.getElementById('f-persona').value = ev?.persona || '';
   document.getElementById('f-notas').value = ev?.notas || '';
   document.getElementById('f-tel').value = ev?.telefono || '';
+  document.getElementById('f-msg').value = ev?.mensaje || '';
   pintarTel();
   document.getElementById('f-del').style.display = ev ? '' : 'none';
   document.getElementById('f-wa').style.display = puedeFelicitar(ev) ? '' : 'none';
@@ -968,6 +966,7 @@ function saveEvent() {
     persona: document.getElementById('f-persona').value.trim(),
     notas: document.getElementById('f-notas').value.trim(),
     telefono: ['cumple', 'aniversario'].includes(selTipo) ? document.getElementById('f-tel').value.trim() : '',
+    mensaje: ['cumple', 'aniversario'].includes(selTipo) ? document.getElementById('f-msg').value.trim() : '',
   };
   cloudSet(data);
   closeOv('ov-form');
@@ -1107,7 +1106,7 @@ function importJSON(input) {
 // "eventos" (un mapa id → evento). Cada cambio solo toca SU evento (eventos.<id>), así que si
 // dos personas guardan a la vez se conservan los dos cambios. Sin inicio de sesión: igual que
 // la app de finanzas, la colección appdata es de acceso libre.
-const APP_VERSION = '1.26';
+const APP_VERSION = '1.27';
 const DOC_EVENTOS = 'appdata/calendario-eventos';
 let db = null;
 try {
@@ -1168,7 +1167,8 @@ function updateSyncStatus(s) {
   const el = document.getElementById('sync-status');
   const st = { synced: ['☁️ Sincronizado', 'var(--emerald)'], offline: ['📴 Sin conexión (se guarda al volver)', 'var(--amber)'],
                error: ['⚠️ Error de conexión', 'var(--coral)'], syncing: ['🔄 Sincronizando…', 'var(--sky)'] }[s];
-  el.textContent = st[0]; el.style.color = st[1];
+  el.textContent = st[0]; el.style.color = st[1]; el.title = st[0];
+  el.hidden = s === 'synced';   // todo bien = no se enseña nada
 }
 
 // ══ AVISOS AL MÓVIL (Web Push) ══
@@ -1255,6 +1255,5 @@ checkVersion();
 document.getElementById('app-version').textContent = 'v' + APP_VERSION;
 if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(e => console.warn('SW:', e));
 </script>
-<footer style="text-align:center;padding:16px;font-size:12px;opacity:.6;font-family:system-ui,Segoe UI,sans-serif;">🍀 Propiedad de la Familia Díaz González · Creador: Emmanuel Díaz</footer>
 </body>
 </html>
