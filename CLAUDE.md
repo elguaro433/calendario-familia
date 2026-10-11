@@ -15,8 +15,9 @@ Lee primero `README.md` (arquitectura, datos, colores, tareas habituales).
 
 - v1.25 (11/10/2026): avisos al móvil (Web Push, robot `avisos.js`, secreto `VAPID_PRIVATE`) y calendario suscrito (`calendario.ics`). Ver README. Sin probar aún en iPhone real.
 
-## Pendiente (al cerrar el 24/09/2026, v1.22, 42 fechas)
-- Parentesco de **Aida, Maita y Victor Aponte** (`persona` vacío → mensaje de WhatsApp genérico).
-- Año de nacimiento de Samuel, Magdaliyi, Elida, Thiago, Sofía, Antonella, Eliette y Rusbeilyn. El usuario los pasa en fotos de documentos: usar solo la fecha de nacimiento.
-- Hecho en v1.23–1.24 (11/10/2026): campo «WhatsApp» en el evento (`telefono`) → el botón verde abre el chat de esa persona. Botón «📋 Pegar» (iPhone: copiar el número en Contactos) o «👤 Contactos» donde existe la Contact Picker API (Android; en iOS solo con un flag experimental de Safari). Faltan los números: los pone él en la app.
-- Ideas ya propuestas y sin hacer: correo diario con los avisos desde el robot (el usuario tendría que poner la clave de correo él mismo).
+## Pendiente (11/10/2026, v1.25, 44 fechas)
+- **Secreto `VAPID_PRIVATE`** en GitHub: sin él el robot de avisos no envía nada (solo lista). Lo pone el usuario.
+- Avisos y calendario suscrito sin probar en iPhone real. El robot de avisos funciona (ejecución manual del 11/10: «0 avisos para 0 móviles»).
+- WhatsApp: 27 de 38 cumpleaños con número (más los 2 aniversarios de boda con el de Elibel). Sin número: Samuel (hermano), Eilin, Elida, Maita, Ecleidis, Antonella, Eliette, Sofía, Mathias, Joaquín (y Emmanuel Diaz, que es él). Los niños sin WhatsApp llevan el de su padre o madre (Pol → Jhon, Joan y Nuria → Xavier, Thiago → Magdaliyi).
+- Año de nacimiento: falta en 23 cumpleaños. El usuario los pasa en fotos de documentos: usar solo la fecha de nacimiento.
+- Ideas: proteger la escritura en Firestore (hoy cualquiera con el enlace puede cambiar); preparar la versión para la App Store como en Mi Música (separar lo personal, festivos por país, inglés, avisos y Contactos nativos).
