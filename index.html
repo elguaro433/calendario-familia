@@ -532,7 +532,7 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
 
 <div class="toast" id="toast"></div>
 
-<script src="compartido.js?v=1.33"></script>
+<script src="compartido.js?v=1.34"></script>
 <script>
 const TIPOS = CalComun.TIPOS; // en compartido.js
 let FEST_COLOR = '#9b2226';   // días festivos (no se trabaja): granate, para no confundirlo con el rosa de los cumpleaños
@@ -785,6 +785,7 @@ const telPareja = () => ES_ELIBEL ? (EVENTS.find(esEmmanuel) || {}).telefono || 
 // En la app de Elibel: días para felicitar a Emmanuel
 const MENSAJES_EMMANUEL = {
   amor: `¡Feliz Día del Amor y la Amistad, mi amor! ❤️🌹\n\nGracias por ser mi compañero, mi mejor amigo y el amor de mi vida. Cada día a tu lado es un regalo. Te amo con todo mi corazón 😘`,
+  hombre: `¡Feliz Día del Hombre, mi amor! 🧔💙\n\nPor el hombre trabajador, noble y luchador que eres, y por todo lo que haces por nosotros cada día. Los niños y yo estamos muy orgullosos de ti. Te amo 😘`,
   padre: `¡Feliz Día del Padre, mi amor! 💙👨‍👦‍👦\n\nGracias por ser el mejor papá que Emmanuel Alejandro y Emiliano podrían tener. Tu esfuerzo, tu cariño y tu paciencia son el pilar de nuestra familia. Los niños y yo te amamos muchísimo ❤️`,
 };
 const MENSAJES_ELIBEL = {
@@ -1078,9 +1079,7 @@ function pintarAjustes() {
   document.getElementById('aj-quien').innerHTML = `Esta app es de <b>${ES_ELIBEL ? 'Elibel' : 'Emmanuel'}</b><br>${visibles.length} fechas · ${cumples.length} cumpleaños · ${conTel} con WhatsApp`;
   const pref = store.get('calendario_dg_tema') || 'light';
   document.querySelectorAll('#seg-tema button').forEach(b => b.classList.toggle('sel', b.dataset.t === pref));
-  document.getElementById('btn-suscribir').hidden = ES_ELIBEL;   // el calendario suscrito lleva los avisos de Emmanuel
   document.getElementById('btn-enlace-elibel').hidden = ES_ELIBEL;
-  document.getElementById('aj-iphone').hidden = ES_ELIBEL;
 }
 function setApariencia(t) { store.set('calendario_dg_tema', t); applyTheme(); pintarAjustes(); }
 // Enviar a Elibel el enlace de su app por WhatsApp (a su número si está en su cumpleaños)
@@ -1208,7 +1207,7 @@ function importJSON(input) {
 // "eventos" (un mapa id → evento). Cada cambio solo toca SU evento (eventos.<id>), así que si
 // dos personas guardan a la vez se conservan los dos cambios. Sin inicio de sesión: igual que
 // la app de finanzas, la colección appdata es de acceso libre.
-const APP_VERSION = '1.33';
+const APP_VERSION = '1.34';
 const DOC_EVENTOS = 'appdata/calendario-eventos';
 let db = null;
 try {
@@ -1334,7 +1333,8 @@ async function probarAviso() {
 }
 // Calendario suscrito: el robot publica calendario.ics cada día
 function suscribirCalendario() {
-  location.href = 'webcal://' + location.host + location.pathname.replace(/[^/]*$/, '') + 'calendario.ics';
+  // Cada uno el suyo: el de Elibel trae sus días para felicitar a Emmanuel y no lleva los eventos «Solo en mi app»
+  location.href = 'webcal://' + location.host + location.pathname.replace(/[^/]*$/, '') + (ES_ELIBEL ? 'calendario-elibel.ics' : 'calendario.ics');
 }
 
 // ══ VERSIÓN NUEVA ══

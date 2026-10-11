@@ -88,6 +88,7 @@
     add(domingo(y, 5, 3), 'Día del Padre (Venezuela)', '👨', undefined, 'padre');
     add(new Date(y, 6, 16), 'Virgen del Carmen (felicitar a Elibel del Carmen)', '🌸', 'carmen');
     add(domingo(y, 6, 3), 'Día del Niño (Venezuela)', '🧒');
+    add(new Date(y, 10, 19), 'Día del Hombre', '🧔', undefined, 'hombre');
     return out;
   }
 
@@ -168,8 +169,10 @@
 
   function buildICS(events, opts = {}) {
     const stamp = opts.stamp || new Date().toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+    // opts.pareja: 'elibel' (calendario de Emmanuel, por defecto) o 'emmanuel' (el de Elibel: sus días para felicitarlo)
+    const pareja = opts.pareja === 'emmanuel' ? 'emmanuel' : 'elibel', nombrePareja = pareja === 'emmanuel' ? 'Emmanuel' : 'Elibel';
     const L = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Familia Diaz Gonzalez//Calendario//ES', 'CALSCALE:GREGORIAN',
-      'METHOD:PUBLISH', 'X-WR-CALNAME:Familia Díaz González', 'X-WR-TIMEZONE:' + ZONA,
+      'METHOD:PUBLISH', 'X-WR-CALNAME:Familia Díaz González' + (pareja === 'emmanuel' ? ' · Elibel' : ''), 'X-WR-TIMEZONE:' + ZONA,
       'REFRESH-INTERVAL;VALUE=DURATION:PT1H', 'X-PUBLISHED-TTL:PT1H'];
     for (const ev of events) {
       const t = TIPOS[ev.tipo] || TIPOS.otro, r = rango(ev);
@@ -196,15 +199,16 @@
         'SUMMARY:' + icsEsc(f.icon + ' ' + f.titulo + (f.local ? ' (Andorra la Vella)' : '')),
         'CATEGORIES:' + (f.local ? 'No laborable Andorra la Vella' : 'Festivo nacional'), 'TRANSP:TRANSPARENT', 'END:VEVENT');
     }
-    // Días de Elibel: con alarma a las 9:00 para acordarse de felicitarla
+    // Días de pareja: alarma 3 días antes (para el regalo) y el mismo día a las 9:00
     if (opts.elibel !== false) for (const y of [y0, y0 + 1]) for (const c of celebraciones(y)) {
-      if (!c.elibel) continue;
+      if (!c[pareja]) continue;
       const d = parse(c.fecha), fin = new Date(d); fin.setDate(fin.getDate() + 1);
-      L.push('BEGIN:VEVENT', 'UID:elibel-' + c.fecha + '@calendario-diaz-gonzalez', 'DTSTAMP:' + stamp,
+      L.push('BEGIN:VEVENT', 'UID:' + pareja + '-' + c.fecha + '@calendario-diaz-gonzalez', 'DTSTAMP:' + stamp,
         'DTSTART;VALUE=DATE:' + ymd(d), 'DTEND;VALUE=DATE:' + ymd(fin),
-        'SUMMARY:' + icsEsc(c.icon + ' ' + c.titulo.replace(/ \(felicitar.*\)$/, '') + ' — felicitar a Elibel'),
+        'SUMMARY:' + icsEsc(c.icon + ' ' + c.titulo.replace(/ \(felicitar.*\)$/, '') + ' — felicitar a ' + nombrePareja),
         'CATEGORIES:Celebración', 'TRANSP:TRANSPARENT',
-        'BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:' + icsEsc('Felicitar a Elibel'), 'TRIGGER:PT9H', 'END:VALARM',
+        'BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:' + icsEsc('En 3 días: ' + c.titulo.replace(/ \(felicitar.*\)$/, '')), 'TRIGGER:-PT63H', 'END:VALARM',
+        'BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:' + icsEsc('Felicitar a ' + nombrePareja), 'TRIGGER:PT9H', 'END:VALARM',
         'END:VEVENT');
     }
     if (opts.escolar !== false) for (const e of ESCOLAR) {

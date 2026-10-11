@@ -44,5 +44,7 @@ const campos = f => Object.fromEntries(Object.entries(f).map(([k, v]) => [k, val
   // DTSTAMP fijo por semana: el archivo solo cambia cuando cambian los eventos (o cada lunes).
   const { buildICS } = require(path.join(RAIZ, 'compartido.js'));
   fs.writeFileSync(path.join(RAIZ, 'calendario.ics'), buildICS(events, { stamp: copia.semana.replace(/-/g, '') + 'T000000Z' }));
-  console.log('Copia guardada:', events.length, 'eventos (y calendario.ics)');
+  // El de Elibel: sin los eventos «Solo en mi app» de Emmanuel y con sus días para felicitarlo (Día del Padre, del Hombre…)
+  fs.writeFileSync(path.join(RAIZ, 'calendario-elibel.ics'), buildICS(events.filter(e => !e.privado), { pareja: 'emmanuel', stamp: copia.semana.replace(/-/g, '') + 'T000000Z' }));
+  console.log('Copia guardada:', events.length, 'eventos (y calendario.ics / calendario-elibel.ics)');
 })().catch(e => { console.error(e); process.exit(1); });
