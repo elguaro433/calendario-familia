@@ -20,7 +20,8 @@ Cada una habla con la voz de su dueño y felicita a su pareja en sus días.
 | Su propio cumpleaños | sin botón (`imp-cumple-papa`) | sin botón («¿De quién?» = Esposa) |
 | Calendario del iPhone | `calendario.ics` | `calendario-elibel.ics` |
 | «Mensaje propio» y «Solo en mi app» | los edita | no se ven (son de Emmanuel) |
-| Eventos «Solo en mi app» (`privado`) | se ven | ocultos (Ricardo Paez, Jorge Tigua) |
+| Eventos «Solo en mi app» (`privado`) | se ven | ocultos (Ricardo Paez, Jorge Tigua, ITV Ford) |
+| Eventos «Solo en mi app» de Elibel (`soloElibel`) | ocultos (Giovanny) | se ven |
 
 En el código: `YO`, `ES_ELIBEL`, `PAREJA`, `esElibel(ev)`, `esEmmanuel(ev)`, `telPareja()`, `claveDe(f)`, `MENSAJES_PAREJA`.
 El número de cada uno sale de su cumpleaños (Elibel: +376 644 526; Emmanuel: +376 644 516).
@@ -45,7 +46,7 @@ Eliette/Mathias → Shamir, Antonella → Rosana, Joaquín → su mamá Marí Ca
 - El robot de copias hace commits propios: traer `main` antes de subir.
 - Datos: Firestore `appdata/calendario-eventos`, campo `eventos` (mapa id → evento). El propietario no quiere inicio de sesión ni Google: no reintroducirlos.
 - Escribir en la nube solo con PATCH + `updateMask` por evento, desde un `.py` con `PYTHONIOENCODING=utf-8`. Nunca una máscara vacía; volver a leer el total después.
-- Campos del evento: `id, tipo, titulo, fecha, hora, repite, aviso (número), anioConocido, persona, notas, telefono, mensaje, privado`.
+- Campos del evento: `id, tipo, titulo, fecha, hora, repite, aviso (número), anioConocido, persona, notas, telefono, mensaje, privado, soloElibel`.
 - La copia pública (`backup/eventos.json`, repo público) va **sin** `telefono` ni `mensaje`.
 - Probar en local con `python -m http.server 8765` (Chrome a 393 px) y probar **las dos apps** (`?yo=elibel`).
 - El usuario escribe por voz: confirmar nombres dudosos. Respuestas cortas y en español.
@@ -63,6 +64,8 @@ Eliette/Mathias → Shamir, Antonella → Rosana, Joaquín → su mamá Marí Ca
 - v1.31–1.32: Ecleidis, Ana Salas y tía Bety desde el lado de Elibel. v1.33: «Solo en mi app» (`privado`).
 - v1.34: Día del Hombre (19/11) y `calendario-elibel.ics` (alarma 3 días antes y el mismo día a las 9:00).
 - v1.35: Samuel, hermano pequeño, con mensaje de niño.
+- v1.36 (24/10): «Solo en mi app» también para Elibel (`soloElibel`): en su app la casilla dice «a Emmanuel no le sale»;
+  esos eventos no salen en la app de Emmanuel ni en `calendario.ics`. Primero: Giovanny (tío de Elibel). La ITV de la Ford es `privado` (solo Emmanuel).
 
 ## Pendiente
 
