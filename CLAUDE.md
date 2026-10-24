@@ -66,6 +66,7 @@ Eliette/Mathias → Shamir, Antonella → Rosana, Joaquín → su mamá Marí Ca
 - v1.35: Samuel, hermano pequeño, con mensaje de niño.
 - v1.36 (24/10): «Solo en mi app» también para Elibel (`soloElibel`): en su app la casilla dice «a Emmanuel no le sale»;
   esos eventos no salen en la app de Emmanuel ni en `calendario.ics`. Primero: Giovanny (tío de Elibel). La ITV de la Ford es `privado` (solo Emmanuel).
+- **Regla (24/10): nada de coches en la app de Elibel.** Todo evento de coches (ITV, seguro, impuestos, taller… de la Ford o el Dacia) va con `privado: true`. Hoy: `fordItv` y `fordSeguro`.
 
 ## Pendiente
 
