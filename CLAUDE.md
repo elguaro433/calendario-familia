@@ -24,7 +24,7 @@ Cada una habla con la voz de su dueño y felicita a su pareja en sus días.
 | Eventos «Solo en mi app» de Elibel (`soloElibel`) | ocultos (Giovanny) | se ven |
 
 En el código: `YO`, `ES_ELIBEL`, `PAREJA`, `esElibel(ev)`, `esEmmanuel(ev)`, `telPareja()`, `claveDe(f)`, `MENSAJES_PAREJA`.
-El número de cada uno sale de su cumpleaños (Elibel: +376 644 526; Emmanuel: +376 644 516).
+El número de cada uno sale de su cumpleaños (campo `telefono` en Firestore; no escribirlos aquí, el repositorio es público).
 **Elibel aún no la usa** (11/10): se le manda desde Ajustes → «💌 Enviar a Elibel su calendario».
 
 ### Parentescos, mirados desde cada lado

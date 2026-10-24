@@ -4,7 +4,7 @@ Calendario familiar de cumpleaños, aniversarios, celebraciones, recordatorios, 
 
 - **App de Emmanuel:** https://elguaro433.github.io/calendario-familia/ (sin clave: se abre y listo)
 - **App de Elibel:** https://elguaro433.github.io/calendario-familia/elibel.html
-- **Propietario:** Emmanuel Díaz (`emmanuel050216@gmail.com`)
+- **Propietario:** Emmanuel Díaz
 
 ## Dos calendarios, dos perfiles
 
