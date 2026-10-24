@@ -278,6 +278,22 @@ TRIGGER:-PT159H
 END:VALARM
 END:VEVENT
 BEGIN:VEVENT
+UID:fordSeguro@calendario-diaz-gonzalez
+DTSTAMP:20261019T000000Z
+DTSTART;VALUE=DATE:20270915
+DTEND;VALUE=DATE:20270916
+RRULE:FREQ=YEARLY
+SUMMARY:🔔 🚙 Renovar el seguro de la Ford Explorer (vence el 30/09)
+DESCRIPTION:Emmanuel\nMultisegur\, póliza 10043515 (agente Assega). Pagado
+  340\,26 € para 2026-2027.
+CATEGORIES:Recordatorio
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:🚙 Renovar el seguro de la Ford Explorer (vence el 30/09)
+TRIGGER:-PT327H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
 UID:imp-cumple-ana-salas@calendario-diaz-gonzalez
 DTSTAMP:20261019T000000Z
 DTSTART;VALUE=DATE:19850516
@@ -647,12 +663,152 @@ DTSTART;VALUE=DATE:20261018
 DTEND;VALUE=DATE:20261019
 RRULE:FREQ=YEARLY
 SUMMARY:🎂 Cumpleaños de Giovanny
-DESCRIPTION:Tio
+DESCRIPTION:Tío (tío de Elibel)
 CATEGORIES:Cumpleaños
 BEGIN:VALARM
 ACTION:DISPLAY
 DESCRIPTION:Giovanny
 TRIGGER:-PT159H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:ski20270114@calendario-diaz-gonzalez
+DTSTAMP:20261019T000000Z
+DTSTART;VALUE=DATE:20270114
+DTEND;VALUE=DATE:20270115
+SUMMARY:🎒 ⛷️ Esquí del colegio (jueves)
+DESCRIPTION:Emiliano y Emmanuel Alejandro\nEsquí alpino. Emiliano (CE2): S
+ oldeu. Emmanuel Alejandro (CM2): Forn de Canillo. Preparar la ropa y el ma
+ terial la noche antes.\nDesde 2027
+CATEGORIES:Colegio
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:⛷️ Esquí del colegio (jueves)
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:ski20270121@calendario-diaz-gonzalez
+DTSTAMP:20261019T000000Z
+DTSTART;VALUE=DATE:20270121
+DTEND;VALUE=DATE:20270122
+SUMMARY:🎒 ⛷️ Esquí del colegio (jueves)
+DESCRIPTION:Emiliano y Emmanuel Alejandro\nEsquí alpino. Emiliano (CE2): S
+ oldeu. Emmanuel Alejandro (CM2): Forn de Canillo. Preparar la ropa y el ma
+ terial la noche antes.\nDesde 2027
+CATEGORIES:Colegio
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:⛷️ Esquí del colegio (jueves)
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:ski20270128@calendario-diaz-gonzalez
+DTSTAMP:20261019T000000Z
+DTSTART;VALUE=DATE:20270128
+DTEND;VALUE=DATE:20270129
+SUMMARY:🎒 ⛷️ Esquí del colegio (jueves)
+DESCRIPTION:Emiliano y Emmanuel Alejandro\nEsquí alpino. Emiliano (CE2): S
+ oldeu. Emmanuel Alejandro (CM2): Forn de Canillo. Preparar la ropa y el ma
+ terial la noche antes.\nDesde 2027
+CATEGORIES:Colegio
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:⛷️ Esquí del colegio (jueves)
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:ski20270204@calendario-diaz-gonzalez
+DTSTAMP:20261019T000000Z
+DTSTART;VALUE=DATE:20270204
+DTEND;VALUE=DATE:20270205
+SUMMARY:🎒 ⛷️ Esquí del colegio (jueves)
+DESCRIPTION:Emiliano y Emmanuel Alejandro\nEsquí alpino. Emiliano (CE2): S
+ oldeu. Emmanuel Alejandro (CM2): Forn de Canillo. Preparar la ropa y el ma
+ terial la noche antes.
+CATEGORIES:Colegio
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:⛷️ Esquí del colegio (jueves)
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:ski20270225@calendario-diaz-gonzalez
+DTSTAMP:20261019T000000Z
+DTSTART;VALUE=DATE:20270225
+DTEND;VALUE=DATE:20270226
+SUMMARY:🎒 ⛷️ Esquí del colegio (jueves)
+DESCRIPTION:Emiliano y Emmanuel Alejandro\nEsquí alpino. Emiliano (CE2): S
+ oldeu. Emmanuel Alejandro (CM2): Forn de Canillo. Preparar la ropa y el ma
+ terial la noche antes.\nDesde 2027
+CATEGORIES:Colegio
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:⛷️ Esquí del colegio (jueves)
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:ski20270304@calendario-diaz-gonzalez
+DTSTAMP:20261019T000000Z
+DTSTART;VALUE=DATE:20270304
+DTEND;VALUE=DATE:20270305
+SUMMARY:🎒 ⛷️ Esquí del colegio (jueves)
+DESCRIPTION:Emiliano y Emmanuel Alejandro\nEsquí alpino. Emiliano (CE2): S
+ oldeu. Emmanuel Alejandro (CM2): Forn de Canillo. Preparar la ropa y el ma
+ terial la noche antes.\nDesde 2027
+CATEGORIES:Colegio
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:⛷️ Esquí del colegio (jueves)
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:ski20270311@calendario-diaz-gonzalez
+DTSTAMP:20261019T000000Z
+DTSTART;VALUE=DATE:20270311
+DTEND;VALUE=DATE:20270312
+SUMMARY:🎒 ⛷️ Esquí del colegio (jueves)
+DESCRIPTION:Emiliano y Emmanuel Alejandro\nEsquí alpino. Emiliano (CE2): S
+ oldeu. Emmanuel Alejandro (CM2): Forn de Canillo. Preparar la ropa y el ma
+ terial la noche antes.\nDesde 2027
+CATEGORIES:Colegio
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:⛷️ Esquí del colegio (jueves)
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:skifons20270125@calendario-diaz-gonzalez
+DTSTAMP:20261019T000000Z
+DTSTART;VALUE=DATE:20270125
+DTEND;VALUE=DATE:20270126
+SUMMARY:🎒 ⛷️ Esquí de fondo: Emmanuel Alejandro
+DESCRIPTION:Emmanuel Alejandro\nLa Rabassa (CM1-CM2).\nDesde 2027
+CATEGORIES:Colegio
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:⛷️ Esquí de fondo: Emmanuel Alejandro
+TRIGGER:-PT15H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:skifons20270301@calendario-diaz-gonzalez
+DTSTAMP:20261019T000000Z
+DTSTART;VALUE=DATE:20270301
+DTEND;VALUE=DATE:20270302
+SUMMARY:🎒 ⛷️ Esquí de fondo: Emiliano
+DESCRIPTION:Emiliano\nLa Rabassa (CE2).\nDesde 2027
+CATEGORIES:Colegio
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:⛷️ Esquí de fondo: Emiliano
+TRIGGER:-PT15H
 END:VALARM
 END:VEVENT
 BEGIN:VEVENT
