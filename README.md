@@ -73,7 +73,7 @@ Las capas de festivos, celebraciones y vacaciones se pueden ocultar en ⚙️ Aj
 
 ### Avisos al móvil y Calendario del iPhone
 
-- **Avisos (Web Push):** en ⚙️ Ajustes → «Activar avisos» (en iPhone, con la app abierta desde el icono). El móvil se apunta en `appdata/calendario-avisos` (campo `subs`). El robot `avisos.js` manda cada mañana lo que toca: el mismo día, el día antes y los días de «Avisarme». Al tocar el aviso se abre la app con `?evento=<id>` (se abre ese evento, con el botón de felicitar). Los móviles que ya no aceptan avisos se borran solos.
+- **Avisos (Web Push):** en ⚙️ Ajustes → «Activar avisos» (en iPhone, con la app abierta desde el icono). El móvil se apunta en `familias/<id>/appdata/calendario-avisos` (campo `subs`). El robot `avisos.js` manda cada mañana lo que toca: el mismo día, el día antes y los días de «Avisarme». Al tocar el aviso se abre la app con `?evento=<id>` (se abre ese evento, con el botón de felicitar). Los móviles que ya no aceptan avisos se borran solos.
 - Clave pública VAPID en `index.html` y `scripts/avisos.js`; la privada es el secreto **`VAPID_PRIVATE`** de GitHub (Settings → Secrets and variables → Actions). Sin él, el robot solo lista lo que mandaría.
 - **Calendario suscrito:** Ajustes → «Ver los eventos en el Calendario del iPhone» abre `webcal://…/calendario.ics`. Sin teléfonos. Es público como `backup/eventos.json`.
 
