@@ -24,6 +24,8 @@ jobs:
         with:
           node-version: 24
       - run: node scripts/copia-seguridad.js
+        env:
+          FAM_ID: ${{ secrets.FAM_ID }}
       - name: Guardar si ha cambiado
         run: |
           git add backup/eventos.json calendario.ics calendario-elibel.ics

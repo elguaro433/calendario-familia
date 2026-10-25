@@ -1,9 +1,11 @@
-// Lee los eventos de Firebase (appdata/calendario-eventos) y escribe backup/eventos.json.
+// Lee los eventos de Firebase (familias/<id>/appdata/calendario-eventos) y escribe backup/eventos.json.
 // El historial de Git guarda todas las versiones. Lo ejecuta .github/workflows/copia-seguridad.yml
 const fs = require('fs');
 const path = require('path');
 
-const DOC_URL = 'https://firestore.googleapis.com/v1/projects/familia-diaz-gonzalez/databases/(default)/documents/appdata/calendario-eventos?key=AIzaSyCi0cdF5VqJjcsHibnLg6kvPGVN-f2b_DY';
+// Los datos están en familias/<id>/appdata; <id> sale de la clave familiar y va en el secreto FAM_ID de GitHub
+if (!/^[0-9a-f]{64}$/.test(process.env.FAM_ID || '')) { console.error('Falta el secreto FAM_ID (Settings → Secrets and variables → Actions)'); process.exit(1); }
+const DOC_URL = 'https://firestore.googleapis.com/v1/projects/familia-diaz-gonzalez/databases/(default)/documents/familias/' + process.env.FAM_ID + '/appdata/calendario-eventos?key=AIzaSyCi0cdF5VqJjcsHibnLg6kvPGVN-f2b_DY';
 const RAIZ = path.join(__dirname, '..');
 
 // Firestore REST devuelve cada campo con su tipo: { stringValue: 'x' }, { integerValue: '7' }…

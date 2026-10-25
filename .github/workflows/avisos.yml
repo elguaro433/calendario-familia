@@ -24,3 +24,4 @@ jobs:
       - run: node scripts/avisos.js
         env:
           VAPID_PRIVATE: ${{ secrets.VAPID_PRIVATE }}
+          FAM_ID: ${{ secrets.FAM_ID }}

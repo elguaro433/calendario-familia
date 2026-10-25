@@ -532,7 +532,7 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
 
 <div class="toast" id="toast"></div>
 
-<script src="compartido.js?v=1.36"></script>
+<script src="compartido.js?v=1.37"></script>
 <script>
 const TIPOS = CalComun.TIPOS; // en compartido.js
 let FEST_COLOR = '#9b2226';   // días festivos (no se trabaja): granate, para no confundirlo con el rosa de los cumpleaños
@@ -1211,12 +1211,15 @@ function importJSON(input) {
 }
 
 // ══ NUBE (Firebase) ══
-// Todos los eventos viven en un documento, appdata/calendario-eventos, dentro del campo
+// Todos los eventos viven en un documento, familias/<id>/appdata/calendario-eventos, dentro del campo
 // "eventos" (un mapa id → evento). Cada cambio solo toca SU evento (eventos.<id>), así que si
-// dos personas guardan a la vez se conservan los dos cambios. Sin inicio de sesión: igual que
-// la app de finanzas, la colección appdata es de acceso libre.
-const APP_VERSION = '1.36';
-const DOC_EVENTOS = 'appdata/calendario-eventos';
+// dos personas guardan a la vez se conservan los dos cambios. Sin inicio de sesión con Google:
+// el <id> sale de la clave familiar (la misma que en la app de finanzas) y sin él no se lee nada.
+const APP_VERSION = '1.37';
+const FAM_LS = 'familiadiaz_fam';
+let FAM = null;
+try { FAM = localStorage.getItem(FAM_LS); } catch (e) {}
+const famDoc = (id, doc) => 'familias/' + id + '/appdata/' + doc;
 let db = null;
 try {
   firebase.initializeApp({
@@ -1241,7 +1244,47 @@ function cloudError(err) {
   console.warn('Error de nube:', err);
   toast('No se pudo guardar en la nube: ' + (err && err.message || err));
 }
-const docRef = () => db.doc(DOC_EVENTOS);
+const docRef = () => db.doc(famDoc(FAM, 'calendario-eventos'));
+
+// ══ CLAVE FAMILIAR ══ (igual que en la app de finanzas: este móvil solo guarda el <id>, nunca la clave)
+async function famDerivar(clave) {
+  const t = clave.trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/\s+/g, ' ');
+  const enc = new TextEncoder();
+  const k = await crypto.subtle.importKey('raw', enc.encode(t), 'PBKDF2', false, ['deriveBits']);
+  const b = await crypto.subtle.deriveBits({ name: 'PBKDF2', hash: 'SHA-256', salt: enc.encode('familia-diaz-gonzalez'), iterations: 210000 }, k, 256);
+  return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join('');
+}
+function famPedir(comprobar) {
+  return new Promise(resolve => {
+    const ov = document.createElement('div');
+    ov.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(15,23,42,.92);display:flex;align-items:center;justify-content:center;padding:16px;';
+    ov.innerHTML = '<form style="background:#fff;color:#0f172a;border-radius:16px;padding:22px;max-width:340px;width:100%;box-shadow:0 10px 40px rgba(0,0,0,.4);font-family:inherit;">'
+      + '<div style="font-size:20px;font-weight:700;margin-bottom:6px;">🔒 Clave familiar</div>'
+      + '<div style="font-size:14px;color:#475569;margin-bottom:14px;">Escríbela una sola vez en este móvil. Sin ella nadie puede ver el calendario de la familia.</div>'
+      + '<input type="password" autocomplete="current-password" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="Clave familiar" style="width:100%;box-sizing:border-box;font-size:17px;padding:12px;border:1px solid #cbd5e1;border-radius:10px;">'
+      + '<div class="fam-err" style="color:#dc2626;font-size:13px;min-height:18px;margin:8px 0;"></div>'
+      + '<button style="width:100%;font-size:17px;padding:12px;border:0;border-radius:10px;background:#db2777;color:#fff;font-weight:600;">Entrar</button></form>';
+    document.body.appendChild(ov);
+    const f = ov.querySelector('form'), inp = f.querySelector('input'), err = f.querySelector('.fam-err'), btn = f.querySelector('button');
+    f.onsubmit = async e => {
+      e.preventDefault();
+      if (!inp.value.trim()) return;
+      btn.disabled = true; err.style.color = '#475569'; err.textContent = 'Comprobando…';
+      try {
+        const id = await famDerivar(inp.value);
+        if (await comprobar(id)) { try { localStorage.setItem(FAM_LS, id); } catch (e2) {} FAM = id; ov.remove(); resolve(id); return; }
+        err.style.color = '#dc2626'; err.textContent = 'Clave incorrecta';
+      } catch (e3) { err.style.color = '#dc2626'; err.textContent = 'Sin conexión. Prueba otra vez.'; }
+      btn.disabled = false;
+    };
+    setTimeout(() => inp.focus(), 50);
+  });
+}
+// La clave es buena si con ella existe el calendario de la familia
+function famListo() {
+  if (FAM || !db) return Promise.resolve(FAM);
+  return famPedir(id => db.doc(famDoc(id, 'calendario-eventos')).get({ source: 'server' }).then(d => d.exists));
+}
 function cloudSet(ev) {
   // Sin await: la caché local actualiza la pantalla al momento y se sube cuando haya conexión.
   // set+merge crea el documento si aún no existe y solo cambia este evento.
@@ -1284,7 +1327,7 @@ function updateSyncStatus(s) {
 // El móvil se apunta en appdata/calendario-avisos (campo subs) y el robot (scripts/avisos.js)
 // le manda cada mañana lo que toca. En iPhone solo funciona con la app abierta desde el icono.
 const VAPID_PUBLIC = 'BBG1E9azGZnY5FuFTCoHGk2AtWIObIpHKhutZrkKXlq6mSVq3l_BjW40u08bd2sa0vW0A7F7X-ulhEgl6TqbFlQ';
-const avisosRef = () => db.doc('appdata/calendario-avisos');
+const avisosRef = () => db.doc(famDoc(FAM, 'calendario-avisos'));
 const puedeAvisar = () => 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
 const idAviso = endpoint => { let h = 5381; for (const c of endpoint) h = (h * 33 + c.charCodeAt(0)) >>> 0; return 'm' + h.toString(36); };
 const claveBytes = b64 => { const s = atob((b64 + '='.repeat((4 - b64.length % 4) % 4)).replace(/-/g, '+').replace(/_/g, '/')); return Uint8Array.from(s, c => c.charCodeAt(0)); };
@@ -1358,7 +1401,7 @@ async function checkVersion() {
 document.addEventListener('visibilitychange', () => { if (!document.hidden) checkVersion(); });
 
 applyTheme();
-initCloud();
+famListo().then(initCloud);   // antes, la clave familiar si este móvil no la tiene
 render();
 if (EVENTS.length) { festejar(); abrirDesdeAviso(); }
 checkVersion();

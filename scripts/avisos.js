@@ -3,7 +3,9 @@
 // Necesita el secreto VAPID_PRIVATE en GitHub. Sin él solo muestra lo que mandaría (prueba).
 const webpush = require('web-push');
 
-const BASE = 'https://firestore.googleapis.com/v1/projects/familia-diaz-gonzalez/databases/(default)/documents/appdata/';
+// Los datos están en familias/<id>/appdata; <id> sale de la clave familiar y va en el secreto FAM_ID de GitHub
+if (!/^[0-9a-f]{64}$/.test(process.env.FAM_ID || '')) { console.error('Falta el secreto FAM_ID (Settings → Secrets and variables → Actions)'); process.exit(1); }
+const BASE = 'https://firestore.googleapis.com/v1/projects/familia-diaz-gonzalez/databases/(default)/documents/familias/' + process.env.FAM_ID + '/appdata/';
 const KEY = '?key=AIzaSyCi0cdF5VqJjcsHibnLg6kvPGVN-f2b_DY';
 const VAPID_PUBLIC = 'BBG1E9azGZnY5FuFTCoHGk2AtWIObIpHKhutZrkKXlq6mSVq3l_BjW40u08bd2sa0vW0A7F7X-ulhEgl6TqbFlQ';
 const APP = 'https://elguaro433.github.io/calendario-familia/';
