@@ -44,7 +44,8 @@ Eliette/Mathias → Shamir, Antonella → Rosana, Joaquín → su mamá Marí Ca
 - App estática en GitHub Pages (`elguaro433/calendario-familia`, rama `main`). Sin build: editar `index.html` / `compartido.js`.
 - En cada versión, subir **a la vez** `APP_VERSION` y `compartido.js?v=…` en `index.html`.
 - El robot de copias hace commits propios: traer `main` antes de subir.
-- Datos: Firestore `appdata/calendario-eventos`, campo `eventos` (mapa id → evento). El propietario no quiere inicio de sesión ni Google: no reintroducirlos.
+- Datos: Firestore `familias/<id>/appdata/calendario-eventos`, campo `eventos` (mapa id → evento). El propietario no quiere inicio de sesión ni Google: no reintroducirlos.
+- **Clave familiar (25/10/2026, v1.37):** `<id>` sale de la clave familiar (igual que en la app de finanzas; ver su CLAUDE.md). Está solo en el PC: `Proyectos\Familia\.clave_familiar_id`. La colección vieja `appdata` está cerrada. Los robots leen con el secreto de GitHub **`FAM_ID`** (lo pone Emmanuel).
 - Escribir en la nube solo con PATCH + `updateMask` por evento, desde un `.py` con `PYTHONIOENCODING=utf-8`. Nunca una máscara vacía; volver a leer el total después.
 - Campos del evento: `id, tipo, titulo, fecha, hora, repite, aviso (número), anioConocido, persona, notas, telefono, mensaje, privado, soloElibel`.
 - La copia pública (`backup/eventos.json`, repo público) va **sin** `telefono` ni `mensaje`.
@@ -73,4 +74,4 @@ Eliette/Mathias → Shamir, Antonella → Rosana, Joaquín → su mamá Marí Ca
 - WhatsApp sin número: Sofía (hija de Ecleidis, no está en los contactos de ninguno), Maita, Samuel (hermano; se puede poner el del papá si él dice).
 - Año de nacimiento: falta en 22 cumpleaños. El usuario los pasa en fotos de documentos: usar solo la fecha de nacimiento.
 - Sin probar en iPhone real: los dos calendarios suscritos y la instalación de la app de Elibel.
-- Ideas: proteger la escritura en Firestore (hoy cualquiera con el enlace puede cambiar, y ya hay teléfonos); preparar la versión para la App Store como en Mi Música (separar lo personal, festivos por país, inglés, avisos y Contactos nativos).
+- Ideas: preparar la versión para la App Store como en Mi Música (separar lo personal, festivos por país, inglés, avisos y Contactos nativos).

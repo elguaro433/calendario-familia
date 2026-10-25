@@ -28,7 +28,7 @@ Técnicamente: `elibel.html` guarda `calendario_yo = 'elibel'` y abre `index.htm
 
 ```
  Teléfono / ordenador (app)  ──leen y escriben──▶  Firebase Firestore           ◀──lee cada día──  Robot de GitHub
-                             ◀── tiempo real ────   appdata/calendario-eventos                       └─▶ backup/eventos.json
+                             ◀── tiempo real ────   familias/<id>/appdata/calendario-eventos                       └─▶ backup/eventos.json
 ```
 
 | Pieza | Dónde | Para qué |
@@ -65,10 +65,10 @@ Las capas de festivos, celebraciones y vacaciones se pueden ocultar en ⚙️ Aj
 
 ### Datos en Firebase (proyecto `familia-diaz-gonzalez`)
 
-- `appdata/calendario-eventos` → campo `eventos`: mapa `id → evento`. Campos del evento: `id, tipo, titulo, fecha (AAAA-MM-DD), hora, repite (no|anual|mensual|semanal), aviso (días), anioConocido, persona, notas, telefono`. `telefono` (opcional, cumpleaños y aniversarios) hace que el botón de WhatsApp abra el chat de esa persona; sin prefijo se adivina el país en `waNumero()` (04xx → +58, 6 cifras → +376, 6xx/7xx de 9 cifras → +34).
+- `familias/<id>/appdata/calendario-eventos` → campo `eventos`: mapa `id → evento`. Campos del evento: `id, tipo, titulo, fecha (AAAA-MM-DD), hora, repite (no|anual|mensual|semanal), aviso (días), anioConocido, persona, notas, telefono`. `telefono` (opcional, cumpleaños y aniversarios) hace que el botón de WhatsApp abra el chat de esa persona; sin prefijo se adivina el país en `waNumero()` (04xx → +58, 6 cifras → +376, 6xx/7xx de 9 cifras → +34).
 - Cada cambio actualiza solo su evento (`eventos.<id>`), así que dos personas pueden guardar a la vez sin pisarse.
-- El resto de `appdata/...` es de la **app de finanzas**; el calendario no lo toca.
-- Sin inicio de sesión: la colección `appdata` es de acceso libre (igual que la app de finanzas). Quien tenga el enlace puede ver y cambiar el calendario.
+- El resto de `familias/<id>/appdata/...` es de la **app de finanzas**; el calendario no lo toca.
+- Sin inicio de sesión con Google: desde el 25/10/2026 (v1.37) los datos están en `familias/<id>/appdata`, y `<id>` sale de la **clave familiar** que cada móvil pide una vez (la misma que en la app de finanzas). Sin la clave no se lee ni se escribe nada. Los robots usan el secreto de GitHub `FAM_ID`.
 - Las colecciones `calendario_eventos` y `calendario_familia` de `firestore.rules` son de una versión anterior (con Google) y ya no se usan.
 
 ### Avisos al móvil y Calendario del iPhone
@@ -92,7 +92,7 @@ Las capas de festivos, celebraciones y vacaciones se pueden ocultar en ⚙️ Aj
 
 ## Añadir o cambiar eventos sin la app (desde un script)
 
-El documento `appdata/calendario-eventos` se puede escribir por la API REST de Firestore. **Siempre** con `` updateMask.fieldPaths=eventos.`<id>` `` por cada evento que se toca: **un PATCH sin máscara reemplaza el documento entero y borra todo** (pasó una vez; se restauró desde la copia). Antes de enviar, comprobar que la lista de cambios no está vacía, y después volver a leer el total.
+El documento `familias/<id>/appdata/calendario-eventos` se puede escribir por la API REST de Firestore. **Siempre** con `` updateMask.fieldPaths=eventos.`<id>` `` por cada evento que se toca: **un PATCH sin máscara reemplaza el documento entero y borra todo** (pasó una vez; se restauró desde la copia). Antes de enviar, comprobar que la lista de cambios no está vacía, y después volver a leer el total.
 
 ## Cómo publicar cambios
 
@@ -103,7 +103,7 @@ El documento `appdata/calendario-eventos` se puede escribir por la API REST de F
 ## Cosas que NO hacer
 
 - No cambiar el nombre del usuario de GitHub (`elguaro433`) ni del repositorio: dejaría de funcionar la dirección de la app.
-- No borrar la regla `appdata` de las reglas de Firestore: la usan esta app y la de finanzas.
+- No borrar la regla `familias/{fam}/appdata` de las reglas de Firestore: la usan esta app y la de finanzas.
 - No ignorar los correos de GitHub que digan que el robot ha fallado.
 
 ## Mantenimiento

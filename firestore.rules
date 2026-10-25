@@ -12,10 +12,8 @@ service cloud.firestore {
       allow read, write: if fam.size() == 64;
     }
 
-    // ── TEMPORAL mientras se copian los datos: la colección vieja, aún abierta ──
-    match /appdata/{docId} {
-      allow read, write: if true;
-    }
+    // La colección vieja appdata (abierta hasta el 25/10/2026) queda cerrada: sus datos se
+    // copiaron a familias/<id>/appdata y se conservan ahí como copia, sin acceso.
 
     // Todo lo demás, bloqueado
     match /{document=**} {
