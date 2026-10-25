@@ -278,22 +278,6 @@ TRIGGER:-PT159H
 END:VALARM
 END:VEVENT
 BEGIN:VEVENT
-UID:fordSeguro@calendario-diaz-gonzalez
-DTSTAMP:20261019T000000Z
-DTSTART;VALUE=DATE:20270915
-DTEND;VALUE=DATE:20270916
-RRULE:FREQ=YEARLY
-SUMMARY:🔔 🚙 Renovar el seguro de la Ford Explorer (vence el 30/09)
-DESCRIPTION:Emmanuel\nMultisegur\, póliza 10043515 (agente Assega). Pagado
-  340\,26 € para 2026-2027.
-CATEGORIES:Recordatorio
-BEGIN:VALARM
-ACTION:DISPLAY
-DESCRIPTION:🚙 Renovar el seguro de la Ford Explorer (vence el 30/09)
-TRIGGER:-PT327H
-END:VALARM
-END:VEVENT
-BEGIN:VEVENT
 UID:imp-cumple-ana-salas@calendario-diaz-gonzalez
 DTSTAMP:20261019T000000Z
 DTSTART;VALUE=DATE:19850516
