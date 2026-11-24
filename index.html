@@ -270,6 +270,8 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
 .ev-t { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.3; }
 .ev-s { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; margin-top: 2px; }
 .ev-s .when { display: inline-block; font-size: 11px; padding: 1px 8px; margin-right: 6px; vertical-align: 1px; }
+.wa.hecho { width: 30px; height: 30px; background: transparent; color: #25d366; font-size: 17px; font-weight: 700; box-shadow: none; }
+.wa-hecho { flex-basis: 100%; text-align: center; font-size: 13px; color: #1f9d55; margin-top: -2px; }
 .wa.discreto { width: 30px; height: 30px; background: transparent; color: #25d366; box-shadow: inset 0 0 0 1.5px color-mix(in srgb, #25d366 55%, transparent); }
 .franja { display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: center; background: var(--card); border: 1px solid var(--border); border-radius: var(--r); padding: 10px 14px; margin-bottom: 14px; font-size: 13.5px; color: var(--muted); box-shadow: var(--shadow); }
 .franja span { cursor: pointer; }
@@ -464,6 +466,7 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
       <label class="chk" id="f-priv-wrap"><input type="checkbox" id="f-priv"> <span id="f-priv-txt">Solo en mi app (a Elibel no le sale)</span></label>
       <div class="btns">
         <button class="btn wa-btn" id="f-wa" onclick="felicitar(editId)" style="flex-basis:100%"><svg class="wa-ico" viewBox="0 0 32 32" aria-hidden="true"><path fill="currentColor" d="M16 3C8.8 3 3 8.7 3 15.8c0 2.5.7 4.9 2 6.9L3.2 29l6.5-1.7c1.9 1 4.1 1.6 6.3 1.6 7.2 0 13-5.7 13-12.8S23.2 3 16 3zm0 23.5c-2 0-3.9-.5-5.6-1.5l-.4-.2-3.9 1 1-3.7-.3-.4c-1.1-1.7-1.7-3.8-1.7-5.9C5.1 9.9 10 5.2 16 5.2s10.9 4.7 10.9 10.6S22 26.5 16 26.5z"/><path fill="currentColor" d="M22 19.1c-.3-.2-1.9-.9-2.2-1-.3-.1-.5-.2-.7.2-.2.3-.8 1-1 1.2-.2.2-.4.2-.7.1-.3-.2-1.4-.5-2.6-1.6-1-.9-1.6-1.9-1.8-2.2-.2-.3 0-.5.1-.7l.5-.6c.2-.2.2-.4.3-.6.1-.2 0-.4 0-.6l-1-2.4c-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4-.3.3-1.2 1.1-1.2 2.7s1.2 3.2 1.4 3.4c.2.2 2.4 3.6 5.8 5 .8.3 1.4.5 1.9.7.8.3 1.5.2 2.1.1.6-.1 1.9-.8 2.2-1.5.3-.7.3-1.4.2-1.5-.1-.2-.3-.3-.6-.4z"/></svg>Felicitar por WhatsApp</button>
+        <div id="f-wa-hecho" class="wa-hecho" hidden></div>
         <button class="btn danger" id="f-del" onclick="delEvent()">🗑️</button>
         <button class="btn" onclick="closeOv('ov-form')">Cancelar</button>
         <button class="btn primary" onclick="saveEvent()">Guardar</button>
@@ -532,7 +535,7 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
 
 <div class="toast" id="toast"></div>
 
-<script src="compartido.js?v=1.38"></script>
+<script src="compartido.js?v=1.39"></script>
 <script>
 const TIPOS = CalComun.TIPOS; // en compartido.js
 let FEST_COLOR = '#9b2226';   // días festivos (no se trabaja): granate, para no confundirlo con el rosa de los cumpleaños
@@ -691,6 +694,8 @@ function nombreSaludo(titulo) {
 // Lo escribe Emmanuel desde su WhatsApp: sin firmas (WhatsApp ya dice quién lo manda),
 // saludo en la primera línea y el parentesco decide el tono. Las reglas van de la más
 // concreta a la más general y miran el principio de «¿De quién?» («Esposa», no «Esposa de Luis»).
+// Varias versiones por parentesco: cada año sale una distinta (2026 = la primera), así nadie recibe el mismo mensaje dos años seguidos
+const VAR = arr => arr[((TODAY.getFullYear() - 2026) % arr.length + arr.length) % arr.length];
 function mensajeWA(ev, edad) {
   const n = nombreSaludo(ev.titulo), p = (ev.persona || '').toLowerCase().trim();
   const a = /^(amiga|prima|t[ií]a|cuñada|sobrina|hermana|hija)\b/.test(p) ? 'a' : 'o';
@@ -702,33 +707,33 @@ function mensajeWA(ev, edad) {
   if (ev.tipo === 'aniversario')
     return `¡Feliz aniversario, mi amor! 💍❤️\n\n${edad ? `¡Ya son ${edad} años juntos! ` : ''}Gracias por cada día a mi lado, por tu paciencia y por la familia tan bonita que hemos formado. Te amo con todo mi corazón 😘`;
   if (/^hijo( menor| mayor)?$/.test(p))   // solo mis hijos (no «Hijo de Xavier»)
-    return `¡Feliz cumpleaños, mi campeón ${n}! 🎂🎈\n\n${anitos}Papá y mamá te amamos con todo el corazón. Que hoy tengas un día lleno de juegos, risas y sorpresas. ¡Eres nuestro orgullo y nuestra alegría! 💙🎉`;
+    return VAR([`¡Feliz cumpleaños, mi campeón ${n}! 🎂🎈\n\n${anitos}Papá y mamá te amamos con todo el corazón. Que hoy tengas un día lleno de juegos, risas y sorpresas. ¡Eres nuestro orgullo y nuestra alegría! 💙🎉`, `¡Feliz cumpleaños, ${n}! 🎉🎂\n\n${anitos}Qué rápido creces, campeón. Papá y mamá estamos orgullosísimos de ti: eres cariñoso, valiente y divertido. ¡Que hoy sea un día lleno de abrazos, regalos y mucha tarta! Te amamos 💙`, `¡Feliz cumpleaños, mi niño ${n}! 🥳🎈\n\n${anitos}Desde el día en que llegaste nos llenas la vida de alegría. Que este nuevo año te traiga muchas aventuras, amigos y sonrisas. ¡Papá y mamá te quieren hasta el infinito! 💙✨`]);
   if (/^(mi )?esposa$/.test(p))
     return `¡Feliz cumpleaños, mi amor! 🎂❤️\n\nGracias por llenar nuestra casa de amor y alegría. Que hoy sea un día tan bonito como tú. Los niños y yo te amamos muchísimo 😘💐`;
   if (/^padre de emmanuel/.test(p))
-    return `¡Feliz cumpleaños, papá! 🎂❤️\n\n${redondo}Gracias por todo tu amor y por todo lo que me has enseñado. Te quiero muchísimo y te llevo siempre en el corazón. Elibel y tus nietos te mandan besitos y abrazos gigantes 🤗`;
+    return VAR([`¡Feliz cumpleaños, papá! 🎂❤️\n\n${redondo}Gracias por todo tu amor y por todo lo que me has enseñado. Te quiero muchísimo y te llevo siempre en el corazón. Elibel y tus nietos te mandan besitos y abrazos gigantes 🤗`, `¡Feliz cumpleaños, papá! 🎉🎂\n\n${redondo}Que Dios te dé mucha salud y alegría. Aunque estemos lejos, te tengo presente cada día y siempre me acuerdo de tus consejos. ¡Te quiero mucho! Elibel y los niños te mandan un abrazo enorme 🤗❤️`, `¡Feliz cumpleaños, papá! 🥳❤️\n\n${redondo}Gracias por ser mi ejemplo y por quererme tanto. Ojalá pronto podamos celebrarlo juntos. Tus nietos te mandan besitos y Elibel un abrazo muy fuerte 🤗`]);
   if (/^suegra/.test(p))
-    return `¡Feliz cumpleaños, querida suegra! 🎂🌸\n\n${redondo}Que Dios te bendiga con mucha salud, amor y alegría. Gracias por tanto cariño; te queremos mucho. Tus nietos te mandan muchos besitos 🤗`;
+    return VAR([`¡Feliz cumpleaños, querida suegra! 🎂🌸\n\n${redondo}Que Dios te bendiga con mucha salud, amor y alegría. Gracias por tanto cariño; te queremos mucho. Tus nietos te mandan muchos besitos 🤗`, `¡Feliz cumpleaños, suegra! 🎉💐\n\n${redondo}Gracias por regalarme a Elibel y por querernos tanto. Le pedimos a Dios que te dé salud y muchos años más. ¡Tus nietos te mandan besitos y un abrazo gigante! 🤗`, `¡Muy feliz cumpleaños, suegra querida! 🎂🌷\n\n${redondo}Que hoy te consientan mucho y que la vida te devuelva todo el cariño que das. Te queremos mucho. Elibel, los niños y yo te mandamos un abrazo enorme 🤗`]);
   if (/^herman[ao](?! de)/.test(p) && nino)   // hermano pequeño (Samuel)
     return `¡Feliz cumpleaños, ${a === 'a' ? 'hermanita' : 'hermanito'} ${n}! 🎂🎈\n\n${anitos}Tu hermano Emmanuel te quiere muchísimo. Que tengas un día lleno de juegos, risas y regalos. ¡Elibel y tus sobrinos te mandan un abrazo gigante! 🤗🎉`;
   if (/^herman[ao](?! de)/.test(p))
-    return `¡Feliz cumpleaños, ${a === 'a' ? 'hermanita' : 'hermano'}! 🎂🥳\n\n${redondo}Te llevo siempre en el corazón. Que la vida te regale mucha salud, amor y felicidad. ¡Te quiero mucho! Elibel y tus sobrinos te mandan un abrazo enorme 🤗💕`;
+    return VAR([`¡Feliz cumpleaños, ${a === 'a' ? 'hermanita' : 'hermano'}! 🎂🥳\n\n${redondo}Te llevo siempre en el corazón. Que la vida te regale mucha salud, amor y felicidad. ¡Te quiero mucho! Elibel y tus sobrinos te mandan un abrazo enorme 🤗💕`, `¡Feliz cumpleaños, ${n}! 🎉🎂\n\n${redondo}Gracias por estar siempre ahí, en lo bueno y en lo malo. Que este año te traiga salud, prosperidad y mucha alegría. ¡Te quiero mucho! Un abrazo gigante de Elibel, tus sobrinos y mío 🤗💪`, `¡Feliz cumpleaños, ${a === 'a' ? 'hermanita' : 'hermano'}! 🥳❤️\n\n${redondo}La distancia no cambia lo mucho que te quiero. Que tengas un día precioso y un año lleno de cosas buenas. ¡Elibel y los niños te mandan un abrazo enorme! 🤗`]);
   if (/^sobrin|^hij[ao] de mi prim/.test(p))
-    return `¡Feliz cumpleaños, ${n}! 🎂🎈\n\n${nino ? anitos : ''}Que tengas un día precioso, lleno de alegría, sorpresas y mucho amor. Tus tíos Emmanuel y Elibel y tus primos te queremos muchísimo 🤗`;
+    return VAR([`¡Feliz cumpleaños, ${n}! 🎂🎈\n\n${nino ? anitos : ''}Que tengas un día precioso, lleno de alegría, sorpresas y mucho amor. Tus tíos Emmanuel y Elibel y tus primos te queremos muchísimo 🤗`, `¡Feliz cumpleaños, ${n}! 🥳🎉\n\n${nino ? anitos : ''}Que hoy te llenen de besos, regalos y mucha tarta. ¡Que se cumplan todos tus deseos! Tus tíos Emmanuel y Elibel y tus primos te mandan un abrazo gigante 🤗💕`, `¡Feliz cumpleaños, ${n}! 🎈✨\n\n${nino ? anitos : ''}Te deseamos un año lleno de salud, risas y aventuras. Aunque estemos lejos, te queremos muchísimo. ¡Un abrazo enorme de tus tíos Emmanuel y Elibel y tus primos! 🤗`]);
   if (/^t[ií][ao]\b/.test(p))
-    return `¡Feliz cumpleaños, ${a === 'a' ? 'tía' : 'tío'} ${n}! 🎂🌸\n\n${redondo}Que Dios te bendiga con mucha salud, amor y alegría. Gracias por tanto cariño; te queremos mucho. Elibel, los niños y yo te mandamos un abrazo enorme 🤗`;
+    return VAR([`¡Feliz cumpleaños, ${a === 'a' ? 'tía' : 'tío'} ${n}! 🎂🌸\n\n${redondo}Que Dios te bendiga con mucha salud, amor y alegría. Gracias por tanto cariño; te queremos mucho. Elibel, los niños y yo te mandamos un abrazo enorme 🤗`, `¡Feliz cumpleaños, ${a === 'a' ? 'tía' : 'tío'} ${n}! 🎉💐\n\n${redondo}Que tengas un día muy bonito rodead${a} de los que más quieres. Te deseamos salud y muchos años más. ¡Un abrazo enorme de Elibel, los niños y mío! 🤗`, `¡Muy feliz cumpleaños, ${a === 'a' ? 'tía' : 'tío'} ${n}! 🥳🌷\n\n${redondo}Gracias por tu cariño de siempre. Que la vida te regale mucha paz y alegría. Desde Andorra te mandamos besos y abrazos 🤗🇦🇩`]);
   if (/^prim[ao]\b/.test(p))
-    return `¡Feliz cumpleaños, prim${a} querid${a}! 🎂🥳\n\n${redondo}Que la vida te regale mucha salud, amor y alegría junto a los que más quieres. ¡Un abrazo enorme de parte de toda la familia! 🤗`;
+    return VAR([`¡Feliz cumpleaños, prim${a} querid${a}! 🎂🥳\n\n${redondo}Que la vida te regale mucha salud, amor y alegría junto a los que más quieres. ¡Un abrazo enorme de parte de toda la familia! 🤗`, `¡Feliz cumpleaños, prim${a} ${n}! 🎉🎂\n\n${redondo}Te deseo un año lleno de salud, trabajo y momentos bonitos con tu familia. Aunque estemos lejos, te tenemos siempre presente. ¡Un abrazo enorme desde Andorra! 🤗🇦🇩`, `¡Feliz cumpleaños, ${n}! 🥳✨\n\n${redondo}Que hoy lo celebres a lo grande y que este nuevo año te traiga todo lo que te mereces. ¡Elibel, los niños y yo te mandamos un abrazo fuerte, prim${a}! 🤗`]);
   if (/^cuñad[ao]\b/.test(p))
-    return `¡Feliz cumpleaños, cuñad${a}! 🎂🥳\n\n${redondo}Que tengas un día muy bonito junto a los que más te quieren. Te deseamos mucha salud, amor y alegría. ¡Un abrazo enorme de parte de todos nosotros! 🤗`;
+    return VAR([`¡Feliz cumpleaños, cuñad${a}! 🎂🥳\n\n${redondo}Que tengas un día muy bonito junto a los que más te quieren. Te deseamos mucha salud, amor y alegría. ¡Un abrazo enorme de parte de todos nosotros! 🤗`, `¡Feliz cumpleaños, ${n}! 🎉💐\n\n${redondo}Que este año venga lleno de salud, alegrías y buenos momentos en familia. ¡Lo celebramos contigo desde la distancia! Un abrazo enorme de Elibel, los niños y mío 🤗`, `¡Feliz cumpleaños, cuñad${a} querid${a}! 🥳🎂\n\n${redondo}Gracias por ser parte tan bonita de esta familia. Que la vida te regale mucha felicidad. ¡Un abrazo fuerte de todos nosotros! 🤗💕`]);
   const amigoDe = (ev.persona || '').match(/^amig[ao] de (.+)$/i);   // amigo de uno de los niños
   if (amigoDe)
     return `¡Feliz cumpleaños, ${n}! 🎂🎈\n\n${nino ? anitos : ''}${amigoDe[1]} te manda un abrazo gigante y te desea un día lleno de juegos, risas y regalos. ¡Que lo pases genial! 🥳`;
   if (/^amig[ao]$/.test(p))
-    return `¡Feliz cumpleaños, ${n}! 🎉\n\n${redondo}Que pases un día genial junto a los tuyos. Te deseo mucha salud, éxitos y alegría en este nuevo año. ¡Un abrazo fuerte, amig${a}! 🤗`;
+    return VAR([`¡Feliz cumpleaños, ${n}! 🎉\n\n${redondo}Que pases un día genial junto a los tuyos. Te deseo mucha salud, éxitos y alegría en este nuevo año. ¡Un abrazo fuerte, amig${a}! 🤗`, `¡Feliz cumpleaños, ${n}! 🥳🎂\n\n${redondo}Que este nuevo año venga cargado de salud, éxitos y buenos momentos con tu familia. ¡Que lo celebres a lo grande! Un abrazo fuerte, amig${a} 🤗`, `¡Feliz cumpleaños, ${n}! 🎉✨\n\n${redondo}Gracias por tu amistad de verdad. Te deseo un año lleno de cosas buenas y que se cumpla todo lo que te propongas. ¡Un abrazo grande! 🤗`]);
   if (nino || /^hij[ao] de/.test(p))   // hijos de amigos o niños con la edad puesta
-    return `¡Feliz cumpleaños, ${n}! 🎂🎈\n\n${nino ? anitos : ''}Que tengas un día precioso, lleno de alegría y sorpresas. ¡Un abrazo muy fuerte de parte de Emmanuel, Elibel y los niños! 🤗`;
-  return `¡Feliz cumpleaños, ${n}! 🎂🥳\n\n${redondo}Hoy es tu día y te mereces lo mejor. Que Dios te bendiga con mucha salud, amor y alegría. ¡Un abrazo muy fuerte de parte de toda la familia! 🤗`;
+    return VAR([`¡Feliz cumpleaños, ${n}! 🎂🎈\n\n${nino ? anitos : ''}Que tengas un día precioso, lleno de alegría y sorpresas. ¡Un abrazo muy fuerte de parte de Emmanuel, Elibel y los niños! 🤗`, `¡Feliz cumpleaños, ${n}! 🥳🎉\n\n${nino ? anitos : ''}Que hoy te llenen de regalos, juegos y mucha tarta. ¡Un abrazo gigante de Emmanuel, Elibel y los niños! 🤗`, `¡Feliz cumpleaños, ${n}! 🎈✨\n\n${nino ? anitos : ''}Te deseamos un año lleno de salud, risas y aventuras. ¡Que lo pases genial! Un abrazo de Emmanuel, Elibel y los niños 🤗`]);
+  return VAR([`¡Feliz cumpleaños, ${n}! 🎂🥳\n\n${redondo}Hoy es tu día y te mereces lo mejor. Que Dios te bendiga con mucha salud, amor y alegría. ¡Un abrazo muy fuerte de parte de toda la familia! 🤗`, `¡Feliz cumpleaños, ${n}! 🎉💐\n\n${redondo}Que este nuevo año te traiga salud, paz y muchos momentos felices junto a los tuyos. ¡Un abrazo fuerte de Emmanuel, Elibel y los niños! 🤗`, `¡Muy feliz cumpleaños, ${n}! 🥳✨\n\n${redondo}Te deseamos un día precioso y un año lleno de bendiciones. ¡Un abrazo enorme de toda la familia! 🤗`]);
 }
 // Con la voz de Elibel (su app). Lo que se dice igual desde los dos lados (hijos, sobrinos, niños) reutiliza mensajeWA.
 function mensajeWAElibel(ev, edad) {
@@ -767,6 +772,7 @@ function felicitar(id) {
   // Los aniversarios (boda, llegada a Andorra) van siempre a la pareja de quien usa la app
   const tel = ev.tipo === 'aniversario' ? telPareja() : ev.telefono || '';
   window.open('https://wa.me/' + waNumero(tel) + '?text=' + encodeURIComponent(mensajeFinal(ev)), '_blank');
+  marcarFelicitado(ev);
 }
 // Mensaje propio de la persona (campo «Mensaje para felicitar») o, si está vacío, el automático
 function mensajeFinal(ev) {
@@ -846,8 +852,27 @@ function pintarTel() {
     : n ? '✓ Se abrirá el chat de +' + n : 'Revisa el número: ponlo con el prefijo del país, por ejemplo +58 o +376.';
 }
 const WA_SVG = `<svg class="wa-ico" viewBox="0 0 32 32" aria-hidden="true"><path fill="currentColor" d="M16 3C8.8 3 3 8.7 3 15.8c0 2.5.7 4.9 2 6.9L3.2 29l6.5-1.7c1.9 1 4.1 1.6 6.3 1.6 7.2 0 13-5.7 13-12.8S23.2 3 16 3zm0 23.5c-2 0-3.9-.5-5.6-1.5l-.4-.2-3.9 1 1-3.7-.3-.4c-1.1-1.7-1.7-3.8-1.7-5.9C5.1 9.9 10 5.2 16 5.2s10.9 4.7 10.9 10.6S22 26.5 16 26.5z"/><path fill="currentColor" d="M22 19.1c-.3-.2-1.9-.9-2.2-1-.3-.1-.5-.2-.7.2-.2.3-.8 1-1 1.2-.2.2-.4.2-.7.1-.3-.2-1.4-.5-2.6-1.6-1-.9-1.6-1.9-1.8-2.2-.2-.3 0-.5.1-.7l.5-.6c.2-.2.2-.4.3-.6.1-.2 0-.4 0-.6l-1-2.4c-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4-.3.3-1.2 1.1-1.2 2.7s1.2 3.2 1.4 3.4c.2.2 2.4 3.6 5.8 5 .8.3 1.4.5 1.9.7.8.3 1.5.2 2.1.1.6-.1 1.9-.8 2.2-1.5.3-.7.3-1.4.2-1.5-.1-.2-.3-.3-.6-.4z"/></svg>`;
+// «Ya felicitado»: al pulsar el botón se guarda la fecha en felicitado.<emmanuel|elibel> (cada uno el suyo)
+function marcarFelicitado(ev) {
+  const hoy = iso(TODAY);
+  ev.felicitado = { ...(ev.felicitado || {}), [YO]: hoy };
+  if (db && FAM) docRef().update({ ['eventos.' + ev.id + '.felicitado.' + YO]: hoy }).catch(cloudError);
+  render();
+  if (editId === ev.id) pintarFelicitado(ev);
+}
+// Felicitado en esta vuelta del cumpleaños: desde 10 días antes hasta 300 días después
+function felicitadoEsteAnio(ev) {
+  const f = ev?.felicitado?.[YO]; if (!f) return null;
+  const d = new Date(f + 'T00:00:00'), dias = diffDays(d, TODAY);
+  return dias >= 0 && dias <= 300 ? d : null;
+}
+function pintarFelicitado(ev) {
+  const d = felicitadoEsteAnio(ev), el = document.getElementById('f-wa-hecho');
+  el.hidden = !d;
+  if (d) el.textContent = '✅ Ya lo felicitaste el ' + d.getDate() + ' de ' + MES_C[d.getMonth()];
+}
 // grande = verde lleno (cumple en los próximos 7 días); si no, discreto para no llenar la lista de verde
-const botonWA = (ev, grande = true) => puedeFelicitar(ev) ? `<button class="wa${grande ? '' : ' discreto'}" title="Felicitar por WhatsApp" onclick="event.stopPropagation();felicitar('${ev.id}')">${WA_SVG}</button>` : '';
+const botonWA = (ev, grande = true) => !puedeFelicitar(ev) ? '' : felicitadoEsteAnio(ev) ? `<button class="wa hecho" title="Ya felicitado (pulsa para volver a enviar)" onclick="event.stopPropagation();felicitar('${ev.id}')">✓</button>` : `<button class="wa${grande ? '' : ' discreto'}" title="Felicitar por WhatsApp" onclick="event.stopPropagation();felicitar('${ev.id}')">${WA_SVG}</button>`;
 
 function evRow(o, showCuando = true) {
   const t = TIPOS[o.ev.tipo] || TIPOS.otro, [txt, cls] = cuando(o.fecha), n = diffDays(TODAY, o.fecha);
@@ -1037,6 +1062,7 @@ function openForm(id, fecha, tipo) {
   pintarTel();
   document.getElementById('f-del').style.display = ev ? '' : 'none';
   document.getElementById('f-wa').style.display = puedeFelicitar(ev) ? '' : 'none';
+  pintarFelicitado(ev);
   renderTipos();
   document.getElementById('ov-form').classList.add('open');
   if (!ev && window.innerWidth > 768) setTimeout(() => document.getElementById('f-titulo').focus(), 50);
@@ -1215,7 +1241,7 @@ function importJSON(input) {
 // "eventos" (un mapa id → evento). Cada cambio solo toca SU evento (eventos.<id>), así que si
 // dos personas guardan a la vez se conservan los dos cambios. Sin inicio de sesión con Google:
 // el <id> sale de la clave familiar (la misma que en la app de finanzas) y sin él no se lee nada.
-const APP_VERSION = '1.38';
+const APP_VERSION = '1.39';
 const FAM_LS = 'familiadiaz_fam';
 let FAM = null;
 try { FAM = localStorage.getItem(FAM_LS); } catch (e) {}

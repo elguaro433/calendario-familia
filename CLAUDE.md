@@ -69,6 +69,8 @@ Eliette/Mathias → Shamir, Antonella → Rosana, Joaquín → su mamá Marí Ca
   esos eventos no salen en la app de Emmanuel ni en `calendario.ics`. Primero: Giovanny (tío de Elibel). La ITV de la Ford es `privado` (solo Emmanuel).
 - **Regla (24/10): nada de coches en la app de Elibel.** Todo evento de coches (ITV, seguro, impuestos, taller… de la Ford o el Dacia) va con `privado: true`. Hoy: `fordItv` y `fordSeguro`.
 
+- v1.39 (24/11): al pulsar WhatsApp se guarda `felicitado.<emmanuel|elibel>` = fecha; el botón pasa a ✓ y el formulario dice «Ya lo felicitaste el…» (vale 300 días). `mensajeWA()` tiene 3 versiones por parentesco con `VAR([...])`: cambia cada año (2026 = la primera). Mensajes propios nuevos (24/11) para Ruben, Emiliano, Shamir, Ricardo Paez y Xavier, que ya se felicitaron en 2026.
+
 ## Pendiente
 
 - WhatsApp sin número: Sofía (hija de Ecleidis, no está en los contactos de ninguno), Maita, Samuel (hermano; se puede poner el del papá si él dice).
